@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, useCssModule, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 // Importações de tipagem e serviços (assumindo que o caminho é src/services/dbService, etc.)
 import { CardapioService } from '@/services/CardapioService'
 import type { Cardapio } from '@/types/global'
 import MenuDisplay from '../components/MenuDisplay.vue'
+
+const styles = useCssModule()
 
 // 1. Acesso aos parâmetros de Rota
 const route = useRoute()
@@ -50,15 +52,18 @@ watch(
 
 <template>
   <div>
-    <div v-if="loading" class="flex justify-center items-center min-h-screen text-gray-500">
+    <div v-if="loading" :class="styles.loading">
       Carregando cardápio...
     </div>
 
-    <div v-else-if="!cardapio" class="flex flex-col items-center justify-center min-h-screen">
-      <h1 class="text-2xl font-bold text-gray-800 mb-4">Loja não encontrada</h1>
-      <RouterLink to="/" class="text-blue-600 underline"> Voltar para Home </RouterLink>
+    <div v-else-if="!cardapio" :class="styles.notFound">
+      <h1 :class="styles.notFoundTitle">Loja não encontrada</h1>
+      <RouterLink to="/" :class="styles.backLink"> Voltar para Home </RouterLink>
     </div>
 
     <MenuDisplay v-else :cardapio="cardapio" />
   </div>
 </template>
+
+<style module src="./CardapioView.module.css"></style>
+

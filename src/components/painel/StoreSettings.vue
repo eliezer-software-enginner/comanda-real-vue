@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Cardapio } from '@/types/global'
-import { ref, watch } from 'vue'
+import { ref, useCssModule, watch } from 'vue'
+
+const styles = useCssModule()
 
 // 1. Definição de Props (Tipagem com TS)
 interface StoreSettingsProps {
@@ -43,66 +45,65 @@ const handleSubmit = (e: Event) => {
 <template>
   <form
     @submit.prevent="handleSubmit"
-    class="space-y-4 bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+    :class="styles.form"
   >
-    <h3 class="text-lg font-bold mb-4">Configurações da Loja</h3>
+    <h3 :class="styles.title">Configurações da Loja</h3>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Nome da Loja</label>
+    <div :class="styles.formGroup">
+      <label>Nome da Loja</label>
       <input
         type="text"
         required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="nomeLoja"
       />
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">URL da Logo / Foto da Loja</label>
+    <div :class="styles.formGroup">
+      <label>URL da Logo / Foto da Loja</label>
       <input
         type="url"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="fotoUrl"
         placeholder="https://exemplo.com/logo.jpg"
       />
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">WhatsApp para Pedidos</label>
+    <div :class="styles.formGroup">
+      <label>WhatsApp para Pedidos</label>
       <input
         type="tel"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="whatsapp"
         placeholder="5511999999999 (com código do país e DDD)"
       />
-      <p class="mt-1 text-xs text-gray-500">Número que receberá as mensagens dos pedidos.</p>
+      <p :class="styles.helpText">Número que receberá as mensagens dos pedidos.</p>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700"> ID da Loja (Slug na URL) </label>
-      <div class="mt-1 flex rounded-md shadow-sm">
+    <div :class="styles.formGroup">
+      <label>ID da Loja (Slug na URL) </label>
+      <div :class="styles.inputGroup">
         <span
-          class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm"
+          :class="styles.inputPrefix"
         >
           /cardapio/
         </span>
         <input
           type="text"
           required
-          class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border-gray-300 focus:ring-green-500 focus:border-green-500 sm:text-sm border"
           v-model="lojaId"
         />
       </div>
-      <p class="mt-1 text-sm text-gray-500">Este será o link que você enviará aos clientes.</p>
+      <p :class="styles.helpText">Este será o link que você enviará aos clientes.</p>
     </div>
 
-    <div class="pt-4">
+    <div :class="styles.submitSection">
       <button
         type="submit"
-        class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        :class="styles.submitButton"
       >
         Salvar Configurações
       </button>
     </div>
   </form>
 </template>
+
+<style module src="./StoreSettings.module.css"></style>
+

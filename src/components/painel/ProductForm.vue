@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Produto } from '@/types/global'
-import { ref, watch } from 'vue'
+import { ref, useCssModule, watch } from 'vue'
+
+const styles = useCssModule()
 
 // 1. Definição de Props (Tipagem com TS)
 interface ProductFormProps {
@@ -54,76 +56,74 @@ const handleSubmit = (e: Event) => {
 <template>
   <form
     @submit.prevent="handleSubmit"
-    class="space-y-4 bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+    :class="styles.form"
   >
-    <h3 class="text-lg font-bold mb-4">{{ initialData ? 'Editar Produto' : 'Novo Produto' }}</h3>
+    <h3 :class="styles.title">{{ initialData ? 'Editar Produto' : 'Novo Produto' }}</h3>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Nome do Produto</label>
+    <div :class="styles.formGroup">
+      <label>Nome do Produto</label>
       <input
         type="text"
         required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="nome"
       />
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Descrição</label>
+    <div :class="styles.formGroup">
+      <label>Descrição</label>
       <textarea
         rows="3"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="descricao"
       />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Preço (R$)</label>
+    <div :class="styles.gridCols2">
+      <div :class="styles.formGroup">
+        <label>Preço (R$)</label>
         <input
           type="number"
           step="0.01"
           required
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
           v-model="preco"
         />
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Categoria</label>
+      <div :class="styles.formGroup">
+        <label>Categoria</label>
         <input
           type="text"
           required
           placeholder="Ex: Lanches"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
           v-model="categoria"
         />
       </div>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">URL da Imagem</label>
+    <div :class="styles.formGroup">
+      <label>URL da Imagem</label>
       <input
         type="url"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2 border"
         v-model="imagemUrl"
         placeholder="https://exemplo.com/imagem.jpg"
       />
     </div>
 
-    <div class="flex justify-end space-x-3 pt-4">
+    <div :class="styles.actions">
       <button
         type="button"
         @click="onCancel"
-        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        :class="styles.cancelButton"
       >
         Cancelar
       </button>
       <button
         type="submit"
-        class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+        :class="styles.saveButton"
       >
         Salvar Produto
       </button>
     </div>
   </form>
 </template>
+
+<style module src="./ProductForm.module.css"></style>
+

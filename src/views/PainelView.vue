@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import StoreSettings from '@/components/painel/StoreSettings.vue'
 import { CardapioService } from '@/services/CardapioService'
 import type { Cardapio, Produto } from '@/types/global'
 import MenuDisplay from '../components/MenuDisplay.vue'
+
+const styles = useCssModule()
 
 const cardapioService = new CardapioService()
 
@@ -103,27 +105,27 @@ const formatCurrency = (value: number) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 flex flex-col">
-    <div v-if="initLoading" class="flex justify-center items-center min-h-screen text-gray-500">
+  <div :class="styles.container">
+    <div v-if="initLoading" :class="styles.loading">
       Carregando painel...
     </div>
 
-    <div v-else class="flex flex-col flex-1">
-      <header class="bg-white shadow-sm z-20 sticky top-0">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 class="text-xl font-bold text-gray-800">Painel do Lojista</h1>
-          <div class="flex items-center gap-4">
+    <div v-else :class="styles.content">
+      <header :class="styles.header">
+        <div :class="styles.headerContent">
+          <h1 :class="styles.headerTitle">Painel do Lojista</h1>
+          <div :class="styles.headerActions">
             <a
               :href="`/cardapio/${cardapio.id}`"
               target="_blank"
-              class="text-blue-600 hover:underline text-sm"
+              :class="styles.viewStoreLink"
             >
               Ver Loja Online ↗
             </a>
             <button
               @click="saveToFirestore"
               :disabled="loading"
-              class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 text-sm font-bold"
+              :class="styles.saveButton"
             >
               {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
@@ -131,49 +133,39 @@ const formatCurrency = (value: number) => {
         </div>
       </header>
 
-      <div class="flex flex-1 overflow-hidden">
+      <div :class="styles.mainContent">
         <aside
-          class="w-full md:w-1/3 lg:w-[400px] bg-white border-r border-gray-200 overflow-y-auto flex flex-col"
+          :class="styles.sidebar"
         >
-          <div class="flex border-b border-gray-200">
+          <div :class="styles.tabs">
             <button
               @click="activeTab = 'produtos'"
-              :class="[
-                'flex-1 py-3 text-sm font-medium',
-                activeTab === 'produtos'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700',
-              ]"
+              :class="[styles.tab, activeTab === 'produtos' ? styles.tabActive : '']"
             >
               Produtos
             </button>
             <button
               @click="activeTab = 'loja'"
-              :class="[
-                'flex-1 py-3 text-sm font-medium',
-                activeTab === 'loja'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700',
-              ]"
+              :class="[styles.tab, activeTab === 'loja' ? styles.tabActive : '']"
             >
               Configurações
             </button>
           </div>
 
-          <div class="p-4 flex-1">
-            <div v-if="activeTab === 'produtos'" class="space-y-4">
+          <div :class="styles.sidebarContent">
+            <div v-if="activeTab === 'produtos'" :class="styles.productsTab">
               <div v-if="!isAddingProduct && !editingProduct">
                 <button
                   @click="isAddingProduct = true"
-                  class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors"
+                  :class="styles.addProductButton"
                 >
                   + Adicionar Novo Produto
                 </button>
 
-                <div class="space-y-2 mt-4">
+                <div :class="styles.productsList">
                   <p
                     v-if="cardapio.produtos.length === 0"
-                    class="text-center text-gray-400 text-sm py-4"
+                    :class="styles.emptyProducts"
                   >
                     Nenhum produto cadastrado.
                   </p>
@@ -181,24 +173,24 @@ const formatCurrency = (value: number) => {
                   <div
                     v-for="produto in cardapio.produtos"
                     :key="produto.id"
-                    class="border border-gray-200 rounded p-3 flex justify-between items-center bg-gray-50"
+                    :class="styles.productItem"
                   >
                     <div>
-                      <div class="font-medium text-gray-800">{{ produto.nome }}</div>
-                      <div class="text-xs text-gray-500">
+                      <div :class="styles.productItemName">{{ produto.nome }}</div>
+                      <div :class="styles.productItemPrice">
                         {{ formatCurrency(produto.preco) }}
                       </div>
                     </div>
-                    <div class="flex space-x-2">
+                    <div :class="styles.productItemActions">
                       <button
                         @click="setEditingProduct(produto)"
-                        class="text-blue-500 text-sm hover:underline"
+                        :class="styles.editButton"
                       >
                         Editar
                       </button>
                       <button
                         @click="handleDeleteProduct(produto.id)"
-                        class="text-red-500 text-sm hover:underline"
+                        :class="styles.deleteButton"
                       >
                         Excluir
                       </button>
@@ -230,24 +222,24 @@ const formatCurrency = (value: number) => {
           <div
             v-if="message"
             :class="[
-              'p-3 text-center text-sm',
-              message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+              styles.message,
+              message.includes('✅') ? styles.messageSuccess : styles.messageError,
             ]"
           >
             {{ message }}
           </div>
         </aside>
 
-        <main class="flex-1 bg-gray-100 overflow-y-auto relative hidden md:block">
-          <div class="absolute inset-0 p-8 flex justify-center">
+        <main :class="styles.preview">
+          <div :class="styles.previewInner">
             <div
-              class="w-full max-w-[375px] h-[812px] bg-white rounded-[3rem] shadow-2xl border-8 border-gray-800 overflow-hidden relative"
+              :class="styles.phoneFrame"
             >
               <div
-                class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-gray-800 rounded-b-xl z-30"
+                :class="styles.phoneNotch"
               ></div>
 
-              <div class="h-full overflow-y-auto no-scrollbar bg-gray-50">
+              <div :class="styles.phoneContent">
                 <MenuDisplay :cardapio="cardapio" :is-preview="true" />
               </div>
             </div>
@@ -257,3 +249,6 @@ const formatCurrency = (value: number) => {
     </div>
   </div>
 </template>
+
+<style module src="./PainelView.module.css"></style>
+
