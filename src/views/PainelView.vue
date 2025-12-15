@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 // Certifique-se de que os caminhos de importação estão corretos para o seu projeto Vue
 import ProductForm from '@/components/painel/ProductForm.vue'
 import StoreSettings from '@/components/painel/StoreSettings.vue'
-import { getCardapio, saveCardapio } from '@/services/dbService'
+import { getCardapio, saveCardapio } from '@/services/CardapioService'
 import type { Cardapio, Produto } from '@/types/global'
 import MenuDisplay from '../components/MenuDisplay.vue'
 

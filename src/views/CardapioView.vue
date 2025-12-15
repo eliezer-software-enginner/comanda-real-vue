@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 // Importações de tipagem e serviços (assumindo que o caminho é src/services/dbService, etc.)
-import { getCardapio } from '@/services/dbService'
+import { getCardapio } from '@/services/CardapioService'
 import type { Cardapio } from '@/types/global'
 import MenuDisplay from '../components/MenuDisplay.vue'
 
