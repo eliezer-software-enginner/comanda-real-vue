@@ -12,7 +12,7 @@ interface LojistaData {
 export class LojistaService {
   private getLojistasCollection() {
     // Referência à coleção principal dos lojistas
-    return collection(db, 'apps', 'comanda-direta', 'lojistas')
+    return collection(db, 'apps', 'comanda-real', 'lojistas')
   }
 
   /**

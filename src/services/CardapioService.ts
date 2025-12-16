@@ -14,7 +14,7 @@ export class CardapioService {
 
   private getCardapioRef(lojaId: string) {
     // Estrutura: apps/comanda-direta/lojistas/{id}/cardapios/principal
-    return doc(db, 'apps', 'comanda-direta', 'lojistas', lojaId, 'cardapios', 'principal')
+    return doc(db, 'apps', 'comanda-real', 'lojistas', lojaId, 'cardapios', 'principal')
   }
 
   /**
