@@ -1,0 +1,144 @@
+/* Layout geral */
+.root {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f6f8;
+}
+
+/* ===================== */
+/* Sidebar */
+/* ===================== */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  background-color: #0f172a; /* slate-900 */
+  color: #ffffff;
+}
+
+.sidebarCollapsed {
+  width: 80px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.sidebarTitle {
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ===================== */
+/* Menu */
+/* ===================== */
+
+.nav {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.navItem {
+  text-decoration: none;
+}
+
+.navItemActive {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+/* ===================== */
+/* Footer da sidebar */
+/* ===================== */
+
+.sidebarFooter {
+  padding: 16px;
+  border-top: 1px solid #1e293b;
+}
+
+.userBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.logout {
+  font-size: 11px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+/* ===================== */
+/* Conteúdo */
+/* ===================== */
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  height: 64px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}

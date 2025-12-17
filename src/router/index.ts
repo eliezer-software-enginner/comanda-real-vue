@@ -1,21 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import CardapioView from '@/views/usuario/CardapioView.vue'
-import PainelView from '@/views/dashoardLoja/PainelView.vue'
+import ConfiguracoesView from '../views/dashboardLoja/ConfiguracoesView.vue'
+import DashboardHomeView from '../views/dashboardLoja/DashboardHomeView.vue'
+import DashboardLayout from '../views/dashboardLoja/DashboardLayout.vue'
+import PedidosView from '../views/dashboardLoja/PedidosView.vue'
+import ProdutosView from '../views/dashboardLoja/ProdutosView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/cardapio/:id', 
+      path: '/cardapio/:id',
       name: 'cardapio',
       component: CardapioView,
     },
 
     {
       path: '/meu-painel/:id',
-      name: 'meu-painel',
-      component: PainelView,
+      component: DashboardLayout,
+      children: [
+        {
+          path: '',
+          name: 'meu-painel',
+          component: DashboardHomeView,
+        },
+        {
+          path: 'pedidos',
+          name: 'meu-painel-pedidos',
+          component: PedidosView,
+        },
+        {
+          path: 'produtos',
+          name: 'meu-painel-produtos',
+          component: ProdutosView,
+        },
+        {
+          path: 'configuracoes',
+          name: 'meu-painel-configuracoes',
+          component: ConfiguracoesView,
+        },
+      ],
     },
   ],
 })
