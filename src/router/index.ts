@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import CardapioView from '@/views/CardapioView.vue'
-import PainelView from '@/views/PainelView.vue'
+import CardapioView from '@/views/usuario/CardapioView.vue'
+import PainelView from '@/views/dashoardLoja/PainelView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/cardapio/:id', // Define o parâmetro dinâmico 'id'
+      path: '/cardapio/:id', 
       name: 'cardapio',
       component: CardapioView,
     },

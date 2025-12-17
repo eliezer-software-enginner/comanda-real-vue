@@ -5,7 +5,7 @@ import ProductForm from '@/components/painel/ProductForm.vue'
 import StoreSettings from '@/components/painel/StoreSettings.vue'
 import { CardapioService } from '@/services/CardapioService'
 import type { Cardapio, Produto } from '@/types/global'
-import MenuDisplay from '../components/MenuDisplay.vue'
+import MenuDisplay from '../../components/MenuDisplay.vue'
 
 const styles = useCssModule()
 
@@ -44,7 +44,7 @@ onMounted(() => {
       } else {
         console.log('Nenhum cardápio encontrado, usando estado inicial.')
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao carregar cardápio:', error)
     } finally {
       initLoading.value = false

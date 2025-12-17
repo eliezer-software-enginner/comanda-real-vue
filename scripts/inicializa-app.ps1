@@ -41,7 +41,7 @@ Write-Host "PID do processo será exibido (use 'kill' para pará-lo)." -Foregrou
 # Executamos o comando com '&' no final.
 # Nota: É comum definir 'firebase:emulators' no package.json como 'firebase emulators:start'
 # Se não estiver no seu package.json, mude $FirebaseEmulators para "firebase emulators:start"
-Invoke-Expression "$FirebaseEmulators &"
+Start-Process cmd -ArgumentList "/k $FirebaseEmulators"
 
 # 2. Aguardar o Início dos Emuladores
 Write-Host "Aguardando 10 segundos para os emuladores subirem..." -ForegroundColor DarkGray

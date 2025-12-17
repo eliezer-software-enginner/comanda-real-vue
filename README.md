@@ -7,3 +7,9 @@ Criei um script para subir o emulador, popular os dados e subir a aplicação
 ```sh
 .\scripts\inicializa-app.ps1
 ```
+
+- firebase emulators:start
+
+- npm run seed
+
+- npm run dev
