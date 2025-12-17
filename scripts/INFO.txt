@@ -1,2 +1,9 @@
 Se o script não rodar é só executar
 Set-ExecutionPolicy RemoteSigned -Scope Process
+
+Aqui no linux 
+- permissão ao arquivo
+chmod +x scripts/inicializa-app.sh
+
+- então posso rodar:
+./scripts/inicializa-app.sh
