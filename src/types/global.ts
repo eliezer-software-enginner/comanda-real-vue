@@ -6,7 +6,7 @@ export interface Produto {
   descricao: string
   preco: number
   categoria: string
-  imagemUrl?: string
+  imagemUrl?: strings
 }
 
 export interface Cardapio {
