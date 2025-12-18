@@ -1,8 +1,8 @@
 // src/services/seed.test.ts
 
-import { beforeAll, describe, expect, it } from 'vitest'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { getApp, getApps, initializeApp } from 'firebase/app'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { LojistaService } from './LojistaService'
 import type { ProdutoModel } from './produtosService/ProdutosModel'
@@ -67,34 +67,31 @@ const produtosTeste: ProdutoModel[] = [
   },
 ]
 
-// Inicializa e conecta ao Emulator ANTES de todos os testes neste arquivo
-beforeAll(() => {
-  console.log('[SEED TEST] Conectando ao Firebase Emulator na porta 8080...')
-
-  // 1. APLICAÇÃO DO PADRÃO SINGLETON AQUI:
-  // Se já existir um app, usa o existente. Caso contrário, inicializa com o mock.
-  const app = getApps().length > 0 ? getApp() : initializeApp(MOCK_FIREBASE_CONFIG)
-
-  // 2. Conecta o Firestore ao Emulator (Porta padrão: 8080)
-  const db = getFirestore(app)
-  connectFirestoreEmulator(db, 'localhost', 8080)
-
-  // Nota: Se sua `firebaseConfig.ts` já estiver configurada para usar
-  // o emulador em ambiente 'development' (conforme a nossa conversa anterior),
-  // você pode apenas garantir que o Vitest rode em modo 'development'.
-
-  // Vamos assumir que estamos garantindo a conexão aqui para este teste.
-})
-
 // -----------------------------------------------------
 // TESTE DE POPULAÇÃO
 // -----------------------------------------------------
 
 describe('SEED DATA: População Inicial no Firebase Emulator', () => {
-  const lojistaService = new LojistaService()
-  const cardapioService = new ProdutosService()
+  let lojistaService: LojistaService
+  let cardapioService: ProdutosService
 
-  it('deve criar ou atualizar o lojista de teste e popular o cardápio', async () => {
+  // Inicializa e conecta ao Emulator ANTES de todos os testes neste arquivo
+  beforeAll(() => {
+    console.log('[SEED TEST] Conectando ao Firebase Emulator na porta 8080...')
+
+    // 1. APLICAÇÃO DO PADRÃO SINGLETON AQUI:
+    // Se já existir um app, usa o existente. Caso contrário, inicializa com o mock.
+    const app = getApps().length > 0 ? getApp() : initializeApp(MOCK_FIREBASE_CONFIG)
+
+    // 2. Conecta o Firestore ao Emulator (Porta padrão: 8080)
+    const db = getFirestore(app)
+    connectFirestoreEmulator(db, 'localhost', 8080)
+
+    lojistaService = new LojistaService()
+    cardapioService = new ProdutosService()
+  })
+
+  test('deve criar ou atualizar o lojista de teste e popular o cardápio', async () => {
     // 1. Verificar/Criar Lojista
     let lojista = await lojistaService.getLojista(TEST_LOJISTA_ID)
 
@@ -113,7 +110,7 @@ describe('SEED DATA: População Inicial no Firebase Emulator', () => {
 
     // 2. Popular Cardápio
     console.log(`[SEED] Populando cardápio 'principal' com dados de teste.`)
-    produtosTeste.forEach(async (produto) => await cardapioService.salvar(produto))
+    await Promise.all(produtosTeste.map((produto) => cardapioService.salvar(produto)))
 
     // 3. Verificação Final
     const cardapio = await cardapioService.getLista(TEST_LOJISTA_ID)
