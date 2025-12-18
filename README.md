@@ -8,6 +8,8 @@ Criei um script para subir o emulador, popular os dados e subir a aplicação
 .\scripts\inicializa-app.ps1
 ```
 
+- ou rodar:
+
 - firebase emulators:start
 
 - npm run seed
