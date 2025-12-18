@@ -11,7 +11,6 @@ const todosOsPedidos = ref<PedidoModel[]>([])
 const service = new PedidoService()
 let unsubscribe: (() => void) | null = null
 
-// Listas filtradas automaticamente
 const pedidosPendentes = computed(() => todosOsPedidos.value.filter((p) => p.status === 'pendente'))
 const pedidosEmPreparo = computed(() =>
   todosOsPedidos.value.filter((p) => p.status === 'em-preparo'),
@@ -19,7 +18,6 @@ const pedidosEmPreparo = computed(() =>
 const pedidosEnviados = computed(() => todosOsPedidos.value.filter((p) => p.status === 'enviado'))
 
 onMounted(() => {
-  // Inicia o listener em tempo real
   unsubscribe = service.listenPedidos(lojistaId.value, (novosPedidos) => {
     todosOsPedidos.value = novosPedidos
   })
