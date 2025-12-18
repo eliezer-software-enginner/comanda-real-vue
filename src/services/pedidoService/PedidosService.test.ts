@@ -1,11 +1,11 @@
-import { beforeAll, describe, expect, test } from 'vitest'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { getApp, getApps, initializeApp } from 'firebase/app'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import { beforeAll, describe, expect, test } from 'vitest'
 
-import type { PedidoModel } from './PedidoModel'
-import { PedidoService } from './PedidoService'
 import type { ProdutoModel } from '../produtosService/ProdutosModel'
 import { ProdutosService } from '../produtosService/ProdutosService'
+import type { PedidoModel } from './PedidoModel'
+import { PedidoService } from './PedidoService'
 
 const lojistaId = 'TESTE_DEV_LOJA'
 const MOCK_FIREBASE_CONFIG = {
@@ -56,6 +56,7 @@ describe('crud de pedidos', () => {
       status: 'pendente',
       tipoPagamento: 'dinheiro',
       total: 1,
+      numero: Date.now(),
     }
 
     const id = await service.salvar(pedido)
@@ -89,6 +90,7 @@ describe('crud de pedidos', () => {
       status: 'pendente',
       tipoPagamento: 'dinheiro',
       total: 1,
+      numero: Date.now(),
     }
 
     const id = await service.salvar(pedido)

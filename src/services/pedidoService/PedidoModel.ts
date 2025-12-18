@@ -1,5 +1,6 @@
 export type PedidoModel = {
   id: string
+  numero: number
   lojistaId: string
   tipoPagamento: 'dinheiro' | 'pix' | 'cartao-credito' | 'cartao-debito'
   itens: ItemPedido[]
@@ -9,8 +10,10 @@ export type PedidoModel = {
   }
   total: number
   dataCriacao: Date
-  status: 'pendente' | 'em-preparo' | 'enviado'
+  status: PedidoStatus
 }
+
+export type PedidoStatus = 'pendente' | 'em-preparo' | 'enviado' | 'concluido'
 
 export type ItemPedido = {
   produtoId: string

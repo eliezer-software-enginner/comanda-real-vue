@@ -1,8 +1,18 @@
-import { addDoc, collection, CollectionReference, type DocumentData } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  CollectionReference,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+  type DocumentData,
+  type Unsubscribe,
+} from 'firebase/firestore'
 
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
-import type { PedidoModel } from './PedidoModel'
+import type { PedidoModel, PedidoStatus } from './PedidoModel'
 
 export class PedidoService extends CrudService<PedidoModel> {
   protected validarCriacao(model: Omit<PedidoModel, 'id'>): void {
@@ -12,11 +22,40 @@ export class PedidoService extends CrudService<PedidoModel> {
   }
 
   protected validarAtualizacao(model: Partial<PedidoModel>): void {
-    if (model.status && !['pendente', 'em-preparo', 'enviado'].includes(model.status)) {
+    if (
+      model.status &&
+      !['pendente', 'em-preparo', 'enviado', 'concluido'].includes(model.status)
+    ) {
       throw new Error('Status inválido')
     }
   }
 
+  listenPedidos(lojistaId: string, callback: (pedidos: PedidoModel[]) => void): Unsubscribe {
+    const pedidosRef = this.getCollection(lojistaId)
+    // Criamos uma query para pegar todos os pedidos ativos (não finalizados, por exemplo)
+    const q = query(pedidosRef)
+
+    return onSnapshot(q, (snapshot) => {
+      const pedidos = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as PedidoModel[]
+      callback(pedidos)
+    })
+  }
+
+  async getPedidosByStatus(lojistaId: string, status: PedidoStatus): Promise<PedidoModel[]> {
+    this.validarId(lojistaId)
+
+    const pedidosRef = this.getCollection(lojistaId)
+    const q = query(pedidosRef, where('status', '==', status))
+    const snapshot = await getDocs(q)
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as PedidoModel[]
+  }
   protected async handleSalvar(pedido: Omit<PedidoModel, 'id'>): Promise<string> {
     try {
       const docRef = await addDoc(this.getCollection(pedido.lojistaId), pedido)
