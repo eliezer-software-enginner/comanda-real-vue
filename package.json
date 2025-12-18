@@ -15,7 +15,7 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "seed": "vitest run src/services/popula-dados.test.ts",
+    "seed": "vitest run src/mocks/popular-cardapio.test.ts vitest run src/mocks/popular-lojista.test.ts vitest run src/mocks/popular-pedidos.test.ts",
     "firebase:emulators": "firebase emulators:start"
   },
   "dependencies": {
