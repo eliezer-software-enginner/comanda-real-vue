@@ -1,7 +1,6 @@
-import { getApp, getApps, initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore' // Importe connectFirestoreEmulator
+import { getApp, getApps, initializeApp } from 'firebase/app'
 
-import { isDevelopment } from '@/utils/Utils'
 // 1. Defina a configuração
 const firebaseConfig = {
   // Use import.meta.env e o prefixo VITE_
@@ -18,7 +17,7 @@ const firebaseConfig = {
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
-if (isDevelopment) {
+if (import.meta.env.MODE !== 'production') {
   // Verifique se o Emulador está disponível e conecte-se a ele.
   // A porta padrão para o Firestore Emulator é 8080.
   console.log(

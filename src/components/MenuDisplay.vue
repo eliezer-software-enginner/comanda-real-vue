@@ -1,8 +1,7 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { computed, ref, useCssModule } from 'vue'
 
 import { ZapProcessor } from '@/services/zapProcessor'
-import type { Cardapio, ItemPedido, Pedido, Produto } from '@/types/global'
 
 const styles = useCssModule()
 
@@ -260,4 +259,5 @@ const formatCurrency = (value: number) => {
 </template>
 
 <style module src="./MenuDisplay.module.css"></style>
-
+ -->
+<template>Ola mundo</template>

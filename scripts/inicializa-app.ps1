@@ -1,4 +1,5 @@
 # --- Variáveis de Configuração ---
+$Gitpull = "git pull" 
 $NpmInstall = "npm install" 
 $FirebaseEmulators = "npm run firebase:emulators" 
 $NpmSeed = "npm run seed"
@@ -16,6 +17,9 @@ function Execute-Command {
 }
 
 Write-Host "--- 🚀 Iniciando App (PowerShell Core Linux) ---" -ForegroundColor Cyan
+
+# 1. Atualizando projeto com git pull (Síncrono)
+Execute-Command "Atualizando projeto com git pull" $Gitpull
 
 # 1. Instalar pacotes (Síncrono)
 Execute-Command "Instalando dependências" $NpmInstall

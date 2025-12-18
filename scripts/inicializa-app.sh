@@ -8,6 +8,10 @@ NC='\033[0m' # No Color
 
 echo -e "${CYAN}--- 🚀 Iniciando App (Bash Script) ---${NC}"
 
+# 1. Atualizando projeto com git pull
+echo -e "${YELLOW}--- Atualizando projeto com git pull ---${NC}"
+git pull
+
 # 1. Instalar pacotes
 echo -e "${YELLOW}--- Instalando dependências ---${NC}"
 npm install

@@ -1,11 +1,11 @@
-import type { Pedido } from '@/types/global'
+import type { PedidoModel } from './pedidoService/PedidoModel'
 
 export class ZapProcessor {
   /**
    * Simula o envio de um pedido para o WhatsApp.
    * Em produção, isso chamaria uma API externa (ex: Twilio, Evolution API).
    */
-  static async enviarPedido(pedido: Pedido, whatsappDestino: string): Promise<boolean> {
+  static async enviarPedido(pedido: PedidoModel, whatsappDestino: string): Promise<boolean> {
     console.log('--- SIMULAÇÃO DE ENVIO ZAP ---')
     console.log(`DESTINO: ${whatsappDestino}`)
     console.log('PAYLOAD:', JSON.stringify(pedido, null, 2))

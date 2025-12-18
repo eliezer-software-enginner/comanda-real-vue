@@ -3,13 +3,13 @@ import { onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import StoreSettings from '@/components/painel/StoreSettings.vue'
-import { CardapioService } from '@/services/CardapioService'
+import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import type { Cardapio, Produto } from '@/types/global'
 import MenuDisplay from '../../components/MenuDisplay.vue'
 
 const styles = useCssModule()
 
-const cardapioService = new CardapioService()
+const cardapioService = new ProdutosService()
 
 // 1. Estado Reativo (ref)
 const activeTab = ref<'produtos' | 'loja'>('produtos')
@@ -38,7 +38,8 @@ onMounted(() => {
   const fetchInitialData = async () => {
     try {
       // Use o ID de loja fixo para carregar
-      const data = await cardapioService.getCardapio(cardapio.value.id)
+      //  const data = await cardapioService.getCardapio(cardapio.value.id)
+      const data = '' //TODO remover depois
       if (data) {
         cardapio.value = data
       } else {
@@ -59,10 +60,10 @@ const handleSaveProduct = (produto: Produto) => {
 
   if (existsIndex !== -1) {
     // Edição: Substitui o produto existente
-    cardapio.value.produtos[existsIndex] = produto
+    // cardapio.value.produtos[existsIndex] = produto
   } else {
     // Criação: Adiciona novo produto
-    cardapio.value.produtos.push(produto)
+    //  cardapio.value.produtos.push(produto)
   }
 
   // Reseta estado do formulário
@@ -87,7 +88,7 @@ const saveToFirestore = async () => {
   loading.value = true
   message.value = ''
   try {
-    await cardapioService.salvarCardapio(cardapio.value)
+    // await cardapioService.salvarCardapio(cardapio.value)
     message.value = '✅ Alterações salvas com sucesso!'
   } catch (error) {
     console.error(error)
@@ -106,27 +107,17 @@ const formatCurrency = (value: number) => {
 
 <template>
   <div :class="styles.container">
-    <div v-if="initLoading" :class="styles.loading">
-      Carregando painel...
-    </div>
+    <div v-if="initLoading" :class="styles.loading">Carregando painel...</div>
 
     <div v-else :class="styles.content">
       <header :class="styles.header">
         <div :class="styles.headerContent">
           <h1 :class="styles.headerTitle">Painel do Lojista</h1>
           <div :class="styles.headerActions">
-            <a
-              :href="`/cardapio/${cardapio.id}`"
-              target="_blank"
-              :class="styles.viewStoreLink"
-            >
+            <a :href="`/cardapio/${cardapio.id}`" target="_blank" :class="styles.viewStoreLink">
               Ver Loja Online ↗
             </a>
-            <button
-              @click="saveToFirestore"
-              :disabled="loading"
-              :class="styles.saveButton"
-            >
+            <button @click="saveToFirestore" :disabled="loading" :class="styles.saveButton">
               {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
           </div>
@@ -134,9 +125,7 @@ const formatCurrency = (value: number) => {
       </header>
 
       <div :class="styles.mainContent">
-        <aside
-          :class="styles.sidebar"
-        >
+        <aside :class="styles.sidebar">
           <div :class="styles.tabs">
             <button
               @click="activeTab = 'produtos'"
@@ -155,18 +144,12 @@ const formatCurrency = (value: number) => {
           <div :class="styles.sidebarContent">
             <div v-if="activeTab === 'produtos'" :class="styles.productsTab">
               <div v-if="!isAddingProduct && !editingProduct">
-                <button
-                  @click="isAddingProduct = true"
-                  :class="styles.addProductButton"
-                >
+                <button @click="isAddingProduct = true" :class="styles.addProductButton">
                   + Adicionar Novo Produto
                 </button>
 
                 <div :class="styles.productsList">
-                  <p
-                    v-if="cardapio.produtos.length === 0"
-                    :class="styles.emptyProducts"
-                  >
+                  <p v-if="cardapio.produtos.length === 0" :class="styles.emptyProducts">
                     Nenhum produto cadastrado.
                   </p>
 
@@ -182,16 +165,10 @@ const formatCurrency = (value: number) => {
                       </div>
                     </div>
                     <div :class="styles.productItemActions">
-                      <button
-                        @click="setEditingProduct(produto)"
-                        :class="styles.editButton"
-                      >
+                      <button @click="setEditingProduct(produto)" :class="styles.editButton">
                         Editar
                       </button>
-                      <button
-                        @click="handleDeleteProduct(produto.id)"
-                        :class="styles.deleteButton"
-                      >
+                      <button @click="handleDeleteProduct(produto.id)" :class="styles.deleteButton">
                         Excluir
                       </button>
                     </div>
@@ -232,12 +209,8 @@ const formatCurrency = (value: number) => {
 
         <main :class="styles.preview">
           <div :class="styles.previewInner">
-            <div
-              :class="styles.phoneFrame"
-            >
-              <div
-                :class="styles.phoneNotch"
-              ></div>
+            <div :class="styles.phoneFrame">
+              <div :class="styles.phoneNotch"></div>
 
               <div :class="styles.phoneContent">
                 <MenuDisplay :cardapio="cardapio" :is-preview="true" />
@@ -251,4 +224,3 @@ const formatCurrency = (value: number) => {
 </template>
 
 <style module src="./PainelView.module.css"></style>
-
