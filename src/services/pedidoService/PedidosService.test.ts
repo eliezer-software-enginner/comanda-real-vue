@@ -96,6 +96,6 @@ describe('crud de pedidos', () => {
     const id = await service.salvar(pedido)
     expect(id).toBeDefined()
 
-    await service.mudarStatus(lojistaId, id, 'em-preparo')
+    await service.mudarStatus(lojistaId, pedido as any, 'em-preparo')
   })
 })
