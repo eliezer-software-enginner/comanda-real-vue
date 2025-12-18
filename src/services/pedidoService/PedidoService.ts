@@ -71,10 +71,43 @@ export class PedidoService extends CrudService<PedidoModel> {
     return collection(db, 'apps', 'comanda-real', 'lojistas', lojaId, 'pedidos')
   }
 
-  async mudarStatus(lojistaId: string, pedidoId: string, status: PedidoModel['status']) {
-    return this.atualizar(lojistaId, {
-      id: pedidoId,
-      status,
-    })
+  async mudarStatus(lojistaId: string, pedido: PedidoModel, novoStatus: PedidoStatus) {
+    const agora = new Date()
+    const dadosAtualizacao: any = {
+      id: pedido.id,
+      status: novoStatus,
+    }
+
+    // 1. Iniciando Preparo (Vindo de Pendente)
+    if (novoStatus === 'em-preparo') {
+      dadosAtualizacao.dataInicioPreparo = agora.toISOString()
+    }
+
+    // 2. Finalizando Preparo e Iniciando Envio (Vindo de Em Preparo)
+    if (novoStatus === 'enviado') {
+      dadosAtualizacao.dataInicioEnvio = agora.toISOString()
+
+      // Calcula quanto tempo ficou em preparo
+      if (pedido.dataInicioPreparo) {
+        const inicio = new Date(pedido.dataInicioPreparo).getTime()
+        const fim = agora.getTime()
+        dadosAtualizacao.tempoPreparoSegundos = Math.floor((fim - inicio) / 1000)
+      }
+    }
+
+    // 3. Finalizando o Pedido (Vindo de Enviado)
+    if (novoStatus === 'concluido') {
+      // Caso você tenha um status final
+      dadosAtualizacao.dataFinalizacao = agora.toISOString()
+
+      // Calcula quanto tempo ficou no envio/entrega
+      if (pedido.dataInicioEnvio) {
+        const inicio = new Date(pedido.dataInicioEnvio).getTime()
+        const fim = agora.getTime()
+        dadosAtualizacao.tempoEnvioSegundos = Math.floor((fim - inicio) / 1000)
+      }
+    }
+
+    return this.atualizar(lojistaId, dadosAtualizacao)
   }
 }

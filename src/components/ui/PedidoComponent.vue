@@ -1,29 +1,44 @@
 <template>
-  <div class="top">
-    <h1>{{ nome }} {{ pedidos.length }}</h1>
-    <p>Tempo médio para retirada no balcão: 30 a 40 minutos</p>
-    <p>Tempo médio para entrega: 60 a 80 minutos</p>
-  </div>
+  <div class="coluna-container">
+    <div class="top">
+      <h1>{{ nomeExibicao }} ({{ pedidos.length }})</h1>
+      <p>Tempo médio: {{ tempoMedio }}</p>
+    </div>
 
-  <div class="bottom">
-    <div class="pedido-card" v-for="pedido in pedidos">
-      <div class="pedido-card-top">
-        <div class="pedido-card-top-esq">
-          <Receipt :size="30" color="white" />
-          <p>Pedido {{ pedido.numero }}</p>
+    <div class="bottom">
+      <div class="pedido-card" v-for="pedido in pedidos" :key="pedido.id">
+        <div :class="['pedido-card-top', cor]">
+          <div class="pedido-card-top-esq">
+            <div>
+              <Receipt :size="20" color="white" />
+              <p>Pedido #{{ pedido.numero }}</p>
+            </div>
+
+            <p>{{ formatarMoeda(pedido.total) }}</p>
+            <p>{{ pedido.cliente.nome }}</p>
+
+            <p v-if="status === 'enviado' && pedido.tempoPreparoSegundos" class="tempo-estatico">
+              Preparo: {{ formatarSegundos(pedido.tempoPreparoSegundos) }}
+            </p>
+          </div>
+
+          <div v-if="obterDataReferencia(pedido)" class="timer-badge">
+            <Clock :size="14" />
+            <span>{{ formatarTimer(obterDataReferencia(pedido)!) }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="pedido-card-bottom">
-        <div class="pedido-card-bottom-esq">
-          <p>{{ pedido.total }}</p>
-          <p>{{ pedido.cliente.nome }}</p>
-        </div>
+        <div class="pedido-card-bottom">
+          <div class="pedido-card-bottom-esq">
+            <p>{{ formatarMoeda(pedido.total) }}</p>
+            <p>{{ pedido.cliente.nome }}</p>
+          </div>
 
-        <div class="pedido-card-bottom-dir">
-          <button @click="handleClickBtnPrincipal(pedido)">
-            {{ textoBotao }}
-          </button>
+          <div class="pedido-card-bottom-dir">
+            <button @click="$emit('mudar-status', pedido)" :class="cor">
+              {{ textoBotao }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -32,30 +47,58 @@
 
 <script setup lang="ts">
 import type { PedidoModel, PedidoStatus } from '@/services/pedidoService/PedidoModel'
-import { computed, ref } from 'vue'
-
-import { Receipt } from 'lucide-vue-next'
+import { Clock, Receipt } from 'lucide-vue-next'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 interface Props {
   status: PedidoStatus
-  cor?: 'primary' | 'danger' | 'success' | 'warning'
-  desabilitado?: boolean
+  cor: 'primary' | 'danger' | 'success' | 'warning'
   pedidos: PedidoModel[]
 }
 
 const props = defineProps<Props>()
+defineEmits(['mudar-status'])
 
-const emit = defineEmits<{
-  (e: 'mudar-status', pedido: PedidoModel): void
-}>()
+// --- LÓGICA DO RELÓGIO ---
+const agora = ref(Date.now())
+let intervalId: any
 
-function handleClickBtnPrincipal(pedido: PedidoModel) {
-  emit('mudar-status', pedido)
+onMounted(() => {
+  intervalId = setInterval(() => {
+    agora.value = Date.now()
+  }, 1000)
+})
+
+onUnmounted(() => clearInterval(intervalId))
+
+/**
+ * Retorna a data de início correta baseada no status atual
+ */
+function obterDataReferencia(pedido: PedidoModel) {
+  if (pedido.status === 'em-preparo') return pedido.dataInicioPreparo
+  if (pedido.status === 'enviado') return pedido.dataInicioEnvio
+  return null
 }
 
-const isLoading = ref(false)
+function formatarSegundos(segundos: number) {
+  const minutos = Math.floor(segundos / 60)
+  if (minutos < 1) return 'Menos de 1 min'
+  return `${minutos} min`
+}
 
-const nome = computed(() => {
+function formatarTimer(dataInicioISO: string) {
+  const inicio = new Date(dataInicioISO).getTime()
+  const diff = agora.value - inicio
+
+  if (diff < 0) return '00:00'
+
+  const minutos = Math.floor(diff / 60000)
+  const segundos = Math.floor((diff % 60000) / 1000)
+
+  return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`
+}
+
+const nomeExibicao = computed(() => {
   if (props.status === 'pendente') return 'Pedidos em Análise'
   if (props.status === 'em-preparo') return 'Pedidos em Produção'
   return 'Pedidos aguardando entrega'
@@ -66,137 +109,81 @@ const textoBotao = computed(() => {
   if (props.status === 'em-preparo') return 'Finalizar / Enviar'
   return 'Concluído'
 })
+
+const tempoMedio = computed(() => {
+  return props.status === 'enviado' ? '60-80 min' : '30-40 min'
+})
+
+function formatarMoeda(valor: number) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
+}
 </script>
 
-<style>
-/* ---------- CONTAINER TOPO ---------- */
-.top {
-  margin-bottom: 24px;
+<style scoped>
+/* Estilos das Cores Dinâmicas */
+.danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.success {
+  background: linear-gradient(135deg, #10b981, #059669);
 }
 
-.top h1 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.top p {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* ---------- LISTA ---------- */
-.bottom {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-/* ---------- CARD ---------- */
-.pedido-card {
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.pedido-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-}
-
-/* ---------- CARD TOP ---------- */
 .pedido-card-top {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  padding: 14px 16px;
-}
-
-.pedido-card-top-esq {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pedido-card-top-esq p {
-  color: #ffffff;
-  font-weight: 500;
-  margin: 0;
-}
-
-/* ---------- CARD BOTTOM ---------- */
-.pedido-card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
+  padding: 10px 16px;
+  color: white;
 }
 
-.pedido-card-bottom-esq p {
-  margin: 0;
+.timer-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
-.pedido-card-bottom-esq p:first-child {
-  font-weight: 600;
-  font-size: 1rem;
+/* Reaproveitando seu CSS com pequenos ajustes */
+.top h1 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+.top p {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 15px;
 }
 
-.pedido-card-bottom-esq p:last-child {
-  font-size: 0.85rem;
-  color: #6b7280;
+.pedido-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
 }
 
-/* ---------- AÇÃO ---------- */
+.pedido-card-bottom {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .pedido-card-bottom-dir button {
-  background: #10b981;
-  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    transform 0.1s ease;
-}
-
-.pedido-card-bottom-dir button:hover {
-  background: #059669;
-  transform: scale(1.03);
-}
-
-.pedido-card-bottom-dir button:active {
-  transform: scale(0.98);
-}
-
-/* ---------- BOTÕES ANTIGOS (se usar depois) ---------- */
-.btn {
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 6px;
+  color: white;
   cursor: pointer;
-}
-
-.primary {
-  background-color: #2563eb;
-  color: white;
-}
-
-.danger {
-  background-color: #dc2626;
-  color: white;
-}
-
-.warning {
-  background-color: #f59e0b;
-  color: white;
-}
-
-.success {
-  background-color: #16a34a;
-  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 </style>

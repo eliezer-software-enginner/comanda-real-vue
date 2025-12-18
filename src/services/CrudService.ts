@@ -46,7 +46,7 @@ export abstract class CrudService<T extends Identificavel> {
   // ---------- VALIDACOES ----------
   protected validarId(id: string) {
     if (!id || id.trim() === '') {
-      throw new Error('ID inválido')
+      throw new Error('ID não fornecido')
     }
   }
 

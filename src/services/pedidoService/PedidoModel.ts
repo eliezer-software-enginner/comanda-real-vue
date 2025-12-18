@@ -11,6 +11,11 @@ export type PedidoModel = {
   total: number
   dataCriacao: Date
   status: PedidoStatus
+  dataInicioPreparo?: string
+  dataInicioEnvio?: string
+
+  tempoPreparoSegundos?: number
+  tempoEnvioSegundos?: number
 }
 
 export type PedidoStatus = 'pendente' | 'em-preparo' | 'enviado' | 'concluido'

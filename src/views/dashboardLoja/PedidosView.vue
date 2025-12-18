@@ -38,7 +38,7 @@ async function handleMudarStatus(pedido: PedidoModel) {
   if (!destino) return
 
   try {
-    await service.mudarStatus(lojistaId.value, pedido.id, destino)
+    await service.mudarStatus(lojistaId.value, pedido, destino)
   } catch (e: any) {
     alert('Erro ao atualizar: ' + e.message)
   }
@@ -60,6 +60,7 @@ async function handleMudarStatus(pedido: PedidoModel) {
         status="em-preparo"
         :pedidos="pedidosEmPreparo"
         @mudar-status="handleMudarStatus"
+        cor="warning"
       />
     </div>
     <div class="coluna">
@@ -67,6 +68,7 @@ async function handleMudarStatus(pedido: PedidoModel) {
         status="enviado"
         :pedidos="pedidosEnviados"
         @mudar-status="handleMudarStatus"
+        cor="success"
       />
     </div>
   </div>
