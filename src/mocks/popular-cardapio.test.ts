@@ -18,7 +18,7 @@ describe('SEED DATA: Populando cardapio', () => {
     const db = getFirestore(app)
     connectFirestoreEmulator(db, 'localhost', 8080)
 
-    cardapioService = new ProdutosService()
+    cardapioService = new ProdutosService(LOJISTA_ID)
   })
 
   test('deve criar o cardápio', async () => {

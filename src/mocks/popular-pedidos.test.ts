@@ -19,7 +19,7 @@ describe('população de pedidos', () => {
     const db = getFirestore(app)
     connectFirestoreEmulator(db, 'localhost', 8080)
 
-    produtoService = new ProdutosService()
+    produtoService = new ProdutosService(LOJISTA_ID)
     service = new PedidoService()
   })
 

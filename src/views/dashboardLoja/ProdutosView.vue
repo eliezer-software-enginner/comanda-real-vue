@@ -37,13 +37,8 @@ onMounted(() => {
   const fetchInitialData = async () => {
     try {
       // Use o ID de loja fixo para carregar
-      //  const data = await cardapioService.getCardapio(cardapio.value.id)
-      const data = '' //TODO remover depois
-      if (data) {
-        cardapio.value = data
-      } else {
-        console.log('Nenhum cardápio encontrado, usando estado inicial.')
-      }
+      const lista = await cardapioService.getLista(lojistaId.value)
+      cardapio.value = lista
     } catch (error: unknown) {
       console.error('Erro ao carregar cardápio:', error)
     } finally {
@@ -70,10 +65,14 @@ const handleSaveProduct = (produto: Produto) => {
   isAddingProduct.value = false
 }
 
-const handleDeleteProduct = (produtoId: string) => {
+async function handleExcluirProduto(produtoId: string) {
   if (confirm('Tem certeza que deseja remover este produto?')) {
-    //TODO deletar do banco e depois aqui
-    cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
+    try {
+      await cardapioService.excluir(produtoId)
+      cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
+    } catch (e: any) {
+      alert(e.message)
+    }
   }
 }
 
@@ -139,7 +138,10 @@ const formatCurrency = (value: number) => {
                       <button @click="setEditingProduct(produto)" :class="styles.editButton">
                         Editar
                       </button>
-                      <button @click="handleDeleteProduct(produto.id)" :class="styles.deleteButton">
+                      <button
+                        @click="handleExcluirProduto(produto.id)"
+                        :class="styles.deleteButton"
+                      >
                         Excluir
                       </button>
                     </div>

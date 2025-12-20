@@ -4,6 +4,7 @@ import {
   CollectionReference,
   doc,
   DocumentReference,
+  setDoc,
   type DocumentData,
 } from 'firebase/firestore'
 
@@ -29,7 +30,19 @@ export class ProdutosService extends CrudService<ProdutoModel> {
   async handleSalvar(produto: Omit<ProdutoModel, 'id'>): Promise<string> {
     try {
       const docRef = await addDoc(this.getCollection(produto.lojistaId), produto)
-      console.log(`Produto ${docRef.id} salvo com sucesso!`)
+      const id = docRef.id
+
+      const prd: ProdutoModel = {
+        id: docRef.id,
+        ...produto,
+      }
+
+      console.log(`Produto ${id} salvo com sucesso!`)
+
+      await setDoc(this.getDoc(id), prd)
+
+      console.log(`Id atribuido ao protudo com sucesso!`)
+
       return docRef.id
     } catch (error) {
       console.error('Erro ao salvar produto:', error)
