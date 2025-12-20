@@ -1,7 +1,7 @@
 # --- Variáveis de Configuração ---
-$Gitpull = "git pull" 
-$NpmInstall = "npm install" 
-$FirebaseEmulators = "npm run firebase:emulators" 
+$Gitpull = "git pull"
+$NpmInstall = "npm install"
+$FirebaseEmulators = "npm run firebase:emulators"
 $NpmSeed = "npm run seed"
 $NpmDev = "npm run dev"
 
@@ -16,24 +16,28 @@ function Execute-Command {
     }
 }
 
-Write-Host "--- 🚀 Iniciando App (PowerShell Core Linux) ---" -ForegroundColor Cyan
+Write-Host "--- 🚀 Iniciando App (PowerShell) ---" -ForegroundColor Cyan
 
-# 1. Atualizando projeto com git pull (Síncrono)
+# 1. Atualizando projeto (BLOQUEANTE)
 Execute-Command "Atualizando projeto com git pull" $Gitpull
 
-# 1. Instalar pacotes (Síncrono)
+# 2. Instalar pacotes (BLOQUEANTE)
 Execute-Command "Instalando dependências" $NpmInstall
 
-# 2. Firebase Emulators em Background
+# 3. Firebase Emulators em Background (NÃO BLOQUEANTE)
 Write-Host "--- Iniciando Emuladores em Background ---" -ForegroundColor Green
-Invoke-Expression "$FirebaseEmulators &"
+Start-Process `
+    -FilePath "powershell" `
+    -ArgumentList "-NoExit", "-Command", $FirebaseEmulators `
+    -WorkingDirectory (Get-Location) `
+    -NoNewWindow
 
-# 3. Aguardar (Ajuste o tempo se necessário)
+# 4. Aguardar estabilização
 Write-Host "Aguardando 10s para estabilização..." -ForegroundColor DarkGray
-Start-Sleep -Seconds 10 
+Start-Sleep -Seconds 35
 
-# 4. Seed
+# 5. Seed (BLOQUEANTE)
 Execute-Command "Populando Banco de Dados" $NpmSeed
 
-# 5. Dev (Bloqueante)
+# 6. Dev (BLOQUEANTE)
 Execute-Command "Iniciando Servidor Dev" $NpmDev
