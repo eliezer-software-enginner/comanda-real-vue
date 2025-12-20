@@ -66,7 +66,7 @@ export default {
   methods: {
     async getProducts(lojaId: string): Promise<void> {
       try {
-        const produtosService = new ProdutosService()
+        const produtosService = new ProdutosService(lojaId)
         const data = await produtosService.getLista(lojaId)
         this.products = data.map((item: any) => ({
           id: item.id,
