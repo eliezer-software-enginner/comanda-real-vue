@@ -36,7 +36,7 @@ export default defineComponent({
     async loadCardapio(lojaId: string) {
       this.loading = true
       try {
-        const produtosService = new ProdutosService()
+        const produtosService = new ProdutosService(lojaId)
         const data = await produtosService.getLista(lojaId)
         // this.cardapio = data
       } catch (error: any) {
