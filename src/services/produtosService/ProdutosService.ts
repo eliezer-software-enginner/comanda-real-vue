@@ -29,6 +29,7 @@ export class ProdutosService extends CrudService<ProdutoModel> {
 
   async handleSalvar(produto: Omit<ProdutoModel, 'id'>): Promise<string> {
     try {
+      produto.contador = 0
       const docRef = await addDoc(this.getCollection(produto.lojistaId), produto)
       const id = docRef.id
 
