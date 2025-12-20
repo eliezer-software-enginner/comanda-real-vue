@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import type { Produto } from '@/types/global'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
+import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { ref, useCssModule, watch } from 'vue'
 
 const styles = useCssModule()
 
 // 1. Definição de Props (Tipagem com TS)
 interface ProductFormProps {
-  onSave: (produto: Produto) => void
+  onSave: (produto: ProdutoModel) => void
   onCancel: () => void
-  initialData?: Produto
+  initialData?: ProdutoModel
+  lojistaId: string
 }
 const props = defineProps<ProductFormProps>()
 
@@ -20,6 +22,10 @@ const descricao = ref(props.initialData?.descricao || '')
 const preco = ref(props.initialData?.preco.toString() || '')
 const categoria = ref(props.initialData?.categoria || '')
 const imagemUrl = ref(props.initialData?.imagemUrl || '')
+const subindoImagem = ref(false)
+const inputImagem = ref<HTMLInputElement | null>(null)
+
+const service = new ProdutosService(props.lojistaId)
 
 // 3. Monitorar `initialData` (Necessário se o formulário for reutilizado na mesma página para editar itens diferentes)
 watch(
@@ -34,96 +40,91 @@ watch(
   { deep: true },
 )
 
+async function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+
+    try {
+      subindoImagem.value = true
+      // Chamamos o método que criamos no passo 2
+      const url = await service.uploadImagem(props.lojistaId, file)
+      imagemUrl.value = url
+    } catch (e) {
+      alert('Erro ao subir imagem')
+    } finally {
+      subindoImagem.value = false
+    }
+  }
+}
+
 // 4. Função de Submissão
 const handleSubmit = (e: Event) => {
   e.preventDefault()
 
   // Tratamento do preço (substitui vírgula por ponto para garantir o parseFloat)
-  const precoNumerico = parseFloat(preco.value.replace(',', '.'))
+  //const precoNumerico = parseFloat(preco.value.replace(',', '.'))
 
-  const novoProduto: Produto = {
+  const novoProduto: ProdutoModel = {
     id: props.initialData?.id || `prod_${Date.now()}`,
     nome: nome.value,
     descricao: descricao.value,
-    preco: precoNumerico,
+    preco: preco.value,
     categoria: categoria.value,
     imagemUrl: imagemUrl.value,
+    contador: 0,
+    lojistaId: props.lojistaId,
   }
   props.onSave(novoProduto)
 }
 </script>
 
 <template>
-  <form
-    @submit.prevent="handleSubmit"
-    :class="styles.form"
-  >
+  <form @submit.prevent="handleSubmit" :class="styles.form">
     <h3 :class="styles.title">{{ initialData ? 'Editar Produto' : 'Novo Produto' }}</h3>
 
     <div :class="styles.formGroup">
       <label>Nome do Produto</label>
-      <input
-        type="text"
-        required
-        v-model="nome"
-      />
+      <input type="text" required v-model="nome" />
     </div>
 
     <div :class="styles.formGroup">
       <label>Descrição</label>
-      <textarea
-        rows="3"
-        v-model="descricao"
-      />
+      <textarea rows="3" v-model="descricao" />
     </div>
 
     <div :class="styles.gridCols2">
       <div :class="styles.formGroup">
         <label>Preço (R$)</label>
-        <input
-          type="number"
-          step="0.01"
-          required
-          v-model="preco"
-        />
+        <input type="number" step="0.01" required v-model="preco" />
       </div>
       <div :class="styles.formGroup">
         <label>Categoria</label>
-        <input
-          type="text"
-          required
-          placeholder="Ex: Lanches"
-          v-model="categoria"
-        />
+        <input type="text" required placeholder="Ex: Lanches" v-model="categoria" />
       </div>
     </div>
 
     <div :class="styles.formGroup">
-      <label>URL da Imagem</label>
-      <input
-        type="url"
-        v-model="imagemUrl"
-        placeholder="https://exemplo.com/imagem.jpg"
-      />
+      <label>Imagem do Produto</label>
+
+      <div v-if="imagemUrl" class="mb-2">
+        <img :src="imagemUrl" style="width: 100px; height: 100px; object-fit: cover" />
+      </div>
+
+      <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
+      <p v-if="subindoImagem">Subindo imagem...</p>
     </div>
+    <!-- 
+    <div :class="styles.formGroup">
+      <label>URL da Imagem</label>
+      <input type="url" v-model="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" />
+    </div> -->
 
     <div :class="styles.actions">
-      <button
-        type="button"
-        @click="onCancel"
-        :class="styles.cancelButton"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        :class="styles.saveButton"
-      >
-        Salvar Produto
-      </button>
+      <button type="button" @click="onCancel" :class="styles.cancelButton">Cancelar</button>
+      <button type="submit" :class="styles.saveButton">Salvar Produto</button>
     </div>
   </form>
 </template>
 
 <style module src="./ProductForm.module.css"></style>
-

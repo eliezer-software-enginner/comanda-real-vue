@@ -4,7 +4,6 @@ import { computed, onMounted, ref, useCssModule } from 'vue'
 import ProductForm from '@/components/painel/ProductForm.vue'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import type { Produto } from '@/types/global'
 import { useRoute } from 'vue-router'
 import MenuDisplay from '../../components/MenuDisplay.vue'
 
@@ -24,10 +23,10 @@ const message = ref('')
 // Inicialização do estado base da loja
 const cardapio = ref<ProdutoModel[]>([])
 
-const editingProduct = ref<Produto | null>(null)
+const editingProduct = ref<ProdutoModel | null>(null)
 
 // Crie a função para atribuir o valor ao ref
-const setEditingProduct = (produto: Produto) => {
+const setEditingProduct = (produto: ProdutoModel) => {
   editingProduct.value = produto
 }
 
@@ -49,7 +48,7 @@ onMounted(() => {
 })
 
 // 3. Handlers de Produto
-const handleSaveProduct = (produto: Produto) => {
+const handleSaveProduct = (produto: ProdutoModel) => {
   const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
 
   if (existsIndex !== -1) {
@@ -131,7 +130,8 @@ const formatCurrency = (value: number) => {
                     <div>
                       <div :class="styles.productItemName">{{ produto.nome }}</div>
                       <div :class="styles.productItemPrice">
-                        {{ formatCurrency(produto.preco) }}
+                        <!-- {{ formatCurrency(produto.preco) }} -->
+                        {{ produto.preco }}
                       </div>
                     </div>
                     <div :class="styles.productItemActions">
@@ -159,6 +159,7 @@ const formatCurrency = (value: number) => {
                     editingProduct = null
                   }
                 "
+                :lojista-id="lojistaId"
               />
             </div>
           </div>

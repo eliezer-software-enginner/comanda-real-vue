@@ -1,5 +1,8 @@
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore' // Importe connectFirestoreEmulator
 import { getApp, getApps, initializeApp } from 'firebase/app'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore' // Importe connectFirestoreEmulator
+import { connectStorageEmulator, getStorage } from 'firebase/storage'
+
+// ... sua inicialização do app
 
 // 1. Defina a configuração
 const firebaseConfig = {
@@ -16,6 +19,7 @@ const firebaseConfig = {
 // 2. Inicialize o App (Singleton pattern)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
 const db = getFirestore(app)
+const storage = getStorage(app)
 
 if (import.meta.env.MODE !== 'production') {
   // Verifique se o Emulador está disponível e conecte-se a ele.
@@ -24,6 +28,7 @@ if (import.meta.env.MODE !== 'production') {
     'Ambiente de desenvolvimento detectado. Conectando-se ao Firestore Emulator na porta 8080.',
   )
   connectFirestoreEmulator(db, 'localhost', 8080)
+  connectStorageEmulator(storage, 'localhost', 9199)
 }
 
-export { app, db } // É bom exportar 'app' também, caso precise de outros serviços.
+export { app, db, storage } // É bom exportar 'app' também, caso precise de outros serviços.

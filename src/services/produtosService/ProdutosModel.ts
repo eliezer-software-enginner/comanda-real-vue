@@ -2,7 +2,7 @@ export interface ProdutoModel {
   id: string
   nome: string
   descricao: string
-  preco: number
+  preco: string
   categoria: string
   imagemUrl?: string
   lojistaId: string
