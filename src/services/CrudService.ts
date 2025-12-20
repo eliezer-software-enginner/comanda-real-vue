@@ -15,7 +15,6 @@ export abstract class CrudService<T extends Identificavel> {
 
   // ---------- CREATE ----------
   async salvar(model: Omit<T, 'id'>): Promise<string> {
-    this.validarId((model as any).lojistaId)
     this.validarCriacao(model)
     return this.handleSalvar(model)
   }

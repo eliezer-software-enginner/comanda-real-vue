@@ -15,3 +15,5 @@ Criei um script para subir o emulador, popular os dados e subir a aplicação
 - npm run seed
 
 - npm run dev
+
+./scripts/inicializa-app.sh
