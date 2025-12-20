@@ -1,10 +1,27 @@
-import { addDoc, collection, CollectionReference, type DocumentData } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  CollectionReference,
+  doc,
+  DocumentReference,
+  type DocumentData,
+} from 'firebase/firestore'
 
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
 import type { ProdutoModel } from './ProdutosModel'
 
 export class ProdutosService extends CrudService<ProdutoModel> {
+  private lojistaId: string
+
+  constructor(lojistaId: string) {
+    super()
+    this.lojistaId = lojistaId
+  }
+
+  protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
+    return doc(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos', id)
+  }
   protected getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData> {
     return collection(db, 'apps', 'comanda-real', 'lojistas', lojaId, 'produtos')
   }

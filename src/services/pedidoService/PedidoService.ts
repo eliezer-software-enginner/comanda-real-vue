@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   CollectionReference,
+  DocumentReference,
   getDocs,
   onSnapshot,
   query,
@@ -15,6 +16,9 @@ import { db } from '../firebaseConfig'
 import type { PedidoModel, PedidoStatus } from './PedidoModel'
 
 export class PedidoService extends CrudService<PedidoModel> {
+  protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
+    throw new Error('Method not implemented.')
+  }
   protected validarCriacao(model: Omit<PedidoModel, 'id'>): void {
     if (model.itens.length == 0) {
       throw new Error('Pedido está vazio')

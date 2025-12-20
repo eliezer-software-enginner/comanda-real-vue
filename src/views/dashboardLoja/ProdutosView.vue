@@ -13,7 +13,7 @@ const styles = useCssModule()
 const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
 
-const cardapioService = new ProdutosService()
+const cardapioService = new ProdutosService(lojistaId.value)
 
 // 1. Estado Reativo (ref)
 const activeTab = ref<'produtos' | 'loja'>('produtos')
@@ -72,23 +72,8 @@ const handleSaveProduct = (produto: Produto) => {
 
 const handleDeleteProduct = (produtoId: string) => {
   if (confirm('Tem certeza que deseja remover este produto?')) {
+    //TODO deletar do banco e depois aqui
     cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
-  }
-}
-
-// 5. Função de Salvamento (Firestore)
-const saveToFirestore = async () => {
-  loading.value = true
-  message.value = ''
-  try {
-    // await cardapioService.handleSalvar(cardapio.value)
-    message.value = '✅ Alterações salvas com sucesso!'
-  } catch (error) {
-    console.error(error)
-    message.value = '❌ Erro ao salvar alterações.'
-  } finally {
-    loading.value = false
-    setTimeout(() => (message.value = ''), 3000)
   }
 }
 
@@ -110,9 +95,6 @@ const formatCurrency = (value: number) => {
             <a :href="`/cardapio/${lojistaId}`" target="_blank" :class="styles.viewStoreLink">
               Ver Loja Online ↗
             </a>
-            <button @click="saveToFirestore" :disabled="loading" :class="styles.saveButton">
-              {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
-            </button>
           </div>
         </div>
       </header>

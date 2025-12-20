@@ -1,5 +1,7 @@
 import {
+  deleteDoc,
   doc,
+  DocumentReference,
   getDocs,
   updateDoc,
   type CollectionReference,
@@ -12,11 +14,22 @@ type Identificavel = {
 
 export abstract class CrudService<T extends Identificavel> {
   protected abstract getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData>
+  protected abstract getDoc(id: string): DocumentReference<DocumentData, DocumentData>
 
   // ---------- CREATE ----------
   async salvar(model: Omit<T, 'id'>): Promise<string> {
     this.validarCriacao(model)
     return this.handleSalvar(model)
+  }
+
+  async excluir(id: string) {
+    this.validarId(id)
+
+    try {
+      await deleteDoc(this.getDoc(id))
+    } catch (e: any) {
+      throw new Error('Error on delete doc')
+    }
   }
 
   protected abstract handleSalvar(model: Omit<T, 'id'>): Promise<string>

@@ -3,6 +3,7 @@ import {
   collection,
   CollectionReference,
   doc,
+  DocumentReference,
   getDoc,
   type DocumentData,
 } from 'firebase/firestore'
@@ -12,12 +13,15 @@ import { db } from '../firebaseConfig'
 import type { LojistaModel } from './LojistaModel'
 
 export class LojistaService extends CrudService<LojistaModel> {
+  protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
+    return doc(db, 'apps', 'comanda-real', 'lojistas', id)
+  }
   protected getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData> {
     return collection(db, 'apps', 'comanda-real', 'lojistas')
   }
 
   public async getData(lojaId: string): Promise<LojistaModel | null> {
-    const snap = await getDoc(doc(db, 'apps', 'comanda-real', 'lojistas', lojaId))
+    const snap = await getDoc(this.getDoc(lojaId))
     if (!snap.exists()) return null
     const data = snap.data() as LojistaModel
 
