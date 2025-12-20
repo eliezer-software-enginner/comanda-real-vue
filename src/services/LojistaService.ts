@@ -9,6 +9,7 @@ interface LojistaData {
   whatsapp?: string
 }
 
+/**@deprecated */
 export class LojistaService {
   private getLojistasCollection() {
     // Referência à coleção principal dos lojistas

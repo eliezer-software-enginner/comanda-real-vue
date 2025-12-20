@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref, useCssModule } from 'vue'
+import { computed, onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import type { Cardapio, Produto } from '@/types/global'
+import type { Produto } from '@/types/global'
+import { useRoute } from 'vue-router'
 import MenuDisplay from '../../components/MenuDisplay.vue'
 
 const styles = useCssModule()
+
+const route = useRoute()
+const lojistaId = computed(() => route.params.id as string)
 
 const cardapioService = new ProdutosService()
 
@@ -17,11 +22,7 @@ const initLoading = ref(true)
 const message = ref('')
 
 // Inicialização do estado base da loja
-const cardapio = ref<Cardapio>({
-  id: 'TESTE_DEV_LOJA',
-  nomeLoja: 'Minha Loja',
-  produtos: [],
-})
+const cardapio = ref<ProdutoModel[]>([])
 
 const editingProduct = ref<Produto | null>(null)
 
@@ -54,7 +55,7 @@ onMounted(() => {
 
 // 3. Handlers de Produto
 const handleSaveProduct = (produto: Produto) => {
-  const existsIndex = cardapio.value.produtos.findIndex((p) => p.id === produto.id)
+  const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
 
   if (existsIndex !== -1) {
     // Edição: Substitui o produto existente
@@ -71,7 +72,7 @@ const handleSaveProduct = (produto: Produto) => {
 
 const handleDeleteProduct = (produtoId: string) => {
   if (confirm('Tem certeza que deseja remover este produto?')) {
-    cardapio.value.produtos = cardapio.value.produtos.filter((p) => p.id !== produtoId)
+    cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
   }
 }
 
@@ -80,7 +81,7 @@ const saveToFirestore = async () => {
   loading.value = true
   message.value = ''
   try {
-    // await cardapioService.salvarCardapio(cardapio.value)
+    // await cardapioService.handleSalvar(cardapio.value)
     message.value = '✅ Alterações salvas com sucesso!'
   } catch (error) {
     console.error(error)
@@ -106,7 +107,7 @@ const formatCurrency = (value: number) => {
         <div :class="styles.headerContent">
           <h1 :class="styles.headerTitle">Painel do Lojista</h1>
           <div :class="styles.headerActions">
-            <a :href="`/cardapio/${cardapio.id}`" target="_blank" :class="styles.viewStoreLink">
+            <a :href="`/cardapio/${lojistaId}`" target="_blank" :class="styles.viewStoreLink">
               Ver Loja Online ↗
             </a>
             <button @click="saveToFirestore" :disabled="loading" :class="styles.saveButton">
@@ -125,12 +126,12 @@ const formatCurrency = (value: number) => {
             >
               Produtos
             </button>
-            <button
+            <!-- <button
               @click="activeTab = 'loja'"
               :class="[styles.tab, activeTab === 'loja' ? styles.tabActive : '']"
             >
               Configurações
-            </button>
+            </button> -->
           </div>
 
           <div :class="styles.sidebarContent">
@@ -141,15 +142,11 @@ const formatCurrency = (value: number) => {
                 </button>
 
                 <div :class="styles.productsList">
-                  <p v-if="cardapio.produtos.length === 0" :class="styles.emptyProducts">
+                  <p v-if="cardapio.length === 0" :class="styles.emptyProducts">
                     Nenhum produto cadastrado.
                   </p>
 
-                  <div
-                    v-for="produto in cardapio.produtos"
-                    :key="produto.id"
-                    :class="styles.productItem"
-                  >
+                  <div v-for="produto in cardapio" :key="produto.id" :class="styles.productItem">
                     <div>
                       <div :class="styles.productItemName">{{ produto.nome }}</div>
                       <div :class="styles.productItemPrice">
@@ -209,4 +206,4 @@ const formatCurrency = (value: number) => {
   </div>
 </template>
 
-<style module src="./PainelView.module.css"></style>
+<style module src="./ProdutosView.module.css"></style>

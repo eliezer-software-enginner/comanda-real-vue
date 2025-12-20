@@ -67,4 +67,4 @@ async function handleSubmit(e: Event) {
   <div v-else class="p-8 text-center text-gray-500">Carregando configurações...</div>
 </template>
 
-<style module src="./StoreSettings.module.css"></style>
+<style module src="./ConfiguracoesView.module.css"></style>
