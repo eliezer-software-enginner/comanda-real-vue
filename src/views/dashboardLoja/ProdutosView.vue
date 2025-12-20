@@ -48,20 +48,27 @@ onMounted(() => {
 })
 
 // 3. Handlers de Produto
-const handleSaveProduct = (produto: ProdutoModel) => {
+async function handleSaveProduct(produto: ProdutoModel) {
   const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
 
-  if (existsIndex !== -1) {
-    // Edição: Substitui o produto existente
-    // cardapio.value.produtos[existsIndex] = produto
-  } else {
-    // Criação: Adiciona novo produto
-    //  cardapio.value.produtos.push(produto)
+  try {
+    if (existsIndex !== -1) {
+      // Edição: Substitui o produto existente
+      await cardapioService.atualizar(lojistaId.value, produto)
+      cardapio.value[existsIndex] = produto
+    } else {
+      // Criação: Adiciona novo produto
+      await cardapioService.salvar(produto)
+      cardapio.value.push(produto)
+    }
+  } catch (e: any) {
+    console.error(e)
+    alert(e)
+  } finally {
+    // Reseta estado do formulário
+    editingProduct.value = null
+    isAddingProduct.value = false
   }
-
-  // Reseta estado do formulário
-  editingProduct.value = null
-  isAddingProduct.value = false
 }
 
 async function handleExcluirProduto(produtoId: string) {

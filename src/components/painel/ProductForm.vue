@@ -122,7 +122,7 @@ const handleSubmit = (e: Event) => {
 
     <div :class="styles.actions">
       <button type="button" @click="onCancel" :class="styles.cancelButton">Cancelar</button>
-      <button type="submit" :class="styles.saveButton">Salvar Produto</button>
+      <button v-if="!subindoImagem" type="submit" :class="styles.saveButton">Salvar Produto</button>
     </div>
   </form>
 </template>
