@@ -1,6 +1,12 @@
 <template>
   <v-container :class="$style.menuContainer">
-    <div v-for="categoria in groupedProducts" :key="categoria.name">
+    <div
+      v-for="categoria in groupedProducts"
+      :key="categoria.name"
+      :id="`categoria-${categoria.name}`"
+      :ref="el => setCategoryRef(categoria.name, el as HTMLElement | null)"
+      class="categoria-section"
+    >
 
       <!-- Título da categoria -->
       <div :class="$style.categoriaTitle">
@@ -8,8 +14,12 @@
       </div>
 
       <!-- Produtos -->
-      <div v-for="product in categoria.items" :key="product.id" :class="$style.productRow"
-        @click="$router.push({ name: 'detailProduct', params: { id: product.id } })">
+      <div
+        v-for="product in categoria.items"
+        :key="product.id"
+        :class="$style.productRow"
+        @click="$router.push({ name: 'detailProduct', params: { id: product.id } })"
+      >
         <div :class="$style.productInfo">
           <div :class="$style.productName">
             {{ product.nome }}
@@ -20,7 +30,7 @@
           </div>
 
           <div :class="$style.productPreco">
-            <strong style="color: #2bb673;">R$ {{ product.preco.toFixed(2) }}</strong>
+            <strong style="color: #2bb673">R$ {{ Number(product.preco).toFixed(2) }}</strong>
           </div>
         </div>
         <div v-if="product.imagemUrl" :class="$style.productImagemUrl">
@@ -32,16 +42,61 @@
 </template>
 
 <script lang="ts">
-import type { Product } from '@/services/Produto';
-import { ProdutosService } from '@/services/produtosService/ProdutosService';
+import type { Product } from '@/services/Produto'
 
 export default {
-  name: "CardapioProdutos",
+  name: 'CardapioProdutos',
+
+  props: {
+    products: {
+      type: Array as () => Product[],
+      required: true,
+    },
+  },
+
+  emits: ['category-visible'],
+
   data() {
     return {
-      products: [] as Product[],
-    };
+      observer: null as IntersectionObserver | null,
+      categoryRefs: {} as Record<string, HTMLElement>,
+    }
   },
+
+  mounted() {
+    this.initObserver()
+  },
+
+  beforeUnmount() {
+    this.observer?.disconnect()
+  },
+
+  methods: {
+    setCategoryRef(name: string, el: HTMLElement | null) {
+      if (el && this.observer) {
+        this.categoryRefs[name] = el
+        this.observer.observe(el)
+      }
+    },
+
+    initObserver() {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const categoria = entry.target.id.replace('categoria-', '')
+              this.$emit('category-visible', categoria)
+            }
+          })
+        },
+        {
+          rootMargin: '-40% 0px -50% 0px',
+          threshold: 0,
+        }
+      )
+    },
+  },
+
   computed: {
     groupedProducts(): { name: string; items: Product[] }[] {
       const groups: Record<string, Product[]> = {}
@@ -59,30 +114,6 @@ export default {
       }))
     },
   },
-
-  mounted() {
-    this.getProducts(this.$route.params.id as string)
-  },
-  methods: {
-    async getProducts(lojaId: string): Promise<void> {
-      try {
-        const produtosService = new ProdutosService(lojaId)
-        const data = await produtosService.getLista(lojaId)
-        this.products = data.map((item: any) => ({
-          id: item.id,
-          nome: item.nome,
-          descricao: item.descricao,
-          preco: item.preco,
-          categoria: item.categoria,      
-          imagemUr: item.imagemUr,
-        }))
-      } catch (error: any) {
-        console.error(error)
-        alert(error.message)
-      }
-    },
-  },
-
-};
+}
 </script>
-<style module src='./Cardapio.module.css'></style>
+<style module src="./Cardapio.module.css"></style>

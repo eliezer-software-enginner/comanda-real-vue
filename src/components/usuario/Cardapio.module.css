@@ -1,6 +1,6 @@
 .menuContainer {
-  padding: 0;
-  margin-bottom: 70px;
+  padding: 0 !important;
+  margin: 0;
 }
 
 /* Categoria */

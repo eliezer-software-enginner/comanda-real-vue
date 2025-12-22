@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import CardapioView from '@/views/usuario/CardapioView.vue'
 import DashboardLayout from '@/views/dashboardLoja/DashboardLayout.vue'
 import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
 import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
