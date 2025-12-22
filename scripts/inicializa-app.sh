@@ -22,7 +22,7 @@ npm run firebase:emulators &
 
 # 3. Aguardar estabilização
 echo -e "Aguardando 10s..."
-sleep 10
+sleep 15
 
 # 4. Rodar Seed
 echo -e "${YELLOW}--- Populando Banco de Dados ---${NC}"

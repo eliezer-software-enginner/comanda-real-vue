@@ -9,9 +9,10 @@
       <div class="pedido-card" v-for="pedido in pedidos" :key="pedido.id">
         <div :class="['pedido-card-top', cor]">
           <div class="pedido-card-top-esq">
-            <div>
+            <div class="header-info">
               <Receipt :size="20" color="white" />
               <p>Pedido #{{ pedido.numero }}</p>
+              <button @click="abrirDetalhes(pedido)" class="btn-detalhes">Ver itens</button>
             </div>
 
             <p>{{ formatarMoeda(pedido.total) }}</p>
@@ -42,6 +43,51 @@
         </div>
       </div>
     </div>
+
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-card v-if="pedidoSelecionado">
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span>Itens do Pedido #{{ pedidoSelecionado.numero }}</span>
+          <v-btn icon="mdi-close" variant="text" @click="dialog = false"></v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <v-card-text>
+          <v-list lines="two">
+            <v-list-item
+              v-for="(item, index) in pedidoSelecionado.itens"
+              :key="index"
+              :title="item.nome"
+              :subtitle="item.observacao ? `Obs: ${item.observacao}` : ''"
+            >
+              <template v-slot:prepend>
+                <v-avatar color="grey-lighten-3" size="small"> {{ item.quantidade }}x </v-avatar>
+              </template>
+              <template v-slot:append>
+                <span class="font-weight-bold">
+                  {{ formatarMoeda(item.precoUnitario * item.quantidade) }}
+                </span>
+              </template>
+            </v-list-item>
+          </v-list>
+
+          <v-divider class="my-4"></v-divider>
+
+          <div class="d-flex justify-space-between text-h6 px-4">
+            <span>Total:</span>
+            <span class="text-success font-weight-black">
+              {{ formatarMoeda(pedidoSelecionado.total) }}
+            </span>
+          </div>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="dialog = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -59,6 +105,15 @@ interface Props {
 const props = defineProps<Props>()
 defineEmits(['mudar-status'])
 
+// --- ESTADO DO DIALOG ---
+const dialog = ref(false)
+const pedidoSelecionado = ref<PedidoModel | null>(null)
+
+function abrirDetalhes(pedido: PedidoModel) {
+  pedidoSelecionado.value = pedido
+  dialog.value = true
+}
+
 // --- LÓGICA DO RELÓGIO ---
 const agora = ref(Date.now())
 let intervalId: any
@@ -71,9 +126,6 @@ onMounted(() => {
 
 onUnmounted(() => clearInterval(intervalId))
 
-/**
- * Retorna a data de início correta baseada no status atual
- */
 function obterDataReferencia(pedido: PedidoModel) {
   if (pedido.status === 'em-preparo') return pedido.dataInicioPreparo
   if (pedido.status === 'enviado') return pedido.dataInicioEnvio
@@ -89,12 +141,9 @@ function formatarSegundos(segundos: number) {
 function formatarTimer(dataInicioISO: string) {
   const inicio = new Date(dataInicioISO).getTime()
   const diff = agora.value - inicio
-
   if (diff < 0) return '00:00'
-
   const minutos = Math.floor(diff / 60000)
   const segundos = Math.floor((diff % 60000) / 1000)
-
   return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`
 }
 
@@ -120,6 +169,28 @@ function formatarMoeda(valor: number) {
 </script>
 
 <style scoped>
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-detalhes {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-detalhes:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 /* Estilos das Cores Dinâmicas */
 .danger {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
@@ -129,6 +200,9 @@ function formatarMoeda(valor: number) {
 }
 .success {
   background: linear-gradient(135deg, #10b981, #059669);
+}
+.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 .pedido-card-top {
@@ -149,17 +223,6 @@ function formatarMoeda(valor: number) {
   font-family: monospace;
   font-size: 0.8rem;
   font-weight: bold;
-}
-
-/* Reaproveitando seu CSS com pequenos ajustes */
-.top h1 {
-  font-size: 1.2rem;
-  margin-bottom: 4px;
-}
-.top p {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 15px;
 }
 
 .pedido-card {
