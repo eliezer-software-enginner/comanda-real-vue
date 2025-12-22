@@ -1,23 +1,47 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { PedidoService } from '@/services/pedidoService/PedidoService'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
+import { ProdutosService } from '@/services/produtosService/ProdutosService'
+import { computed, onMounted, ref, type Ref } from 'vue'
 // O useCssModule() permite acessar as classes no <script> se necessário
 import { useCssModule } from 'vue'
+import { useRoute } from 'vue-router'
 
 const $style = useCssModule()
 
+const route = useRoute()
+const lojistaId = computed(() => route.params.id as string)
+
+const pedidoService = new PedidoService()
+const produtosService = new ProdutosService(lojistaId.value)
+
 const stats = ref({
   vendasTotal: 'R$ 12.450,00',
-  pedidos24h: 15,
-  pedidos7d: 84,
+  pedidos24h: 0,
+  pedidos7d: 0,
+  pedidos30d: 0,
   produtosBaixoEstoque: 3,
-  pedidosPendentes: 5,
+  pedidosPendentes: 0,
 })
 
-const maisVendidos = ref([
-  { nome: 'X-Burger Especial', vendas: 120, preco: 'R$ 25,00' },
-  { nome: 'Batata Frita G', vendas: 95, preco: 'R$ 15,00' },
-  { nome: 'Coca-Cola Lata', vendas: 80, preco: 'R$ 6,00' },
-])
+const maisVendidos: Ref<ProdutoModel[]> = ref([])
+
+// const maisVendidos = ref([
+//   { nome: 'X-Burger Especial', vendas: 120, preco: 'R$ 25,00' },
+//   { nome: 'Batata Frita G', vendas: 95, preco: 'R$ 15,00' },
+//   { nome: 'Coca-Cola Lata', vendas: 80, preco: 'R$ 6,00' },
+// ])
+
+onMounted(async () => {
+  stats.value.pedidos24h = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '24H')
+  stats.value.pedidos7d = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '7dias')
+  stats.value.pedidos30d = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '30dias')
+  stats.value.pedidosPendentes = await pedidoService.getTotalPedidosByStatus(
+    lojistaId.value,
+    'pagamento-pendente',
+  )
+  maisVendidos.value = await produtosService.getMaisVendidos()
+})
 </script>
 
 <template>
@@ -55,7 +79,7 @@ const maisVendidos = ref([
         </v-card>
       </v-col>
 
-      <v-col cols="12" sm="6" md="3">
+      <!-- <v-col cols="12" sm="6" md="3">
         <v-card :class="[$style.statCard, $style.kpiRed]" variant="flat">
           <v-card-item title="Estoque Crítico">
             <template v-slot:append
@@ -64,7 +88,7 @@ const maisVendidos = ref([
           </v-card-item>
           <v-card-text :class="$style.statValue">{{ stats.produtosBaixoEstoque }}</v-card-text>
         </v-card>
-      </v-col>
+      </v-col> -->
     </v-row>
 
     <v-row class="mt-8">
@@ -103,7 +127,9 @@ const maisVendidos = ref([
             </v-list-item>
             <v-divider inset></v-divider>
             <v-list-item title="Últimos 30 dias">
-              <template v-slot:append><span class="text-h6 font-weight-bold">342</span></template>
+              <template v-slot:append
+                ><span class="text-h6 font-weight-bold">{{ stats.pedidos30d }}</span></template
+              >
             </v-list-item>
           </v-list>
         </v-card>

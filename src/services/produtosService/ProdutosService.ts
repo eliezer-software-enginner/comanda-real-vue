@@ -3,7 +3,13 @@ import {
   CollectionReference,
   doc,
   DocumentReference,
+  getDocs,
+  increment,
+  limit,
+  orderBy,
+  query,
   setDoc,
+  updateDoc,
   type DocumentData,
 } from 'firebase/firestore'
 
@@ -33,7 +39,7 @@ export class ProdutosService extends CrudService<ProdutoModel> {
       // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
       const novaRef = doc(this.getCollection(this.lojistaId))
       const id = novaRef.id
-      produto.contador = 0
+      produto.vendas = 0
 
       const prd: ProdutoModel = {
         id: id,
@@ -47,6 +53,49 @@ export class ProdutosService extends CrudService<ProdutoModel> {
       return id
     } catch (error) {
       console.error('Erro ao salvar produto:', error)
+      throw error
+    }
+  }
+
+  async getMaisVendidos(quantidade: number = 3): Promise<ProdutoModel[]> {
+    try {
+      this.validarId(this.lojistaId)
+
+      const produtosRef = this.getCollection(this.lojistaId)
+
+      const q = query(produtosRef, orderBy('vendas', 'desc'), limit(quantidade))
+
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ProdutoModel[]
+    } catch (error) {
+      console.error('Erro ao buscar produtos mais vendidos:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Incrementa o contador de vendas de um produto de forma atômica.
+   * Não requer o valor atual do contador por parâmetro.
+   */
+  async incrementarContador(produtoId: string): Promise<void> {
+    try {
+      this.validarId(produtoId)
+
+      // Usamos o método getDoc que você já implementou para pegar a referência correta
+      const produtoRef = this.getDoc(produtoId)
+
+      // O increment(1) soma 1 ao valor atual no banco de dados automaticamente
+      await updateDoc(produtoRef, {
+        vendas: increment(1),
+      })
+
+      console.log(`Contador do produto ${produtoId} incrementado.`)
+    } catch (error) {
+      console.error('Erro ao incrementar contador do produto:', error)
       throw error
     }
   }

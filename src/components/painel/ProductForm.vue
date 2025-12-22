@@ -72,7 +72,7 @@ const handleSubmit = (e: Event) => {
     preco: preco.value,
     categoria: categoria.value,
     imagemUrl: imagemUrl.value,
-    contador: 0,
+    vendas: 0,
     lojistaId: props.lojistaId,
   }
   props.onSave(novoProduto)

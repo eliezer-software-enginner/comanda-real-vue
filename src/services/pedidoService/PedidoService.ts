@@ -13,7 +13,8 @@ import {
 
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
-import type { PedidoModel, PedidoStatus } from './PedidoModel'
+import { ProdutosService } from '../produtosService/ProdutosService'
+import type { Intervalo, PedidoModel, PedidoStatus } from './PedidoModel'
 
 export class PedidoService extends CrudService<PedidoModel> {
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
@@ -28,7 +29,9 @@ export class PedidoService extends CrudService<PedidoModel> {
   protected validarAtualizacao(model: Partial<PedidoModel>): void {
     if (
       model.status &&
-      !['pendente', 'em-preparo', 'enviado', 'concluido'].includes(model.status)
+      !['pendente', 'em-preparo', 'enviado', 'pagamento-pendente', 'concluido'].includes(
+        model.status,
+      )
     ) {
       throw new Error('Status inválido')
     }
@@ -60,9 +63,53 @@ export class PedidoService extends CrudService<PedidoModel> {
       ...doc.data(),
     })) as PedidoModel[]
   }
+
+  async getTotalPedidosByStatus(lojistaId: string, status: PedidoStatus): Promise<number> {
+    this.validarId(lojistaId)
+
+    const pedidosRef = this.getCollection(lojistaId)
+    const q = query(pedidosRef, where('status', '==', status))
+    const snapshot = await getDocs(q)
+
+    return snapshot.size
+  }
+
+  async getTotalPedidosByTempo(lojistaId: string, intervalo: Intervalo): Promise<number> {
+    this.validarId(lojistaId)
+
+    const agora = new Date()
+    const dataInicio = new Date()
+
+    // Cálculo do intervalo
+    if (intervalo === '24H') {
+      dataInicio.setHours(agora.getHours() - 24)
+    } else if (intervalo === '7dias') {
+      dataInicio.setDate(agora.getDate() - 7)
+    } else if (intervalo === '30dias') {
+      dataInicio.setDate(agora.getDate() - 30)
+    }
+
+    const pedidosRef = this.getCollection(lojistaId)
+
+    const q = query(pedidosRef, where('dataCriacao', '>=', dataInicio))
+
+    const snapshot = await getDocs(q)
+
+    return snapshot.size
+  }
+
   protected async handleSalvar(pedido: Omit<PedidoModel, 'id'>): Promise<string> {
     try {
       const docRef = await addDoc(this.getCollection(pedido.lojistaId), pedido)
+
+      // Para cada item do pedido, incrementa o contador no serviço de produtos
+      const produtosService = new ProdutosService(pedido.lojistaId)
+      const promises = pedido.itens.map((item) =>
+        produtosService.incrementarContador(item.produtoId),
+      )
+
+      await Promise.all(promises)
+
       console.log(`Pedido ${docRef.id} salvo com sucesso!`)
       return docRef.id
     } catch (error) {

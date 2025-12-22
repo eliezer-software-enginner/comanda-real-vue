@@ -6,5 +6,5 @@ export interface ProdutoModel {
   categoria: string
   imagemUrl?: string
   lojistaId: string
-  contador: number
+  vendas: number
 }

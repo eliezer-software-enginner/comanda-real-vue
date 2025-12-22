@@ -1,13 +1,13 @@
-import { beforeAll, describe, expect, test } from 'vitest'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { getApp, getApps, initializeApp } from 'firebase/app'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import { beforeAll, describe, expect, test } from 'vitest'
 
-import { LOJISTA_ID } from '@/mocks/lojista-mock'
 import { MOCK_FIREBASE_CONFIG } from '@/mocks/firebaseConfig.mock'
-import type { PedidoModel } from './PedidoModel'
-import { PedidoService } from './PedidoService'
+import { LOJISTA_ID } from '@/mocks/lojista-mock'
 import type { ProdutoModel } from '../produtosService/ProdutosModel'
 import { ProdutosService } from '../produtosService/ProdutosService'
+import type { PedidoModel } from './PedidoModel'
+import { PedidoService } from './PedidoService'
 
 describe('crud de pedidos', () => {
   let produtoService: ProdutosService
@@ -32,7 +32,7 @@ describe('crud de pedidos', () => {
       imagemUrl:
         'https://imgs.search.brave.com/3rSVij0jhsZYblY1eMa7x23QcjmtaqUjZJ4DL9yClJA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTM4/NzAzNy9wZXhlbHMt/cGhvdG8tMTM4NzAz/Ny5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdw01MDA',
       lojistaId: LOJISTA_ID,
-      contador: 0,
+      vendas: 0,
     }
 
     const produtoId = await produtoService.salvar(produto)
@@ -65,7 +65,7 @@ describe('crud de pedidos', () => {
       imagemUrl:
         'https://imgs.search.brave.com/3rSVij0jhsZYblY1eMa7x23QcjmtaqUjZJ4DL9yClJA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTM4/NzAzNy9wZXhlbHMt/cGhvdG8tMTM4NzAz/Ny5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdw01MDA',
       lojistaId: LOJISTA_ID,
-      contador: 0,
+      vendas: 0,
     }
 
     const produtoId = await produtoService.salvar(produto)

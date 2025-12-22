@@ -18,7 +18,14 @@ export type PedidoModel = {
   tempoEnvioSegundos?: number
 }
 
-export type PedidoStatus = 'pendente' | 'em-preparo' | 'enviado' | 'concluido'
+export type PedidoStatus =
+  | 'pendente'
+  | 'em-preparo'
+  | 'enviado'
+  | 'pagamento-pendente'
+  | 'concluido'
+
+export type Intervalo = '24H' | '7dias' | '30dias'
 
 export type ItemPedido = {
   produtoId: string
