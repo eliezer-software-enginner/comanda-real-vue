@@ -1,0 +1,95 @@
+.mainContainer {
+  padding: 24px;
+}
+
+.headerSection {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.pageSubtitle {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* Cards de Estatísticas (KPIs) */
+.statCard {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+/* Variantes de Cores para os Cards */
+.kpiBlue {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+.kpiGreen {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+.kpiOrange {
+  background-color: #fff7ed;
+  color: #9a3412;
+}
+.kpiRed {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+/* Seção de Conteúdo (Tabelas e Listas) */
+.contentCard {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  height: 100%;
+}
+
+.sectionTitle {
+  font-weight: 600 !important;
+  color: #334155;
+  padding: 16px !important;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.customTable {
+  background: transparent !important;
+}
+
+.customTable thead {
+  background-color: #f8fafc;
+}
+
+.customTable th {
+  color: #64748b !important;
+  text-transform: uppercase;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em;
+}
+
+.salesBadge {
+  background-color: #e2e8f0;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
