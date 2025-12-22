@@ -1,0 +1,167 @@
+.text-right {
+  text-align: right;
+}
+
+.storeHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+
+}
+
+.headerLoja {
+  background-color: #ffffff;
+}
+
+.deliveryHeader {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 12px;
+  margin-top: 15px;
+}
+
+/* Logo */
+.storeLogo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.storeLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Conteúdo */
+.storeInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.storeName {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Categoria + status */
+.storeMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.storeCategoria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: #f3f4f6;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.storeStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.storeStatus.open {
+  border: 1px solid #2bb673;
+  color: #2bb673;
+  background-color: #f1fcf7;
+}
+
+/* Info extra */
+.storeExtra {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.storeLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+
+
+/* Seta */
+.arrowIcon {
+  color: #111827;
+}
+
+.deliveryIcon {
+  color: #6b7280;
+}
+
+.deliveryLabel {
+  color: #6b7280;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+.categories-wrapper {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  overflow-x: auto;
+}
+
+/* Item */
+.categoria-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.categoria-item:hover {
+  background-color: #e5e7eb;
+}
+
+/* Ativo */
+.categoria-item.active {
+  background-color: #2bb673;
+  color: #ffffff;
+}
+
+.categoria-item.active v-icon {
+  color: #ffffff;
+}
+
+/* Remove scrollbar visual (opcional) */
+.categories-wrapper::-webkit-scrollbar {
+  display: none;
+}

@@ -1,58 +1,13 @@
 <template>
   <div class="home-page">
-    <div class="header-loja">
-      <div class="store-header">
-        <!-- Logo -->
-        <div class="store-logo">
-          <img src="../../assets/logo.png" alt="Logo da loja" />
-        </div>
-
-        <!-- Informações -->
-        <div class="store-info">
-          <span class="store-name">Food fácil</span>
-
-          <div class="store-meta">
-            <div class="store-categoria">
-              <v-icon size="16">mdi-silverware-fork-knife</v-icon>
-              <span>Salgadoria</span>
-            </div>
-
-            <div class="store-status open">
-              <v-icon size="16">mdi-clock-outline</v-icon>
-              <span>Aberta</span>
-            </div>
-          </div>
-
-          <div class="store-extra">
-            <span class="store-location">
-              <v-icon size="16">mdi-map-marker-outline</v-icon>
-              Brás Pires, Minas Gerais
-            </span>
-          </div>
-        </div>
-
-        <!-- Seta -->
-        <v-icon class="arrow-icon">mdi-chevron-right</v-icon>
-      </div>
-      <v-divider />
-      <div class=" delivery-header">
-
-        <v-icon size="16" class="delivery-icon">
-          mdi-bike-fast
-        </v-icon>
-
-        <span class="delivery-label">
-          Selecione um endereço para entrega
-        </span>
-      </div>
-    </div>
+    <HeaderLoja />
     <div class="categories-wrapper">
       <div v-for="(categoria, index) in categories" :key="index" class="categoria-item"
-        :class="{ active: selectedcategoria === categoria.id }" @click="selectedcategoria = categoria.id">
-        <span>{{ categoria.label }}</span>
+        :class="{ active: selectedcategoria === categoria.id }" @click="scrollToCategory(categoria.id)">
+        {{ categoria.label }}
       </div>
     </div>
-    <Cardapio />
+    <Cardapio :products="products" @category-visible="selectedcategoria = $event" />
   </div>
 
   <v-footer app class="white--text" style="background-color: #fff;">
@@ -83,24 +38,82 @@
 
 <script lang="ts">
 import Cardapio from '@/components/usuario/Cardapio.vue'
+import HeaderLoja from '@/components/usuario/HeaderLoja.vue';
+import type { Product } from '@/services/Produto';
+import { ProdutosService } from '@/services/produtosService/ProdutosService';
 
 export default {
   name: "HomeCardapio",
   data() {
     return {
-      loading: true,
-      categories: [
-        { id: 'popular', label: 'Mais pedidos' },
-        { id: 'snacks', label: 'Lanches' },
-        { id: 'drinks', label: 'Bebidas' },
-        { id: 'desserts', label: 'Sobremesas' }
-      ],
-      selectedcategoria: 'popular'
+      products: [] as Product[],
+      selectedcategoria: undefined as string | undefined
     }
   },
   components: {
-    Cardapio
+    Cardapio,
+    HeaderLoja
   },
+  async mounted() {
+    await this.getProducts(this.$route.params.id as string)
+  },
+
+  computed: {
+    categories() {
+      const categorias = new Set<string>()
+
+      this.products.forEach((product) => {
+        if (product.categoria) {
+          categorias.add(product.categoria)
+        }
+      })
+
+      return Array.from(categorias).map((categoria) => ({
+        id: categoria,
+        label: categoria
+      }))
+    }
+  },
+
+  watch: {
+    categories(newCategories) {
+      if (newCategories.length && !this.selectedcategoria) {
+        this.selectedcategoria = newCategories[0].id
+      }
+    }
+  },
+
+  methods: {
+    scrollToCategory(categoriaId: string) {
+      const el = document.getElementById(`categoria-${categoriaId}`)
+
+      if (el) {
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      }
+
+      this.selectedcategoria = categoriaId
+    },
+    async getProducts(lojaId: string): Promise<void> {
+      try {
+        const produtosService = new ProdutosService(lojaId)
+        const data = await produtosService.getLista(lojaId)
+        this.products = data.map((item: any) => ({
+          id: item.id,
+          nome: item.nome,
+          descricao: item.descricao,
+          preco: item.preco,
+          categoria: item.categoria,
+          imagemUr: item.imagemUr,
+        }))
+      } catch (error: any) {
+        console.error(error)
+        alert(error.message)
+      }
+    },
+  }
 };
 </script>
 
@@ -108,143 +121,17 @@ export default {
 .home-page {
   margin-top: 15px;
   background-color: rgb(235, 235, 235);
-  ;
 }
-
-.text-right {
-  text-align: right;
-}
-
-.store-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-
-}
-
-.header-loja {
-  background-color: #ffffff;
-}
-
-.delivery-header {
-
-  padding: 10px 12px;
-  margin-top: 15px;
-}
-
-/* Logo */
-.store-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  border: 1px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.store-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Conteúdo */
-.store-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.store-name {
-  font-size: 17px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* Categoria + status */
-.store-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.store-categoria {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background-color: #f3f4f6;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.store-status {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.store-status.open {
-  border: 1px solid #2bb673;
-  color: #2bb673;
-  background-color: #f1fcf7;
-}
-
-/* Info extra */
-.store-extra {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.store-location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-
-
-/* Seta */
-.arrow-icon {
-  color: #111827;
-}
-
-/* Linha entrega */
-.delivery-header {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.delivery-icon {
-  color: #6b7280;
-}
-
-.delivery-label {
-  color: #6b7280;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .categories-wrapper {
+  position: sticky;
+  top: 0.5px;
+  z-index: 100;
   display: flex;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 12px 20px;
   background-color: #ffffff;
   overflow-x: auto;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 /* Item */
