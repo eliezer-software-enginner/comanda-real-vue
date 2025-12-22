@@ -5,18 +5,34 @@ import {
   doc,
   DocumentReference,
   getDoc,
+  setDoc,
   type DocumentData,
 } from 'firebase/firestore'
 
+import { v4 as uuidv4 } from 'uuid'
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
+import type { LojistaDto } from './LojistaDto'
 import type { LojistaModel } from './LojistaModel'
 
-export class LojistaService extends CrudService<LojistaModel> {
+export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
+  protected prepararDadosPreCriacao(dadoInicial: LojistaDto): LojistaModel {
+    return {
+      dtCriacao: new Date(),
+      id: dadoInicial.id != undefined ? dadoInicial.id : '',
+      logoUrl: '',
+      nome: dadoInicial.nome,
+      whatsapp: '',
+      slug: uuidv4(),
+      status: 'ativo',
+    }
+  }
+
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     return doc(db, 'apps', 'comanda-real', 'lojistas', id)
   }
-  protected getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData> {
+
+  protected getCollection(): CollectionReference<DocumentData, DocumentData> {
     return collection(db, 'apps', 'comanda-real', 'lojistas')
   }
 
@@ -36,11 +52,26 @@ export class LojistaService extends CrudService<LojistaModel> {
     }
   }
 
-  async handleSalvar(lojista: Omit<LojistaModel, 'id'>): Promise<string> {
+  async handleSalvar(model: LojistaModel): Promise<LojistaModel> {
     try {
-      const docRef = await addDoc(collection(db, 'apps', 'comanda-real', 'lojistas'), lojista)
-      console.log(`Lojista ${docRef.id} salvo com sucesso!`)
-      return docRef.id
+      const lojistaId = model.id
+
+      if (lojistaId) {
+        // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
+        const ref = this.getDoc(lojistaId)
+        model.id = lojistaId
+
+        // 2. Salva tudo de uma vez
+        await setDoc(ref, model)
+        console.log(`Lojista ${lojistaId} salvo com sucesso!`)
+
+        return model
+      } else {
+        const docRef = await addDoc(this.getCollection(), model)
+        model.id = docRef.id
+        console.log(`Lojista ${docRef.id} salvo com sucesso!`)
+        return model
+      }
     } catch (error) {
       console.error('Erro ao salvar lojista:', error)
       throw error

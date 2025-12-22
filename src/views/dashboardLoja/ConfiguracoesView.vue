@@ -33,7 +33,7 @@ async function handleSubmit(e: Event) {
   if (inputData.value == null) return
 
   try {
-    await service.atualizar(lojistaId.value, inputData.value!)
+    await service.atualizar(inputData.value!)
   } catch (e: any) {
     alert(e.message)
   }

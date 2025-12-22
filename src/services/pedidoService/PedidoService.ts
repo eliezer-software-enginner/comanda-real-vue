@@ -14,12 +14,40 @@ import {
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
 import { ProdutosService } from '../produtosService/ProdutosService'
+import type { PedidoDto } from './PedidoDto'
 import type { Intervalo, PedidoModel, PedidoStatus } from './PedidoModel'
 
-export class PedidoService extends CrudService<PedidoModel> {
+export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
+  private lojistaId: string
+
+  constructor(lojistaId: string) {
+    super()
+    this.lojistaId = lojistaId
+  }
+
+  protected prepararDadosPreCriacao(data: PedidoDto): PedidoModel {
+    let total = 0
+
+    for (const produto of data.itens) {
+      total += produto.precoUnitario * produto.quantidade
+    }
+    return {
+      cliente: data.cliente,
+      dataCriacao: new Date(),
+      id: '',
+      itens: data.itens,
+      lojistaId: data.lojistaId,
+      numero: Date.now(),
+      status: 'pendente',
+      tipoPagamento: data.tipoPagamento,
+      total: total,
+    }
+  }
+
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     throw new Error('Method not implemented.')
   }
+
   protected validarCriacao(model: Omit<PedidoModel, 'id'>): void {
     if (model.itens.length == 0) {
       throw new Error('Pedido está vazio')
@@ -38,7 +66,7 @@ export class PedidoService extends CrudService<PedidoModel> {
   }
 
   listenPedidos(lojistaId: string, callback: (pedidos: PedidoModel[]) => void): Unsubscribe {
-    const pedidosRef = this.getCollection(lojistaId)
+    const pedidosRef = this.getCollection()
     // Criamos uma query para pegar todos os pedidos ativos (não finalizados, por exemplo)
     const q = query(pedidosRef)
 
@@ -54,7 +82,7 @@ export class PedidoService extends CrudService<PedidoModel> {
   async getPedidosByStatus(lojistaId: string, status: PedidoStatus): Promise<PedidoModel[]> {
     this.validarId(lojistaId)
 
-    const pedidosRef = this.getCollection(lojistaId)
+    const pedidosRef = this.getCollection()
     const q = query(pedidosRef, where('status', '==', status))
     const snapshot = await getDocs(q)
 
@@ -64,18 +92,18 @@ export class PedidoService extends CrudService<PedidoModel> {
     })) as PedidoModel[]
   }
 
-  async getTotalPedidosByStatus(lojistaId: string, status: PedidoStatus): Promise<number> {
-    this.validarId(lojistaId)
+  async getTotalPedidosByStatus(status: PedidoStatus): Promise<number> {
+    this.validarId(this.lojistaId)
 
-    const pedidosRef = this.getCollection(lojistaId)
+    const pedidosRef = this.getCollection()
     const q = query(pedidosRef, where('status', '==', status))
     const snapshot = await getDocs(q)
 
     return snapshot.size
   }
 
-  async getTotalPedidosByTempo(lojistaId: string, intervalo: Intervalo): Promise<number> {
-    this.validarId(lojistaId)
+  async getTotalPedidosByTempo(intervalo: Intervalo): Promise<number> {
+    this.validarId(this.lojistaId)
 
     const agora = new Date()
     const dataInicio = new Date()
@@ -89,7 +117,7 @@ export class PedidoService extends CrudService<PedidoModel> {
       dataInicio.setDate(agora.getDate() - 30)
     }
 
-    const pedidosRef = this.getCollection(lojistaId)
+    const pedidosRef = this.getCollection()
 
     const q = query(pedidosRef, where('dataCriacao', '>=', dataInicio))
 
@@ -98,9 +126,9 @@ export class PedidoService extends CrudService<PedidoModel> {
     return snapshot.size
   }
 
-  protected async handleSalvar(pedido: Omit<PedidoModel, 'id'>): Promise<string> {
+  protected async handleSalvar(pedido: PedidoModel): Promise<PedidoModel> {
     try {
-      const docRef = await addDoc(this.getCollection(pedido.lojistaId), pedido)
+      const docRef = await addDoc(this.getCollection(), pedido)
 
       // Para cada item do pedido, incrementa o contador no serviço de produtos
       const produtosService = new ProdutosService(pedido.lojistaId)
@@ -111,18 +139,19 @@ export class PedidoService extends CrudService<PedidoModel> {
       await Promise.all(promises)
 
       console.log(`Pedido ${docRef.id} salvo com sucesso!`)
-      return docRef.id
+      pedido.id = docRef.id
+      return pedido
     } catch (error) {
       console.error('Erro ao salvar dados completos:', error)
       throw error
     }
   }
 
-  protected getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData> {
-    return collection(db, 'apps', 'comanda-real', 'lojistas', lojaId, 'pedidos')
+  protected getCollection(): CollectionReference<DocumentData, DocumentData> {
+    return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'pedidos')
   }
 
-  async mudarStatus(lojistaId: string, pedido: PedidoModel, novoStatus: PedidoStatus) {
+  async mudarStatus(pedido: PedidoModel, novoStatus: PedidoStatus) {
     const agora = new Date()
     const dadosAtualizacao: any = {
       id: pedido.id,
@@ -159,6 +188,6 @@ export class PedidoService extends CrudService<PedidoModel> {
       }
     }
 
-    return this.atualizar(lojistaId, dadosAtualizacao)
+    return this.atualizar(dadosAtualizacao)
   }
 }

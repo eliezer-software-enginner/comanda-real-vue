@@ -12,7 +12,7 @@ const $style = useCssModule()
 const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
 
-const pedidoService = new PedidoService()
+const pedidoService = new PedidoService(lojistaId.value)
 const produtosService = new ProdutosService(lojistaId.value)
 
 const stats = ref({
@@ -33,13 +33,10 @@ const maisVendidos: Ref<ProdutoModel[]> = ref([])
 // ])
 
 onMounted(async () => {
-  stats.value.pedidos24h = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '24H')
-  stats.value.pedidos7d = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '7dias')
-  stats.value.pedidos30d = await pedidoService.getTotalPedidosByTempo(lojistaId.value, '30dias')
-  stats.value.pedidosPendentes = await pedidoService.getTotalPedidosByStatus(
-    lojistaId.value,
-    'pagamento-pendente',
-  )
+  stats.value.pedidos24h = await pedidoService.getTotalPedidosByTempo('24H')
+  stats.value.pedidos7d = await pedidoService.getTotalPedidosByTempo('7dias')
+  stats.value.pedidos30d = await pedidoService.getTotalPedidosByTempo('30dias')
+  stats.value.pedidosPendentes = await pedidoService.getTotalPedidosByStatus('pagamento-pendente')
   maisVendidos.value = await produtosService.getMaisVendidos()
 })
 </script>

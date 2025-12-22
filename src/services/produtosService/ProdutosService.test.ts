@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { MOCK_FIREBASE_CONFIG } from '@/mocks/firebaseConfig.mock'
 import { LOJISTA_ID } from '@/mocks/lojista-mock'
-import type { ProdutoModel } from './ProdutosModel'
+import { produtosTeste } from '@/mocks/produtos.mock'
 import { ProdutosService } from './ProdutosService'
 
 describe('crud de produtos', () => {
@@ -21,34 +21,20 @@ describe('crud de produtos', () => {
   })
 
   test('deve criar produto', async () => {
-    const produto: Omit<ProdutoModel, 'id'> = {
-      nome: 'Batata Frita Rústica',
-      descricao: 'Porção individual com alecrim e páprica.',
-      preco: '12.0',
-      categoria: 'Acompanhamentos',
-      imagemUrl:
-        'https://imgs.search.brave.com/3rSVij0jhsZYblY1eMa7x23QcjmtaqUjZJ4DL9yClJA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTM4/NzAzNy9wZXhlbHMt/cGhvdG8tMTM4NzAz/Ny5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdw01MDA',
-      lojistaId: LOJISTA_ID,
-      vendas: 0,
-    }
+    const produtoRequest = produtosTeste[1]!
 
-    const id = await service.salvar(produto)
+    const produto = await service.criar(produtoRequest)
+    const id = produto.id
+
     expect(id).toBeDefined()
   })
 
   test('deve listar produtos', async () => {
-    const produto: Omit<ProdutoModel, 'id'> = {
-      nome: 'Batata Frita Rústica',
-      descricao: 'Porção individual com alecrim e páprica.',
-      preco: '12.0',
-      categoria: 'Acompanhamentos',
-      imagemUrl:
-        'https://imgs.search.brave.com/3rSVij0jhsZYblY1eMa7x23QcjmtaqUjZJ4DL9yClJA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTM4/NzAzNy9wZXhlbHMt/cGhvdG8tMTM4NzAz/Ny5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdw01MDA',
-      lojistaId: LOJISTA_ID,
-      vendas: 0,
-    }
+    const produtoRequest = produtosTeste[2]!
 
-    const id = await service.salvar(produto)
+    const produto = await service.criar(produtoRequest)
+    const id = produto.id
+
     expect(id).toBeDefined()
 
     const produtos = await service.getLista(LOJISTA_ID)

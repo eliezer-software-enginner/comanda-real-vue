@@ -2,12 +2,9 @@ export type PedidoModel = {
   id: string
   numero: number
   lojistaId: string
-  tipoPagamento: 'dinheiro' | 'pix' | 'cartao-credito' | 'cartao-debito'
+  tipoPagamento: TipoPagamento
   itens: ItemPedido[]
-  cliente: {
-    nome: string
-    telefone: string // WhatsApp
-  }
+  cliente: Cliente
   total: number
   dataCriacao: Date
   status: PedidoStatus
@@ -16,6 +13,13 @@ export type PedidoModel = {
 
   tempoPreparoSegundos?: number
   tempoEnvioSegundos?: number
+}
+
+export type TipoPagamento = 'dinheiro' | 'pix' | 'cartao-credito' | 'cartao-debito'
+
+export type Cliente = {
+  nome: string
+  telefone: string // WhatsApp
 }
 
 export type PedidoStatus =

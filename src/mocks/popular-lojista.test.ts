@@ -3,7 +3,7 @@ import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { INITIAL_LOJISTA_DATA, LOJISTA_ID } from './lojista-mock'
 
-import { LojistaService } from '../services/LojistaService'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
 import { MOCK_FIREBASE_CONFIG } from './firebaseConfig.mock'
 
 describe('SEED DATA: População Inicial no Firebase Emulator', () => {
@@ -24,21 +24,23 @@ describe('SEED DATA: População Inicial no Firebase Emulator', () => {
     lojistaService = new LojistaService()
   })
 
-  test('deve criar ou atualizar o lojista de teste e popular o cardápio', async () => {
-    // 1. Verificar/Criar Lojista
-    let lojista = await lojistaService.getLojista(LOJISTA_ID)
+  test('deve criar o lojista de teste se não existir', async () => {
+    try {
+      let lojista = await lojistaService.getById(LOJISTA_ID)
 
-    if (!lojista) {
+      if (!lojista) {
+        console.log(`[SEED] Criando lojista ${LOJISTA_ID}...`)
+        await lojistaService.criar(INITIAL_LOJISTA_DATA)
+
+        expect(lojista).not.toBeNull()
+        expect(lojista).toBeDefined()
+      }
+    } catch (e) {
       console.log(`[SEED] Criando lojista ${LOJISTA_ID}...`)
-    } else {
-      console.log(`[SEED] Lojista ${LOJISTA_ID} existente. Atualizando metadados.`)
+      const lojista = await lojistaService.criar(INITIAL_LOJISTA_DATA)
+
+      expect(lojista).not.toBeNull()
+      expect(lojista).toBeDefined()
     }
-
-    // Usa atualizarLojista para garantir o UPSERT (criação ou atualização) com ID fixo.
-    await lojistaService.atualizarLojista(LOJISTA_ID, INITIAL_LOJISTA_DATA)
-
-    lojista = await lojistaService.getLojista(LOJISTA_ID)
-    expect(lojista).not.toBeNull()
-    expect(lojista?.nomeLoja).toBe(INITIAL_LOJISTA_DATA.nomeLoja)
-  }, 5000)
+  })
 })

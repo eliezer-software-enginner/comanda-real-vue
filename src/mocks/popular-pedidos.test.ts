@@ -2,7 +2,8 @@ import { getApp, getApps, initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import type { PedidoModel } from '@/services/pedidoService/PedidoModel'
+import type { PedidoDto } from '@/services/pedidoService/PedidoDto'
+import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import { PedidoService } from '../services/pedidoService/PedidoService'
 import { ProdutosService } from '../services/produtosService/ProdutosService'
 import { MOCK_FIREBASE_CONFIG } from './firebaseConfig.mock'
@@ -20,75 +21,100 @@ describe('população de pedidos', () => {
     connectFirestoreEmulator(db, 'localhost', 8080)
 
     produtoService = new ProdutosService(LOJISTA_ID)
-    service = new PedidoService()
+    service = new PedidoService(LOJISTA_ID)
   })
 
   test('deve criar pedido com status aguardando', async () => {
-    const produto = produtosTeste[0]!
-    const produtoId = await produtoService.salvar(produto)
+    const produtoDto: ProdutoDto = produtosTeste[0]!
+    const produto = await produtoService.criar(produtoDto)
+    expect(produto).toBeDefined()
+
+    const produtoId = produto.id
     expect(produtoId).toBeDefined()
 
-    const pedido: Omit<PedidoModel, 'id'> = {
+    const pedidoRequest: PedidoDto = {
       cliente: {
         nome: 'CLiente-teste',
         telefone: '12345678910',
       },
-      itens: [{ nome: produto.nome, precoUnitario: 1, produtoId: produtoId, quantidade: 2 }],
+      itens: [
+        {
+          nome: produtoDto.nome,
+          precoUnitario: produtoDto.preco,
+          produtoId: produtoId,
+          quantidade: 2,
+        },
+      ],
       lojistaId: LOJISTA_ID,
-      dataCriacao: new Date(),
-      status: 'pendente',
       tipoPagamento: 'dinheiro',
-      total: 1,
-      numero: Date.now(),
     }
 
-    const id = await service.salvar(pedido)
+    const pedido = await service.criar(pedidoRequest)
+    const id = pedido.id
     expect(id).toBeDefined()
   })
 
   test('deve criar pedido com status em preparo', async () => {
-    const produto = produtosTeste[1]!
-    const produtoId = await produtoService.salvar(produto)
+    const produtoDto: ProdutoDto = produtosTeste[0]!
+    const produto = await produtoService.criar(produtoDto)
+    expect(produto).toBeDefined()
+
+    const produtoId = produto.id
     expect(produtoId).toBeDefined()
 
-    const pedido: Omit<PedidoModel, 'id'> = {
+    const pedidoRequest: PedidoDto = {
       cliente: {
         nome: 'CLiente-teste',
         telefone: '12345678910',
       },
-      itens: [{ nome: produto.nome, precoUnitario: 1, produtoId: produtoId, quantidade: 2 }],
+      itens: [
+        {
+          nome: produtoDto.nome,
+          precoUnitario: produtoDto.preco,
+          produtoId: produtoId,
+          quantidade: 2,
+        },
+      ],
       lojistaId: LOJISTA_ID,
-      dataCriacao: new Date(),
-      status: 'em-preparo',
       tipoPagamento: 'dinheiro',
-      total: 1,
-      numero: Date.now(),
     }
 
-    const id = await service.salvar(pedido)
+    const pedido = await service.criar(pedidoRequest)
+    const id = pedido.id
     expect(id).toBeDefined()
+
+    await service.mudarStatus(pedido, 'em-preparo')
   })
 
   test('deve criar pedido com status sendo enviado', async () => {
-    const produto = produtosTeste[2]!
-    const produtoId = await produtoService.salvar(produto)
+    const produtoDto: ProdutoDto = produtosTeste[0]!
+    const produto = await produtoService.criar(produtoDto)
+    expect(produto).toBeDefined()
+
+    const produtoId = produto.id
     expect(produtoId).toBeDefined()
 
-    const pedido: Omit<PedidoModel, 'id'> = {
+    const pedidoRequest: PedidoDto = {
       cliente: {
         nome: 'CLiente-teste',
         telefone: '12345678910',
       },
-      itens: [{ nome: produto.nome, precoUnitario: 1, produtoId: produtoId, quantidade: 2 }],
+      itens: [
+        {
+          nome: produtoDto.nome,
+          precoUnitario: produtoDto.preco,
+          produtoId: produtoId,
+          quantidade: 2,
+        },
+      ],
       lojistaId: LOJISTA_ID,
-      dataCriacao: new Date(),
-      status: 'enviado',
       tipoPagamento: 'dinheiro',
-      total: 1,
-      numero: Date.now(),
     }
 
-    const id = await service.salvar(pedido)
+    const pedido = await service.criar(pedidoRequest)
+    const id = pedido.id
     expect(id).toBeDefined()
+
+    await service.mudarStatus(pedido, 'enviado')
   })
 })

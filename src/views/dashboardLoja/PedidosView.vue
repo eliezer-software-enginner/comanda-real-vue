@@ -8,7 +8,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
 const todosOsPedidos = ref<PedidoModel[]>([])
-const service = new PedidoService()
+const service = new PedidoService(lojistaId.value)
 let unsubscribe: (() => void) | null = null
 
 const pedidosPendentes = computed(() => todosOsPedidos.value.filter((p) => p.status === 'pendente'))
@@ -38,7 +38,7 @@ async function handleMudarStatus(pedido: PedidoModel) {
   if (!destino) return
 
   try {
-    await service.mudarStatus(lojistaId.value, pedido, destino)
+    await service.mudarStatus(pedido, destino)
   } catch (e: any) {
     alert('Erro ao atualizar: ' + e.message)
   }

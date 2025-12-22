@@ -63,17 +63,19 @@ const handleSubmit = (e: Event) => {
   e.preventDefault()
 
   // Tratamento do preço (substitui vírgula por ponto para garantir o parseFloat)
-  //const precoNumerico = parseFloat(preco.value.replace(',', '.'))
+  const precoNumerico = parseFloat(preco.value.replace(',', '.'))
 
   const novoProduto: ProdutoModel = {
     id: props.initialData?.id || `prod_${Date.now()}`,
     nome: nome.value,
     descricao: descricao.value,
-    preco: preco.value,
+    preco: precoNumerico,
     categoria: categoria.value,
     imagemUrl: imagemUrl.value,
-    vendas: 0,
     lojistaId: props.lojistaId,
+    dtCriacao: new Date(),
+    status: 'ativo',
+    vendas: 0,
   }
   props.onSave(novoProduto)
 }

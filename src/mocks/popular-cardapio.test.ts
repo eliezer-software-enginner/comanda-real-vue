@@ -24,7 +24,7 @@ describe('SEED DATA: Populando cardapio', () => {
   test('deve criar o cardápio', async () => {
     // 2. Popular Cardápio
     console.log(`[SEED] Populando cardápio 'principal' com dados de teste.`)
-    await Promise.all(produtosTeste.map((produto) => cardapioService.salvar(produto)))
+    await Promise.all(produtosTeste.map((produto) => cardapioService.criar(produto)))
 
     // 3. Verificação Final
     const cardapio = await cardapioService.getLista(LOJISTA_ID)

@@ -54,11 +54,19 @@ async function handleSaveProduct(produto: ProdutoModel) {
   try {
     if (existsIndex !== -1) {
       // Edição: Substitui o produto existente
-      await cardapioService.atualizar(lojistaId.value, produto)
+      await cardapioService.atualizar(produto)
       cardapio.value[existsIndex] = produto
     } else {
       // Criação: Adiciona novo produto
-      await cardapioService.salvar(produto)
+      await cardapioService.criar({
+        categoria: produto.categoria,
+        descricao: produto.categoria,
+        imagemUrl: produto.imagemUrl,
+        lojistaId: produto.lojistaId,
+        nome: produto.nome,
+        // preco: Number.parseFloat(produto.preco),
+        preco: produto.preco,
+      })
       cardapio.value.push(produto)
     }
   } catch (e: any) {

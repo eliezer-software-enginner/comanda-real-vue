@@ -17,9 +17,10 @@ import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage
 
 import { CrudService } from '../CrudService'
 import { db, storage } from '../firebaseConfig'
+import type { ProdutoDto } from './ProdutoDto'
 import type { ProdutoModel } from './ProdutosModel'
 
-export class ProdutosService extends CrudService<ProdutoModel> {
+export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
   private lojistaId: string
 
   constructor(lojistaId: string) {
@@ -27,30 +28,46 @@ export class ProdutosService extends CrudService<ProdutoModel> {
     this.lojistaId = lojistaId
   }
 
+  protected prepararDadosPreCriacao(data: ProdutoDto): ProdutoModel {
+    return {
+      categoria: data.categoria,
+      descricao: data.descricao,
+      lojistaId: data.lojistaId,
+      nome: data.nome,
+      preco: data.preco,
+      imagemUrl: data.imagemUrl,
+      id: '',
+      dtCriacao: new Date(),
+      vendas: 0,
+      status: 'ativo',
+    }
+  }
+
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     return doc(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos', id)
   }
-  protected getCollection(lojaId: string): CollectionReference<DocumentData, DocumentData> {
-    return collection(db, 'apps', 'comanda-real', 'lojistas', lojaId, 'produtos')
+
+  protected getCollection(): CollectionReference<DocumentData, DocumentData> {
+    return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
   }
 
-  async handleSalvar(produto: Omit<ProdutoModel, 'id'>): Promise<string> {
+  async handleSalvar(produto: ProdutoModel): Promise<ProdutoModel> {
     try {
       // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
-      const novaRef = doc(this.getCollection(this.lojistaId))
+      const novaRef = doc(this.getCollection())
       const id = novaRef.id
       produto.vendas = 0
 
       const prd: ProdutoModel = {
-        id: id,
         ...produto,
+        id: id,
       }
 
       // 2. Salva tudo de uma vez
       await setDoc(novaRef, prd)
       console.log(`Produto ${id} salvo com sucesso!`)
 
-      return id
+      return prd
     } catch (error) {
       console.error('Erro ao salvar produto:', error)
       throw error
@@ -61,7 +78,7 @@ export class ProdutosService extends CrudService<ProdutoModel> {
     try {
       this.validarId(this.lojistaId)
 
-      const produtosRef = this.getCollection(this.lojistaId)
+      const produtosRef = this.getCollection()
 
       const q = query(produtosRef, orderBy('vendas', 'desc'), limit(quantidade))
 
@@ -100,7 +117,7 @@ export class ProdutosService extends CrudService<ProdutoModel> {
     }
   }
 
-  protected validarCriacao(model: Omit<ProdutoModel, 'id'>): void {
+  protected validarCriacao(model: Partial<ProdutoModel>): void {
     if (!model.nome || model.nome.trim() === '') {
       throw new Error('Nome é obrigatório')
     }
