@@ -16,18 +16,6 @@ import type { LojistaDto } from './LojistaDto'
 import type { LojistaModel } from './LojistaModel'
 
 export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
-  protected prepararDadosPreCriacao(dadoInicial: LojistaDto): LojistaModel {
-    return {
-      dtCriacao: new Date(),
-      id: dadoInicial.id != undefined ? dadoInicial.id : '',
-      logoUrl: '',
-      nome: dadoInicial.nome,
-      whatsapp: '',
-      slug: uuidv4(),
-      status: 'ativo',
-    }
-  }
-
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     return doc(db, 'apps', 'comanda-real', 'lojistas', id)
   }
@@ -49,6 +37,7 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       slug: data.slug,
       status: data.status,
       whatsapp: data.whatsapp,
+      horariosFuncionamento: data.horariosFuncionamento || [],
     }
   }
 
@@ -78,6 +67,19 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
     }
   }
 
+  protected prepararDadosPreCriacao(dadoInicial: LojistaDto): LojistaModel {
+    return {
+      dtCriacao: new Date(),
+      id: dadoInicial.id != undefined ? dadoInicial.id : '',
+      logoUrl: '',
+      nome: dadoInicial.nome,
+      whatsapp: '',
+      slug: uuidv4(),
+      status: 'ativo',
+      horariosFuncionamento: dadoInicial.horariosFuncionamento || [],
+    }
+  }
+
   protected validarCriacao(model: Omit<LojistaModel, 'id'>): void {
     if (!model.nome || model.nome.trim() === '') {
       throw new Error('Nome é obrigatório')
@@ -88,5 +90,41 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
     if (!model.nome || model.nome.trim() === '') {
       throw new Error('Nome é obrigatório')
     }
+  }
+
+  /**
+   * Verifica se o lojista está aberto com base nos horários de funcionamento
+   */
+  public async isAbertaAgora(lojistaId: string): Promise<boolean> {
+    const lojista = await this.getById(lojistaId)
+
+    const horarios = lojista.horariosFuncionamento
+
+    if (!horarios || horarios.length === 0) return false
+
+    const agora = new Date()
+    // Pegamos a hora e minuto atual (ex: 14:30 -> 14 * 60 + 30 = 870 minutos)
+    const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+
+    // Função auxiliar para converter "HH:mm" em minutos totais
+    const converterParaMinutos = (horarioStr: string): number => {
+      const [horas, minutos] = horarioStr.split(':').map(Number)
+      return (horas ?? 0) * 60 + (minutos ?? 0)
+    }
+
+    // Verifica se o momento atual está dentro de QUALQUER um dos intervalos
+    return horarios.some((intervalo) => {
+      const inicio = converterParaMinutos(intervalo.de)
+      const fim = converterParaMinutos(intervalo.ate)
+
+      // Caso padrão: horário de abertura é menor que o de fechamento (ex: 08:00 às 18:00)
+      if (inicio <= fim) {
+        return minutosAgora >= inicio && minutosAgora <= fim
+      }
+
+      // Caso especial: atravessa a meia-noite (ex: 18:00 às 02:00)
+      // Aberto se: (Agora >= 18:00) OU (Agora <= 02:00)
+      return minutosAgora >= inicio || minutosAgora <= fim
+    })
   }
 }

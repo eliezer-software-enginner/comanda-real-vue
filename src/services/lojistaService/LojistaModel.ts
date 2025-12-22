@@ -6,6 +6,11 @@ export interface LojistaModel {
   slug: string
   dtCriacao: Date
   status: StatusLoja
+  horariosFuncionamento?: HorariosFuncionamento[]
 }
 
 type StatusLoja = 'ativo' | 'excluido' | 'suspenso'
+export type HorariosFuncionamento = {
+  de: string
+  ate: string
+}

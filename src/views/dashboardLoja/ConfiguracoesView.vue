@@ -38,6 +38,21 @@ async function handleSubmit(e: Event) {
     alert(e.message)
   }
 }
+
+function adicionarHorario() {
+  if (!inputData.value) return
+
+  // Inicializa o array caso esteja undefined
+  if (!inputData.value.horariosFuncionamento) {
+    inputData.value.horariosFuncionamento = []
+  }
+
+  inputData.value.horariosFuncionamento.push({ de: '08:00', ate: '18:00' })
+}
+
+function removerHorario(index: number) {
+  inputData.value?.horariosFuncionamento?.splice(index, 1)
+}
 </script>
 
 <template>
@@ -47,6 +62,42 @@ async function handleSubmit(e: Event) {
     <div :class="styles.formGroup">
       <label>Nome da Loja</label>
       <input type="text" required v-model="inputData.nome" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <div :class="styles.labelHeader">
+        <label>Horários de Funcionamento</label>
+        <button type="button" @click="adicionarHorario" :class="styles.btnAdd">+ Adicionar</button>
+      </div>
+
+      <div
+        v-for="(horario, index) in inputData.horariosFuncionamento"
+        :key="index"
+        :class="styles.horarioRow"
+      >
+        <div :class="styles.timeInputGroup">
+          <span>De:</span>
+          <input type="time" v-model="horario.de" required />
+        </div>
+
+        <div :class="styles.timeInputGroup">
+          <span>Até:</span>
+          <input type="time" v-model="horario.ate" required />
+        </div>
+
+        <button
+          type="button"
+          @click="removerHorario(index)"
+          :class="styles.btnDelete"
+          title="Remover horário"
+        >
+          ✕
+        </button>
+      </div>
+
+      <p v-if="!inputData.horariosFuncionamento?.length" :class="styles.emptyMsg">
+        Nenhum horário configurado.
+      </p>
     </div>
 
     <div :class="styles.formGroup">
