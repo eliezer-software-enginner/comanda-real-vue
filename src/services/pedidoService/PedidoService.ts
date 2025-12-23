@@ -235,4 +235,55 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
 
     return this.atualizar(dadosAtualizacao)
   }
+
+  async getFaturamentoByTempo(intervalo: Intervalo): Promise<number> {
+    logger.info('tentativa de obter faturamento dado determinado intervalo', {
+      label: 'PedidoService',
+      method: 'getFaturamentoByTempo',
+      dado: { intervalo },
+    })
+
+    this.validarId(this.lojistaId)
+
+    const agora = new Date()
+    const dataInicio = new Date()
+
+    // Cálculo do intervalo
+    if (intervalo === '24H') {
+      dataInicio.setHours(agora.getHours() - 24)
+    } else if (intervalo === '7dias') {
+      dataInicio.setDate(agora.getDate() - 7)
+    } else if (intervalo === '30dias') {
+      dataInicio.setDate(agora.getDate() - 30)
+    }
+
+    const pedidosRef = this.getCollection()
+
+    // Query filtrando por data e apenas pedidos com status 'concluido'
+    const q = query(
+      pedidosRef,
+      where('dataCriacao', '>=', dataInicio),
+      where('status', '==', 'concluido'),
+    )
+
+    const snapshot = await getDocs(q)
+
+    // Soma o campo 'total' de cada pedido
+    const faturamentoTotal = snapshot.docs.reduce((acc, doc) => {
+      const dados = doc.data() as PedidoModel
+      return acc + (dados.total || 0)
+    }, 0)
+
+    logger.info('faturamento calculado com sucesso', {
+      label: 'PedidoService',
+      method: 'getFaturamentoByTempo',
+      dado: {
+        intervalo: intervalo,
+        faturamento: faturamentoTotal,
+        quantidadePedidos: snapshot.size,
+      },
+    })
+
+    return faturamentoTotal
+  }
 }

@@ -5,3 +5,7 @@
 const isDevelopment = import.meta.env.MODE === 'development'
 
 export { isDevelopment }
+
+export const getMoedaFormatada = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+}

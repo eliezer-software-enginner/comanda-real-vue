@@ -2,6 +2,7 @@
 import { PedidoService } from '@/services/pedidoService/PedidoService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
+import { getMoedaFormatada } from '@/utils/Utils'
 import { computed, onMounted, ref, type Ref } from 'vue'
 // O useCssModule() permite acessar as classes no <script> se necessário
 import { useCssModule } from 'vue'
@@ -37,6 +38,7 @@ onMounted(async () => {
   stats.value.pedidos7d = await pedidoService.getTotalPedidosByTempo('7dias')
   stats.value.pedidos30d = await pedidoService.getTotalPedidosByTempo('30dias')
   stats.value.pedidosPendentes = await pedidoService.getTotalPedidosByStatus('pagamento-pendente')
+  stats.value.vendasTotal = getMoedaFormatada(await pedidoService.getFaturamentoByTempo('24H'))
   maisVendidos.value = await produtosService.getMaisVendidos()
 })
 </script>
