@@ -1,14 +1,24 @@
 import logger from '@/plugins/logs'
 import {
+  addDoc,
   deleteDoc,
   doc,
   DocumentReference,
   getDoc,
   getDocs,
+  orderBy,
+  query,
+  setDoc,
   updateDoc,
   type CollectionReference,
   type DocumentData,
+  type OrderByDirection,
 } from 'firebase/firestore'
+
+export type FiltroOptions = {
+  campo: string
+  ordem: 'crescente' | 'decrescrente'
+}
 
 type Identificavel = {
   id: string
@@ -33,6 +43,7 @@ export abstract class CrudService<InputData, T extends Identificavel> {
       dado: data,
       model: model,
     })
+
     return this.handleSalvar(model)
   }
 
@@ -62,17 +73,62 @@ export abstract class CrudService<InputData, T extends Identificavel> {
     }
   }
 
-  protected abstract handleSalvar(model: Partial<T>): Promise<T>
+  protected async handleSalvar(model: T): Promise<T> {
+    const lojistaId = model.id
+
+    if (lojistaId) {
+      // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
+      const ref = this.getDoc(lojistaId)
+      model.id = lojistaId
+
+      // 2. Salva tudo de uma vez
+      await setDoc(ref, model)
+
+      logger.info(`Dado ${lojistaId} salvo com sucesso com id próprio!`)
+
+      return model
+    } else {
+      const docRef = await addDoc(this.getCollection(), model)
+      model.id = docRef.id
+      logger.info(`Dado ${docRef.id} salvo com sucesso!`)
+      return model
+    }
+  }
 
   // ---------- READ ----------
-  async getLista(lojistaId: string): Promise<T[]> {
-    this.validarId(lojistaId)
-
+  async getLista(): Promise<T[]> {
     const snapshot = await getDocs(this.getCollection())
     return snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as T[]
+  }
+
+  async getListaBy(opcoesDeFiltro: FiltroOptions): Promise<T[]> {
+    try {
+      logger.info('tentativa de obter dados por filtro', {
+        label: 'CrudService',
+        method: 'getListaBy',
+        dado: opcoesDeFiltro,
+      })
+
+      const ref = this.getCollection()
+
+      const orderByDirection: OrderByDirection =
+        opcoesDeFiltro.ordem == 'crescente' ? 'asc' : 'desc'
+
+      const q = query(ref, orderBy(opcoesDeFiltro.campo, orderByDirection))
+
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as T[]
+    } catch (error) {
+      logger.error('Erro ao buscar dados por filtro', error)
+      throw error
+    }
   }
 
   async getById(id: string): Promise<T> {

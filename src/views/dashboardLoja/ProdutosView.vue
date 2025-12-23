@@ -36,7 +36,7 @@ onMounted(() => {
   const fetchInitialData = async () => {
     try {
       // Use o ID de loja fixo para carregar
-      const lista = await cardapioService.getLista(lojistaId.value)
+      const lista = await cardapioService.getLista()
       cardapio.value = lista
     } catch (error: unknown) {
       console.error('Erro ao carregar cardápio:', error)
@@ -59,12 +59,11 @@ async function handleSaveProduct(produto: ProdutoModel) {
     } else {
       // Criação: Adiciona novo produto
       await cardapioService.criar({
-        categoria: produto.categoria,
-        descricao: produto.categoria,
+        categoriaId: produto.categoriaId,
+        descricao: produto.descricao,
         imagemUrl: produto.imagemUrl,
         lojistaId: produto.lojistaId,
         nome: produto.nome,
-        // preco: Number.parseFloat(produto.preco),
         preco: produto.preco,
       })
       cardapio.value.push(produto)

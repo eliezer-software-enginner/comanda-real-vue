@@ -37,7 +37,7 @@ describe('crud de produtos', () => {
 
     expect(id).toBeDefined()
 
-    const produtos = await service.getLista(LOJISTA_ID)
+    const produtos = await service.getLista()
     expect(produtos).toBeDefined()
     expect(produtos.length).toBeGreaterThan(0)
   })

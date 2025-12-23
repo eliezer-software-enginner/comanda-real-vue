@@ -8,7 +8,6 @@ import {
   limit,
   orderBy,
   query,
-  setDoc,
   updateDoc,
   type DocumentData,
 } from 'firebase/firestore'
@@ -31,13 +30,13 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
 
   protected prepararDadosPreCriacao(data: ProdutoDto): ProdutoModel {
     return {
-      categoria: data.categoria,
+      categoriaId: data.categoriaId,
       descricao: data.descricao,
       lojistaId: data.lojistaId,
       nome: data.nome,
       preco: data.preco,
       imagemUrl: data.imagemUrl,
-      id: '',
+      id: data.id || '',
       dtCriacao: new Date(),
       vendas: 0,
       status: 'ativo',
@@ -50,29 +49,6 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
 
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
-  }
-
-  async handleSalvar(produto: ProdutoModel): Promise<ProdutoModel> {
-    try {
-      // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
-      const novaRef = doc(this.getCollection())
-      const id = novaRef.id
-      produto.vendas = 0
-
-      const prd: ProdutoModel = {
-        ...produto,
-        id: id,
-      }
-
-      // 2. Salva tudo de uma vez
-      await setDoc(novaRef, prd)
-      logger.info(`Produto salvo com sucesso!`, { id: id })
-
-      return prd
-    } catch (error) {
-      logger.error('Erro ao salvar produto:', error)
-      throw error
-    }
   }
 
   async getMaisVendidos(quantidade: number = 3): Promise<ProdutoModel[]> {
@@ -125,6 +101,14 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
 
     if (model.preco == undefined || model.preco <= 0) {
       throw new Error('Preço inválido')
+    }
+
+    if (model.imagemUrl == undefined || model.imagemUrl == '') {
+      throw new Error('Imagem é obrigatória')
+    }
+
+    if (model.categoriaId == undefined || model.categoriaId == '') {
+      throw new Error('Categoria é obrigatória')
     }
   }
 

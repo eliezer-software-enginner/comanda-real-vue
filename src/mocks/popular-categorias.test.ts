@@ -2,13 +2,13 @@ import { getApp, getApps, initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { ProdutosService } from '../services/produtosService/ProdutosService'
+import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { MOCK_FIREBASE_CONFIG } from './firebaseConfig.mock'
 import { LOJISTA_ID } from './lojista-mock'
-import { produtosTeste } from './produtos.mock'
+import { categoriasMock } from './produtos.mock'
 
-describe('SEED DATA: Populando cardapio', () => {
-  let cardapioService: ProdutosService
+describe('SEED DATA: Populando categorias', () => {
+  let categoriaService: CategoriaService
 
   beforeAll(() => {
     console.log('[SEED TEST] Conectando ao Firebase Emulator na porta 8080...')
@@ -18,19 +18,18 @@ describe('SEED DATA: Populando cardapio', () => {
     const db = getFirestore(app)
     connectFirestoreEmulator(db, 'localhost', 8080)
 
-    cardapioService = new ProdutosService(LOJISTA_ID)
+    categoriaService = new CategoriaService(LOJISTA_ID)
   })
 
-  test('deve criar o cardápio', async () => {
-    // 2. Popular Cardápio
-    console.log(`[SEED] Populando cardápio 'principal' com dados de teste.`)
-    await Promise.all(produtosTeste.map((produto) => cardapioService.criar(produto)))
+  test('deve criar as categorias', async () => {
+    console.log(`[SEED] Populando categoria com dados de teste.`)
+    await Promise.all(categoriasMock.map((it) => categoriaService.criar(it)))
 
     // 3. Verificação Final
-    const cardapio = await cardapioService.getLista()
+    const lista = await categoriaService.getLista()
 
-    expect(cardapio).not.toBeNull()
-    expect(cardapio?.length).toBeGreaterThan(0) // Garante que produtos foram inseridos
+    expect(lista).not.toBeNull()
+    expect(lista?.length).toBeGreaterThan(0) // Garante que produtos foram inseridos
     console.log(`[SEED] População concluída com sucesso para ID: ${LOJISTA_ID}`)
   }, 10000)
 })

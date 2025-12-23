@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import logger from '@/plugins/logs'
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
+import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { nextTick, onMounted, ref, useCssModule, watch } from 'vue'
 // 1. Importar o hook da biblioteca
 import { useCurrencyInput } from 'vue-currency-input'
-
-const styles = useCssModule()
 
 interface ProductFormProps {
   onSave: (produto: ProdutoModel) => void
@@ -14,15 +14,23 @@ interface ProductFormProps {
   initialData?: ProdutoModel
   lojistaId: string
 }
+
+const styles = useCssModule()
+
 const props = defineProps<ProductFormProps>()
+
+const service = new ProdutosService(props.lojistaId)
+const categoriasService = new CategoriaService(props.lojistaId)
 
 // 2. Estado (ref)
 const nome = ref(props.initialData?.nome || '')
 const descricao = ref(props.initialData?.descricao || '')
 
-const categoria = ref(props.initialData?.categoria || '')
+const categoriaId = ref(props.initialData?.categoriaId || '')
 const imagemUrl = ref(props.initialData?.imagemUrl || '')
 const subindoImagem = ref(false)
+
+const categorias = ref<CategoriaModel[]>([])
 
 // 3. Configuração do Currency Input
 const { inputRef, numberValue, setValue } = useCurrencyInput({
@@ -34,24 +42,29 @@ const { inputRef, numberValue, setValue } = useCurrencyInput({
   hideGroupingSeparatorOnFocus: false,
 })
 
-onMounted(() => {
+onMounted(async () => {
   logger.info('carregando produto', { label: 'ProdutoForm', dado: props.initialData })
+  try {
+    const lista = await categoriasService.getLista()
+    categorias.value = lista
+    logger.info('categorias carregadas', { label: 'ProdutoForm', total: lista.length })
+  } catch (error) {
+    logger.error('Erro ao carregar categorias', { error })
+  }
 
-  setValue(props.initialData?.preco || 0)
+  logger.info('carregando produto', { label: 'ProdutoForm', dado: props.initialData })
 })
-
-const service = new ProdutosService(props.lojistaId)
 
 watch(
   () => props.initialData,
   async (newData) => {
     nome.value = newData?.nome || ''
     descricao.value = newData?.descricao || ''
-    categoria.value = newData?.categoria || ''
+    categoriaId.value = newData?.categoriaId || ''
     imagemUrl.value = newData?.imagemUrl || ''
 
     if (newData?.preco != null) {
-      await nextTick()
+      await nextTick() //aqui eu garanto que o input vai estar disponivel para receber um value
       setValue(newData.preco)
     }
   },
@@ -83,7 +96,7 @@ const handleSubmit = (e: Event) => {
     nome: nome.value,
     descricao: descricao.value,
     preco: numberValue.value == null ? 0 : numberValue.value,
-    categoria: categoria.value,
+    categoriaId: categoriaId.value,
     imagemUrl: imagemUrl.value,
     lojistaId: props.lojistaId,
     dtCriacao: new Date(),
@@ -104,7 +117,7 @@ const handleSubmit = (e: Event) => {
     </div>
 
     <div :class="styles.formGroup">
-      <label>Descrição</label>
+      <label>Descrição (Opcional)</label>
       <textarea rows="3" v-model="descricao" />
     </div>
 
@@ -113,10 +126,20 @@ const handleSubmit = (e: Event) => {
         <label>Preço (R$)</label>
         <input ref="inputRef" type="text" required placeholder="0,00" />
       </div>
+
       <div :class="styles.formGroup">
         <label>Categoria</label>
-        <input type="text" required placeholder="Ex: Lanches" v-model="categoria" />
+        <select v-model="categoriaId" required>
+          <option value="" disabled selected>Selecione uma categoria</option>
+          <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
+            {{ cat.nome }}
+          </option>
+        </select>
       </div>
+      <!-- <div :class="styles.formGroup">
+        <label>Categoria</label>
+        <input type="text" required placeholder="Ex: Lanches" v-model="categoria" />
+      </div> -->
     </div>
 
     <div :class="styles.formGroup">

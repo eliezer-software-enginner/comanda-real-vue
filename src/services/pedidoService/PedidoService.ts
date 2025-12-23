@@ -161,6 +161,7 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
     return snapshot.size
   }
 
+  /**@override */
   protected async handleSalvar(pedido: PedidoModel): Promise<PedidoModel> {
     try {
       const docRef = await addDoc(this.getCollection(), pedido)

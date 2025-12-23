@@ -1,11 +1,11 @@
 export interface ProdutoModel {
   id: string
+  lojistaId: string
+  categoriaId: string
   nome: string
   descricao: string
   preco: number
-  categoria: string
   imagemUrl: string
-  lojistaId: string
   vendas: number
   dtCriacao: Date
   status: ProdutoStatus
