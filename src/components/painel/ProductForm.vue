@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import logger from '@/plugins/logs'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import { ref, useCssModule, watch } from 'vue'
+import { nextTick, onMounted, ref, useCssModule, watch } from 'vue'
+// 1. Importar o hook da biblioteca
+import { useCurrencyInput } from 'vue-currency-input'
 
 const styles = useCssModule()
 
-// 1. Definição de Props (Tipagem com TS)
 interface ProductFormProps {
   onSave: (produto: ProdutoModel) => void
   onCancel: () => void
@@ -15,39 +17,53 @@ interface ProductFormProps {
 const props = defineProps<ProductFormProps>()
 
 // 2. Estado (ref)
-// Inicializa os refs com os dados iniciais, se existirem
 const nome = ref(props.initialData?.nome || '')
 const descricao = ref(props.initialData?.descricao || '')
-// Converte o preço numérico para string para o input (Vue 3/Vite aceita o toString() diretamente no ref)
-const preco = ref(props.initialData?.preco.toString() || '')
+
 const categoria = ref(props.initialData?.categoria || '')
 const imagemUrl = ref(props.initialData?.imagemUrl || '')
 const subindoImagem = ref(false)
-const inputImagem = ref<HTMLInputElement | null>(null)
+
+// 3. Configuração do Currency Input
+const { inputRef, numberValue, setValue } = useCurrencyInput({
+  currency: 'BRL',
+  locale: 'pt-BR',
+  precision: 2,
+  valueRange: { min: 0 },
+  hideCurrencySymbolOnFocus: false,
+  hideGroupingSeparatorOnFocus: false,
+})
+
+onMounted(() => {
+  logger.info('carregando produto', { label: 'ProdutoForm', dado: props.initialData })
+
+  setValue(props.initialData?.preco || 0)
+})
 
 const service = new ProdutosService(props.lojistaId)
 
-// 3. Monitorar `initialData` (Necessário se o formulário for reutilizado na mesma página para editar itens diferentes)
 watch(
   () => props.initialData,
-  (newData) => {
+  async (newData) => {
     nome.value = newData?.nome || ''
     descricao.value = newData?.descricao || ''
-    preco.value = newData?.preco.toString() || ''
     categoria.value = newData?.categoria || ''
     imagemUrl.value = newData?.imagemUrl || ''
+
+    if (newData?.preco != null) {
+      await nextTick()
+      setValue(newData.preco)
+    }
   },
-  { deep: true },
+  { immediate: true },
 )
 
 async function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
-
     try {
       subindoImagem.value = true
-      // Chamamos o método que criamos no passo 2
       const url = await service.uploadImagem(props.lojistaId, file)
       imagemUrl.value = url
     } catch (e) {
@@ -58,18 +74,15 @@ async function handleFileChange(event: Event) {
   }
 }
 
-// 4. Função de Submissão
+// 5. Função de Submissão simplificada (não precisa mais de replace)
 const handleSubmit = (e: Event) => {
   e.preventDefault()
-
-  // Tratamento do preço (substitui vírgula por ponto para garantir o parseFloat)
-  const precoNumerico = parseFloat(preco.value.replace(',', '.'))
 
   const novoProduto: ProdutoModel = {
     id: props.initialData?.id || `prod_${Date.now()}`,
     nome: nome.value,
     descricao: descricao.value,
-    preco: precoNumerico,
+    preco: numberValue.value == null ? 0 : numberValue.value,
     categoria: categoria.value,
     imagemUrl: imagemUrl.value,
     lojistaId: props.lojistaId,
@@ -98,7 +111,7 @@ const handleSubmit = (e: Event) => {
     <div :class="styles.gridCols2">
       <div :class="styles.formGroup">
         <label>Preço (R$)</label>
-        <input type="number" step="0.01" required v-model="preco" />
+        <input ref="inputRef" type="text" required placeholder="0,00" />
       </div>
       <div :class="styles.formGroup">
         <label>Categoria</label>
@@ -116,11 +129,6 @@ const handleSubmit = (e: Event) => {
       <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
       <p v-if="subindoImagem">Subindo imagem...</p>
     </div>
-    <!-- 
-    <div :class="styles.formGroup">
-      <label>URL da Imagem</label>
-      <input type="url" v-model="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" />
-    </div> -->
 
     <div :class="styles.actions">
       <button type="button" @click="onCancel" :class="styles.cancelButton">Cancelar</button>

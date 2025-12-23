@@ -123,9 +123,9 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       throw new Error('Nome é obrigatório')
     }
 
-    // if (!model.preco || model.preco <= 0) {
-    //   throw new Error('Preço inválido')
-    // }
+    if (model.preco == undefined || model.preco <= 0) {
+      throw new Error('Preço inválido')
+    }
   }
 
   protected validarAtualizacao(model: Partial<ProdutoModel>): void {
