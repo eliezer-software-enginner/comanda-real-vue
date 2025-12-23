@@ -2,57 +2,61 @@
   <div class="home-page">
     <HeaderLoja />
     <div class="categories-wrapper">
-      <div v-for="(categoria, index) in categories" :key="index" class="categoria-item"
-        :class="{ active: selectedcategoria === categoria.id }" @click="scrollToCategory(categoria.id)">
+      <div
+        v-for="(categoria, index) in categories"
+        :key="index"
+        class="categoria-item"
+        :class="{ active: selectedcategoria === categoria.id }"
+        @click="scrollToCategory(categoria.id)"
+      >
         {{ categoria.label }}
       </div>
     </div>
     <Cardapio :products="products" @category-visible="selectedcategoria = $event" />
   </div>
 
-  <v-footer app class="white--text" style="background-color: #fff;">
+  <v-footer app class="white--text" style="background-color: #fff">
     <v-container class="pa-0">
       <v-row no-gutters justify="space-around" align="center">
         <!-- Ícone Início -->
         <v-col class="text-center">
           <v-icon color="black">mdi-home</v-icon>
-          <div class="text-caption" style="color: black;">Início</div>
+          <div class="text-caption" style="color: black">Início</div>
         </v-col>
 
         <!-- Ícone Pedidos -->
         <v-col class="text-center">
           <v-icon color="black">mdi-receipt-text</v-icon>
-          <div class="text-caption" style="color: black;">Pedidos</div>
+          <div class="text-caption" style="color: black">Pedidos</div>
         </v-col>
 
         <!-- Ícone Perfil -->
         <v-col class="text-center">
           <v-icon color="black">mdi-account</v-icon>
-          <div class="text-caption" style="color: black;">Perfil</div>
+          <div class="text-caption" style="color: black">Perfil</div>
         </v-col>
       </v-row>
     </v-container>
   </v-footer>
-
 </template>
 
 <script lang="ts">
 import Cardapio from '@/components/usuario/Cardapio.vue'
-import HeaderLoja from '@/components/usuario/HeaderLoja.vue';
-import type { Product } from '@/services/Produto';
-import { ProdutosService } from '@/services/produtosService/ProdutosService';
+import HeaderLoja from '@/components/usuario/HeaderLoja.vue'
+import type { Product } from '@/services/Produto'
+import { ProdutosService } from '@/services/produtosService/ProdutosService'
 
 export default {
-  name: "HomeCardapio",
+  name: 'HomeCardapio',
   data() {
     return {
       products: [] as Product[],
-      selectedcategoria: undefined as string | undefined
+      selectedcategoria: undefined as string | undefined,
     }
   },
   components: {
     Cardapio,
-    HeaderLoja
+    HeaderLoja,
   },
   async mounted() {
     await this.getProducts(this.$route.params.id as string)
@@ -70,9 +74,9 @@ export default {
 
       return Array.from(categorias).map((categoria) => ({
         id: categoria,
-        label: categoria
+        label: categoria,
       }))
-    }
+    },
   },
 
   watch: {
@@ -80,7 +84,7 @@ export default {
       if (newCategories.length && !this.selectedcategoria) {
         this.selectedcategoria = newCategories[0].id
       }
-    }
+    },
   },
 
   methods: {
@@ -99,7 +103,7 @@ export default {
     async getProducts(lojaId: string): Promise<void> {
       try {
         const produtosService = new ProdutosService(lojaId)
-        const data = await produtosService.getLista(lojaId)
+        const data = await produtosService.getLista()
         this.products = data.map((item: any) => ({
           id: item.id,
           nome: item.nome,
@@ -113,8 +117,8 @@ export default {
         alert(error.message)
       }
     },
-  }
-};
+  },
+}
 </script>
 
 <style scoped>
