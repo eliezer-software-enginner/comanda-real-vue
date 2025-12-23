@@ -9,6 +9,7 @@ import {
   type DocumentData,
 } from 'firebase/firestore'
 
+import logger from '@/plugins/logs'
 import { v4 as uuidv4 } from 'uuid'
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
@@ -52,17 +53,18 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
 
         // 2. Salva tudo de uma vez
         await setDoc(ref, model)
-        console.log(`Lojista ${lojistaId} salvo com sucesso!`)
+
+        logger.info(`Lojista ${lojistaId} salvo com sucesso!`)
 
         return model
       } else {
         const docRef = await addDoc(this.getCollection(), model)
         model.id = docRef.id
-        console.log(`Lojista ${docRef.id} salvo com sucesso!`)
+        logger.info(`Lojista ${docRef.id} salvo com sucesso!`)
         return model
       }
     } catch (error) {
-      console.error('Erro ao salvar lojista:', error)
+      logger.error('Erro ao salvar lojista:', error)
       throw error
     }
   }
@@ -96,6 +98,14 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
    * Verifica se o lojista está aberto com base nos horários de funcionamento
    */
   public async isAbertaAgora(lojistaId: string): Promise<boolean> {
+    logger.info('verificando se a loja está aberta agora', {
+      label: 'LojistaService',
+      method: 'isAbertaAgora',
+      dado: {
+        lojistaId: lojistaId,
+      },
+    })
+
     const lojista = await this.getById(lojistaId)
 
     const horarios = lojista.horariosFuncionamento

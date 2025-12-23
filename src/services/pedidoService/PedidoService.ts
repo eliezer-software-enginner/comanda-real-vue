@@ -11,6 +11,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore'
 
+import logger from '@/plugins/logs'
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
 import { ProdutosService } from '../produtosService/ProdutosService'
@@ -93,16 +94,41 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
   }
 
   async getTotalPedidosByStatus(status: PedidoStatus): Promise<number> {
+    logger.info('tentativa de obter volume de pedidos por status', {
+      label: 'PedidoService',
+      method: 'getTotalPedidosByStatus',
+      dado: {
+        status: status,
+      },
+    })
+
     this.validarId(this.lojistaId)
 
     const pedidosRef = this.getCollection()
     const q = query(pedidosRef, where('status', '==', status))
     const snapshot = await getDocs(q)
 
+    logger.info('volume de pedidos buscado com sucesso', {
+      label: 'PedidoService',
+      method: 'getTotalPedidosByStatus',
+      dado: {
+        status: status,
+        quantidade: snapshot.size,
+      },
+    })
+
     return snapshot.size
   }
 
   async getTotalPedidosByTempo(intervalo: Intervalo): Promise<number> {
+    logger.info('tentativa de obter volume de pedidos dado determinado intervalo', {
+      label: 'PedidoService',
+      method: 'getTotalPedidosByTempo',
+      dado: {
+        intervalo: intervalo,
+      },
+    })
+
     this.validarId(this.lojistaId)
 
     const agora = new Date()
@@ -123,6 +149,15 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
 
     const snapshot = await getDocs(q)
 
+    logger.info('volume de pedidos buscado com sucesso', {
+      label: 'PedidoService',
+      method: 'getTotalPedidosByTempo',
+      dado: {
+        intervalo: intervalo,
+        quantidade: snapshot.size,
+      },
+    })
+
     return snapshot.size
   }
 
@@ -138,11 +173,11 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
 
       await Promise.all(promises)
 
-      console.log(`Pedido ${docRef.id} salvo com sucesso!`)
+      logger.info(`Pedido ${docRef.id} salvo com sucesso!`)
       pedido.id = docRef.id
       return pedido
     } catch (error) {
-      console.error('Erro ao salvar dados completos:', error)
+      logger.error('Erro ao salvar dados completos:', error)
       throw error
     }
   }
@@ -152,6 +187,15 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
   }
 
   async mudarStatus(pedido: PedidoModel, novoStatus: PedidoStatus) {
+    logger.info('mudando status do pedido', {
+      label: 'PedidoService',
+      method: 'mudarStatus',
+      dado: {
+        statusAtual: pedido.status,
+        novoStatus: novoStatus,
+      },
+    })
+
     const agora = new Date()
     const dadosAtualizacao: any = {
       id: pedido.id,

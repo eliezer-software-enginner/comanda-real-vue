@@ -2,6 +2,8 @@ import { getApp, getApps, initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore' // Importe connectFirestoreEmulator
 import { connectStorageEmulator, getStorage } from 'firebase/storage'
 
+import logger from '@/plugins/logs'
+
 // ... sua inicialização do app
 
 // 1. Defina a configuração
@@ -24,9 +26,10 @@ const storage = getStorage(app)
 if (import.meta.env.MODE !== 'production') {
   // Verifique se o Emulador está disponível e conecte-se a ele.
   // A porta padrão para o Firestore Emulator é 8080.
-  console.log(
+  logger.info(
     'Ambiente de desenvolvimento detectado. Conectando-se ao Firestore Emulator na porta 8080.',
   )
+
   connectFirestoreEmulator(db, 'localhost', 8080)
   connectStorageEmulator(storage, 'localhost', 9199)
 }

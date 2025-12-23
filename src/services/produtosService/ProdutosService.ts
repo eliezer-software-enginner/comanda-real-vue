@@ -15,6 +15,7 @@ import {
 
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage'
 
+import logger from '@/plugins/logs'
 import { CrudService } from '../CrudService'
 import { db, storage } from '../firebaseConfig'
 import type { ProdutoDto } from './ProdutoDto'
@@ -65,11 +66,11 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
 
       // 2. Salva tudo de uma vez
       await setDoc(novaRef, prd)
-      console.log(`Produto ${id} salvo com sucesso!`)
+      logger.info(`Produto salvo com sucesso!`, { id: id })
 
       return prd
     } catch (error) {
-      console.error('Erro ao salvar produto:', error)
+      logger.error('Erro ao salvar produto:', error)
       throw error
     }
   }
@@ -89,7 +90,7 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
         ...doc.data(),
       })) as ProdutoModel[]
     } catch (error) {
-      console.error('Erro ao buscar produtos mais vendidos:', error)
+      logger.error('Erro ao buscar produtos mais vendidos:', error)
       throw error
     }
   }
@@ -110,9 +111,9 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
         vendas: increment(1),
       })
 
-      console.log(`Contador do produto ${produtoId} incrementado.`)
+      logger.info(`Contador do produto ${produtoId} incrementado.`)
     } catch (error) {
-      console.error('Erro ao incrementar contador do produto:', error)
+      logger.error('Erro ao incrementar contador do produto:', error)
       throw error
     }
   }
@@ -152,7 +153,7 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       // Retorna a URL pública
       return await getDownloadURL(snapshot.ref)
     } catch (error) {
-      console.error('Erro no upload da imagem:', error)
+      logger.error('Erro no upload da imagem:', error)
       throw new Error('Falha ao subir imagem')
     }
   }
