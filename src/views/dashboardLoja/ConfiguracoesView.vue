@@ -110,6 +110,11 @@ function removerHorario(index: number) {
       <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" />
     </div>
 
+    <div :class="styles.formGroup">
+      <label>Sua url final (exemplo: minha-lanchonete)</label>
+      <input v-model="inputData.slug" placeholder="exemplo: minha-lanchonete" />
+    </div>
+
     <div :class="styles.submitSection">
       <button type="submit" :class="styles.submitButton">Salvar Configurações</button>
     </div>
