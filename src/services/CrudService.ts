@@ -1,6 +1,5 @@
 import logger from '@/plugins/logs'
 import {
-  addDoc,
   deleteDoc,
   doc,
   DocumentReference,
@@ -73,25 +72,29 @@ export abstract class CrudService<InputData, T extends Identificavel> {
   }
 
   protected async handleSalvar(model: T): Promise<T> {
-    const lojistaId = model.id
-
-    if (lojistaId) {
-      // 1. Gera uma referência de documento vazia para obter o ID antes de salvar
-      const ref = this.getDoc(lojistaId)
-      model.id = lojistaId
-
-      // 2. Salva tudo de uma vez
+    if (model.id) {
+      const ref = this.getDoc(model.id)
       await setDoc(ref, model)
 
-      logger.info(`Dado ${lojistaId} salvo com sucesso com id próprio!`)
-
-      return model
-    } else {
-      const docRef = await addDoc(this.getCollection(), model)
-      model.id = docRef.id
-      logger.info(`Dado ${docRef.id} salvo com sucesso!`)
+      logger.info('Dado salvo com sucesso com id próprio!', {
+        label: 'CrudService',
+        method: 'handleSalvar',
+        id: model.id,
+      })
       return model
     }
+
+    const ref = doc(this.getCollection()) // gera ID automático
+    model.id = ref.id
+
+    await setDoc(ref, model)
+
+    logger.info('Dado salvo com sucesso com id automático!', {
+      label: 'CrudService',
+      method: 'handleSalvar',
+      id: model.id,
+    })
+    return model
   }
 
   // ---------- READ ----------

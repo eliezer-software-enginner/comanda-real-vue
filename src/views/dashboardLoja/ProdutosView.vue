@@ -79,7 +79,7 @@ async function handleSaveProduct(produto: ProdutoModel) {
 }
 
 async function handleExcluirProduto(produtoId: string) {
-  if (confirm('Tem certeza que deseja remover este produto?')) {
+  if (confirm('Tem certeza que deseja remover este produto? Id: ' + produtoId)) {
     try {
       await cardapioService.excluir(produtoId)
       cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
@@ -87,11 +87,6 @@ async function handleExcluirProduto(produtoId: string) {
       alert(e.message)
     }
   }
-}
-
-// 6. Função de formatação (para uso no template)
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 }
 </script>
 
