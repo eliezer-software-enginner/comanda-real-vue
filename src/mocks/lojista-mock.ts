@@ -12,5 +12,5 @@ export const INITIAL_LOJISTA_DATA: LojistaDto = {
     { de: '07:00', ate: '11:00' },
     { de: '14:00', ate: '23:00' },
   ],
-  //slug: 'lanchonete-dev',
+  slug: 'lanchonete-dev',
 }

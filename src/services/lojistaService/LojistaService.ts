@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore'
 
 import logger from '@/plugins/logs'
-import { v4 as uuidv4 } from 'uuid'
+import { Utils } from '@/utils/Utils'
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
 import type { LojistaDto } from './LojistaDto'
@@ -121,7 +121,7 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       logoUrl: '',
       nome: dadoInicial.nome,
       whatsapp: '',
-      slug: uuidv4(),
+      slug: dadoInicial.slug || Utils.gerarUUID(),
       status: 'ativo',
       horariosFuncionamento: dadoInicial.horariosFuncionamento || [],
     }
