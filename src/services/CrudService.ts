@@ -9,7 +9,6 @@ import {
   orderBy,
   query,
   setDoc,
-  updateDoc,
   type CollectionReference,
   type DocumentData,
   type OrderByDirection,
@@ -121,6 +120,14 @@ export abstract class CrudService<InputData, T extends Identificavel> {
 
       const snapshot = await getDocs(q)
 
+      logger.info('dados recuperados', {
+        label: 'CrudService',
+        method: 'getListaBy',
+        dado: {
+          quantidade: snapshot.size,
+        },
+      })
+
       return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -188,12 +195,29 @@ export abstract class CrudService<InputData, T extends Identificavel> {
     })
 
     const ref = doc(this.getCollection(), data.id) as DocumentReference<T, T>
-    await updateDoc(ref, data as any)
+    //await updateDoc(ref, data as any)
+    await setDoc(ref, data as any, { merge: true }) //se existir atualiza, se não cria
 
     logger.info('dados atualizados com sucesso', {
       label: 'CrudService',
       method: 'atualizar',
       dado: data,
+    })
+  }
+
+  async atualizarEmLote(lista: T[]): Promise<void> {
+    logger.info('tentativa de atualizar em lote', {
+      label: 'CrudService',
+      method: 'atualizar',
+      dado: lista,
+    })
+
+    await Promise.all(lista.map((v) => this.atualizar(v)))
+
+    logger.info('dados em lote atualizados com sucesso', {
+      label: 'CrudService',
+      method: 'atualizar',
+      dado: lista,
     })
   }
 

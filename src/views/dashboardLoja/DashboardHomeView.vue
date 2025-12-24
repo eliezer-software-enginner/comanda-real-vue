@@ -2,7 +2,7 @@
 import { PedidoService } from '@/services/pedidoService/PedidoService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import { getMoedaFormatada } from '@/utils/Utils'
+import { Utils } from '@/utils/Utils'
 import { computed, onMounted, ref, type Ref } from 'vue'
 // O useCssModule() permite acessar as classes no <script> se necessário
 import { useCssModule } from 'vue'
@@ -17,7 +17,7 @@ const pedidoService = new PedidoService(lojistaId.value)
 const produtosService = new ProdutosService(lojistaId.value)
 
 const stats = ref({
-  vendasTotal: 'R$ 12.450,00',
+  vendasTotal: '0',
   pedidos24h: 0,
   pedidos7d: 0,
   pedidos30d: 0,
@@ -27,18 +27,14 @@ const stats = ref({
 
 const maisVendidos: Ref<ProdutoModel[]> = ref([])
 
-// const maisVendidos = ref([
-//   { nome: 'X-Burger Especial', vendas: 120, preco: 'R$ 25,00' },
-//   { nome: 'Batata Frita G', vendas: 95, preco: 'R$ 15,00' },
-//   { nome: 'Coca-Cola Lata', vendas: 80, preco: 'R$ 6,00' },
-// ])
-
 onMounted(async () => {
   stats.value.pedidos24h = await pedidoService.getTotalPedidosByTempo('24H')
   stats.value.pedidos7d = await pedidoService.getTotalPedidosByTempo('7dias')
   stats.value.pedidos30d = await pedidoService.getTotalPedidosByTempo('30dias')
   stats.value.pedidosPendentes = await pedidoService.getTotalPedidosByStatus('pagamento-pendente')
-  stats.value.vendasTotal = getMoedaFormatada(await pedidoService.getFaturamentoByTempo('24H'))
+  stats.value.vendasTotal = Utils.getMoedaFormatada(
+    await pedidoService.getFaturamentoByTempo('24H'),
+  )
   maisVendidos.value = await produtosService.getMaisVendidos()
 })
 </script>
@@ -71,7 +67,7 @@ onMounted(async () => {
 
       <v-col cols="12" sm="6" md="3">
         <v-card :class="[$style.statCard, $style.kpiOrange]" variant="flat">
-          <v-card-item title="Pendentes">
+          <v-card-item title="Pendentes de pagamento">
             <template v-slot:append><v-icon icon="mdi-alert-circle"></v-icon></template>
           </v-card-item>
           <v-card-text :class="$style.statValue">{{ stats.pedidosPendentes }}</v-card-text>
@@ -108,7 +104,9 @@ onMounted(async () => {
                 <td class="text-center">
                   <span :class="$style.salesBadge">{{ item.vendas }}</span>
                 </td>
-                <td class="text-right text-grey-darken-2">{{ item.preco }}</td>
+                <td class="text-right text-grey-darken-2">
+                  {{ Utils.getMoedaFormatada(item.preco) }}
+                </td>
               </tr>
             </tbody>
           </v-table>

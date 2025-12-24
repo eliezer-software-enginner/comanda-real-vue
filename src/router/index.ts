@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import DashboardLayout from '@/views/dashboardLoja/DashboardLayout.vue'
-import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
-import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
-import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
+import CategoriasView from '@/views/dashboardLoja/CategoriasView.vue'
 import ConfiguracoesView from '@/views/dashboardLoja/ConfiguracoesView.vue'
 import DashboardHomeView from '@/views/dashboardLoja/DashboardHomeView.vue'
+import DashboardLayout from '@/views/dashboardLoja/DashboardLayout.vue'
+import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
+import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
+import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,11 @@ const router = createRouter({
           path: 'produtos',
           name: 'meu-painel-produtos',
           component: ProdutosView,
+        },
+        {
+          path: 'categorias',
+          name: 'meu-painel-categorias',
+          component: CategoriasView,
         },
         {
           path: 'configuracoes',

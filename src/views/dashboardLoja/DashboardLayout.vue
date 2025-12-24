@@ -12,6 +12,7 @@ const lojaId = computed(() => route.params.id as string)
 const menuItems = [
   { name: 'Início', routeName: 'meu-painel' },
   { name: 'Produtos', routeName: 'meu-painel-produtos' },
+  { name: 'Categorias', routeName: 'meu-painel-categorias' },
   { name: 'Pedidos', routeName: 'meu-painel-pedidos' },
   { name: 'Configurações', routeName: 'meu-painel-configuracoes' },
 ]
