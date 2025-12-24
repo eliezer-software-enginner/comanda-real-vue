@@ -5,7 +5,11 @@ import {
   doc,
   DocumentReference,
   getDoc,
+  getDocs,
+  limit,
+  query,
   setDoc,
+  where,
   type DocumentData,
 } from 'firebase/firestore'
 
@@ -39,6 +43,47 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       status: data.status,
       whatsapp: data.whatsapp,
       horariosFuncionamento: data.horariosFuncionamento || [],
+    }
+  }
+
+  public async getId_aPartirDaSlug(slug: string): Promise<string | null> {
+    logger.info('buscando ID do lojista a partir da slug', {
+      label: 'LojistaService',
+      method: 'getId_aPartirDaSlug',
+      dado: { slug },
+    })
+
+    try {
+      const lojistasRef = this.getCollection()
+
+      // Criamos a query para buscar o documento onde o campo 'slug' é igual ao parâmetro
+      const q = query(lojistasRef, where('slug', '==', slug), limit(1))
+
+      const querySnapshot = await getDocs(q)
+
+      // Se não encontrar nenhum documento, retorna null
+      if (querySnapshot.empty) {
+        logger.warn('nenhum lojista encontrado para a slug informada', {
+          label: 'LojistaService',
+          method: 'getId_aPartirDaSlug',
+          slug,
+        })
+        return null
+      }
+
+      // Retorna o ID do primeiro (e único) documento encontrado
+      const docEncontrado = querySnapshot.docs[0]
+
+      if (!docEncontrado) return null
+
+      return docEncontrado.id
+    } catch (error) {
+      logger.error('erro ao buscar lojista pela slug', {
+        label: 'LojistaService',
+        method: 'getId_aPartirDaSlug',
+        error,
+      })
+      throw error
     }
   }
 

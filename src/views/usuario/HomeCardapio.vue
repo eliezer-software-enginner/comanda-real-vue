@@ -43,6 +43,7 @@
 <script lang="ts">
 import Cardapio from '@/components/usuario/Cardapio.vue'
 import HeaderLoja from '@/components/usuario/HeaderLoja.vue'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { Product } from '@/services/Produto'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 
@@ -52,15 +53,15 @@ export default {
     return {
       products: [] as Product[],
       selectedcategoria: undefined as string | undefined,
+      slug: '',
     }
   },
   components: {
     Cardapio,
     HeaderLoja,
   },
-  async mounted() {
-    await this.getProducts(this.$route.params.id as string)
-  },
+
+  async mounted() {},
 
   computed: {
     categories() {
@@ -80,6 +81,16 @@ export default {
   },
 
   watch: {
+    // Observa mudanças na query da URL
+    '$route.query.estabelecimento': {
+      async handler(newSlug) {
+        if (newSlug) {
+          await this.carregarDadosLoja(newSlug as string)
+        }
+      },
+      immediate: true, // Isso substitui a necessidade de chamar no mounted()
+    },
+
     categories(newCategories) {
       if (newCategories.length && !this.selectedcategoria) {
         this.selectedcategoria = newCategories[0].id
@@ -88,6 +99,21 @@ export default {
   },
 
   methods: {
+    async carregarDadosLoja(slug: string) {
+      try {
+        const lojistaService = new LojistaService()
+        const lojistaId = await lojistaService.getId_aPartirDaSlug(slug)
+
+        if (!lojistaId) {
+          throw new Error('Nenhuma lanchonete encontrada com o nome: ' + slug)
+        }
+
+        await this.getProducts(lojistaId)
+      } catch (e: any) {
+        alert(e.message)
+      }
+    },
+
     scrollToCategory(categoriaId: string) {
       const el = document.getElementById(`categoria-${categoriaId}`)
 

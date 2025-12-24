@@ -12,7 +12,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/cardapio/:id',
+      // path: '/cardapio/:id',
+      path: '/cardapio',
       name: 'cardapio',
       component: HomeCardapio,
     },

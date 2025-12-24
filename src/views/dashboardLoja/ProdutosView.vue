@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { useRoute } from 'vue-router'
@@ -13,12 +14,14 @@ const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
 
 const cardapioService = new ProdutosService(lojistaId.value)
+const lojistaService = new LojistaService()
 
 // 1. Estado Reativo (ref)
 const activeTab = ref<'produtos' | 'loja'>('produtos')
 const loading = ref(false)
 const initLoading = ref(true)
 const message = ref('')
+const slug = ref('')
 
 // Inicialização do estado base da loja
 const cardapio = ref<ProdutoModel[]>([])
@@ -38,6 +41,8 @@ onMounted(() => {
       // Use o ID de loja fixo para carregar
       const lista = await cardapioService.getLista()
       cardapio.value = lista
+
+      slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
     } catch (error: unknown) {
       console.error('Erro ao carregar cardápio:', error)
     } finally {
@@ -99,7 +104,11 @@ async function handleExcluirProduto(produtoId: string) {
         <div :class="styles.headerContent">
           <h1 :class="styles.headerTitle">Painel do Lojista</h1>
           <div :class="styles.headerActions">
-            <a :href="`/cardapio/${lojistaId}`" target="_blank" :class="styles.viewStoreLink">
+            <a
+              :href="`/cardapio?estabelecimento=${slug}`"
+              target="_blank"
+              :class="styles.viewStoreLink"
+            >
               Ver Loja Online ↗
             </a>
           </div>
