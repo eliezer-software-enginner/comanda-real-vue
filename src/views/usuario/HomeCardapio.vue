@@ -1,15 +1,10 @@
 <template>
   <div class="home-page">
-    <HeaderLoja />
+    <HeaderLoja v-if="lojista" :lojista="lojista" />
     <div class="categories-wrapper">
-      <div
-        v-for="(categoria, index) in categories"
-        :key="index"
-        class="categoria-item"
-        :class="{ active: selectedcategoria === categoria.id }"
-        @click="scrollToCategory(categoria.id)"
-      >
-        {{ categoria.label }}
+      <div v-for="(categoria, index) in categorias" :key="index" class="categoria-item"
+        :class="{ active: selectedcategoria === categoria.id }" @click="scrollToCategory(categoria.id)">
+        {{ categoria.nome }}
       </div>
     </div>
     <Cardapio :products="products" @category-visible="selectedcategoria = $event" />
@@ -43,43 +38,31 @@
 <script lang="ts">
 import Cardapio from '@/components/usuario/Cardapio.vue'
 import HeaderLoja from '@/components/usuario/HeaderLoja.vue'
+import logger from '@/plugins/logs'
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
+import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
-import type { Product } from '@/services/Produto'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 
 export default {
   name: 'HomeCardapio',
   data() {
     return {
-      products: [] as Product[],
+      products: [] as ProdutoModel[],
+      categorias: [] as CategoriaModel[],
       selectedcategoria: undefined as string | undefined,
       slug: '',
+      lojista: null as any
+
     }
   },
   components: {
     Cardapio,
     HeaderLoja,
   },
-
   async mounted() {},
-
-  computed: {
-    categories() {
-      const categorias = new Set<string>()
-
-      this.products.forEach((product) => {
-        if (product.categoria) {
-          categorias.add(product.categoria)
-        }
-      })
-
-      return Array.from(categorias).map((categoria) => ({
-        id: categoria,
-        label: categoria,
-      }))
-    },
-  },
-
+  
   watch: {
     // Observa mudanças na query da URL
     '$route.query.estabelecimento': {
@@ -104,11 +87,21 @@ export default {
         const lojistaService = new LojistaService()
         const lojistaId = await lojistaService.getId_aPartirDaSlug(slug)
 
+        if (lojistaId == null) throw new Error("id do lojista inválido: " + lojistaId)
+        const listaCategoria = await new CategoriaService(lojistaId).getLista()
+
+        logger.info("id do lojista recuperado com sucesso", {
+          id: lojistaId,
+          categorias: listaCategoria
+        })
+
         if (!lojistaId) {
           throw new Error('Nenhuma lanchonete encontrada com o nome: ' + slug)
         }
 
-        await this.getProducts(lojistaId)
+        this.categorias = listaCategoria
+        this.lojista = await this.getLojista(lojistaId)
+        this.products = await this.getProducts(lojistaId)
       } catch (e: any) {
         alert(e.message)
       }
@@ -126,25 +119,32 @@ export default {
 
       this.selectedcategoria = categoriaId
     },
-    async getProducts(lojaId: string): Promise<void> {
+
+    //tipagem em retorno de função é opcional tá
+    //a categoria no produto deve ser o mesmo nome
+    //  das categorias pro scrol funcionar
+    //tá, categoria tem o campo "nome" é só pegar ele e já deve dar
+    //eu acho ;)
+    async getProducts(lojaId: string): Promise<ProdutoModel[]> {
       try {
         const produtosService = new ProdutosService(lojaId)
-        const data = await produtosService.getLista()
-        this.products = data.map((item: any) => ({
-          id: item.id,
-          nome: item.nome,
-          descricao: item.descricao,
-          preco: item.preco,
-          categoria: item.categoria,
-          imagemUr: item.imagemUr,
-        }))
+        return await produtosService.getLista()
+
       } catch (error: any) {
-        console.error(error)
-        alert(error.message)
+        throw new Error(error.message)
       }
     },
-  },
-}
+    async getLojista(lojaId: string) {
+      try {
+        const lojistaService = new LojistaService()
+        return await lojistaService.getData(lojaId)
+      } catch (error: any) {
+        throw new Error(error.message)
+      }
+    }
+
+  }
+};
 </script>
 
 <style scoped>
@@ -152,6 +152,7 @@ export default {
   margin-top: 15px;
   background-color: rgb(235, 235, 235);
 }
+
 .categories-wrapper {
   position: sticky;
   top: 0.5px;

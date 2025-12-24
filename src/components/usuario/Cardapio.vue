@@ -43,13 +43,16 @@
 
 <script lang="ts">
 import type { Product } from '@/services/Produto'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel';
 
 export default {
   name: 'CardapioProdutos',
 
+  //eu marquei esse Product como depreciado, pois ele tá errado mesmo
+  //usa ProdutoModel ao invés dele
   props: {
     products: {
-      type: Array as () => Product[],
+      type: Array as () => ProdutoModel[],
       required: true,
     },
   },
@@ -98,14 +101,15 @@ export default {
   },
 
   computed: {
-    groupedProducts(): { name: string; items: Product[] }[] {
-      const groups: Record<string, Product[]> = {}
+    groupedProducts(): { name: string; items: ProdutoModel[] }[] {
+      const groups: Record<string, ProdutoModel[]> = {}
 
+      console.log(this.products)
       this.products.forEach((product) => {
-        if (!groups[product.categoria]) {
-          groups[product.categoria] = []
+        if (!groups[product.categoriaId]) {
+          groups[product.categoriaId] = []
         }
-        groups[product.categoria]!.push(product)
+        groups[product.categoriaId]!.push(product)
       })
 
       return Object.keys(groups).map((key) => ({

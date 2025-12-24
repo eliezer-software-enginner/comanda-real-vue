@@ -1,3 +1,5 @@
+
+//tudo que vc precisa de categoria está tipado aqui
 export interface CategoriaModel {
   id: string
   lojistaId: string

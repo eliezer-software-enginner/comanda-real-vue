@@ -1,3 +1,24 @@
+taskkill /PID 15968 /F
+
+tasklist | findstr 15968
+
+taskkill /PID 15968 /F
+
+
+
+Accept current changes -> quando vc quer aceitar apenas as mudanças atuais (suas)
+Accecpt both changes -> é quando vc quer mesclar os dois códigos
+
+
+
+
+
+
+
+
+
+
+
 > git pull --tags origin main
 From https://github.com/eliezer-software-enginner/comanda-real-vue
  * branch            main       -> FETCH_HEAD
