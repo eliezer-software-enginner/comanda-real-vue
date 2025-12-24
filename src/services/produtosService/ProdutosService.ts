@@ -52,11 +52,15 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       idLojista: this.lojistaId
      }
     })
-    
+
+    this.validarId(id)
+    this.validarId(this.lojistaId)
+
     return doc(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos', id)
   }
 
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
+    this.validarId(this.lojistaId)
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
   }
 

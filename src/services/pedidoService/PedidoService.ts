@@ -184,6 +184,7 @@ export class PedidoService extends CrudService<PedidoDto, PedidoModel> {
   }
 
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
+    this.validarId(this.lojistaId)
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'pedidos')
   }
 
