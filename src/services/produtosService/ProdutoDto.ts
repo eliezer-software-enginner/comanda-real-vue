@@ -1,3 +1,6 @@
+/**
+ * Este DTO refere-se aos dados básicos do lojista antes de se tornar @ProdutoModel
+ */
 export interface ProdutoDto {
   nome: string
   descricao: string
