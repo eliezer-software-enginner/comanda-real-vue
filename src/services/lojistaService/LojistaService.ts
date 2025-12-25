@@ -29,6 +29,9 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
     return collection(db, 'apps', 'comanda-real', 'lojistas')
   }
 
+  /**
+   * @deprecated Use getById() ao invés desse método
+   */
   public async getData(lojaId: string): Promise<LojistaModel | null> {
     const snap = await getDoc(this.getDoc(lojaId))
     if (!snap.exists()) return null
