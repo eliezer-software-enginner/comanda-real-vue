@@ -65,9 +65,9 @@ onMounted(async () => {
 
       <div v-if="isSidebarOpen" :class="style.sidebarFooter">
         <div :class="style.userBox">
-          <div :class="style.avatar">{{ Utils.getIniciaisDoNome(lojista?.nome || null) }}</div>
+          <div :class="style.avatar">{{ Utils.getIniciaisDoNome(lojista?.nomeLoja || null) }}</div>
           <div :class="style.userInfo">
-            <span :class="style.userName">{{ lojista?.nome }}</span>
+            <span :class="style.userName">{{ lojista?.nomeLoja }}</span>
             <span :class="style.logout">Sair</span>
           </div>
         </div>
