@@ -44,10 +44,23 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
   }
 
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
+    logger.info("Tentativa de obter a ref de produtos", {
+      label:"ProdutoService",
+      method:'getDoc',
+     dado: {
+      idRecebido: id,
+      idLojista: this.lojistaId
+     }
+    })
+
+    this.validarId(id)
+    this.validarId(this.lojistaId)
+
     return doc(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos', id)
   }
 
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
+    this.validarId(this.lojistaId)
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
   }
 

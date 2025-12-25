@@ -31,6 +31,7 @@ export class CategoriaService extends CrudService<CategoriaDto, CategoriaModel> 
 
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     this.validarId(id)
+    this.validarId(this.lojistaId)
     return doc(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'categorias', id)
   }
 

@@ -36,19 +36,36 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
    * @deprecated Use getById() ao invés desse método
    */
   public async getData(lojaId: string): Promise<LojistaModel | null> {
+    
+     logger.info("Tentativa de obter dados do lojista", {
+      label:"LojistaService",
+      method:'getData',
+     dado: {
+      idRecebido: lojaId,
+    
+     }
+    })
+
     const snap = await getDoc(this.getDoc(lojaId))
     if (!snap.exists()) return null
     const data = snap.data() as LojistaModel
 
     return {
       id: snap.id,
-      dtCriacao: data.dtCriacao,
-      logoUrl: data.logoUrl,
-      nome: data.nome,
-      slug: data.slug,
-      status: data.status,
+      nomeLoja: data.nomeLoja,
+      categoria: data.categoria,
       whatsapp: data.whatsapp,
       horariosFuncionamento: data.horariosFuncionamento || [],
+      fotoUrl: data.fotoUrl,
+      endereco: data.endereco,
+      horarioFuncionamento: data.horarioFuncionamento,
+      formasPagamento: data.formasPagamento,
+      aceitaDelivery: data.aceitaDelivery,
+      taxaEntrega: data.taxaEntrega,
+      pedidoMinimo: data.pedidoMinimo,
+      slug: data.slug, 
+      dtCriacao: data.dtCriacao, 
+      status:data.status
     }
   }
 
@@ -122,25 +139,46 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
 
   protected prepararDadosPreCriacao(dadoInicial: LojistaDto): LojistaModel {
     return {
-      dtCriacao: new Date(),
       id: dadoInicial.id != undefined ? dadoInicial.id : '',
-      logoUrl: '',
-      nome: dadoInicial.nome,
-      whatsapp: '',
+      nomeLoja: dadoInicial.nome,
+      categoria: dadoInicial.categoria || '',
+      whatsapp: dadoInicial.whatsapp || '',
       slug: dadoInicial.slug || Utils.gerarUUID(),
+      dtCriacao: new Date(),
       status: 'ativo',
       horariosFuncionamento: dadoInicial.horariosFuncionamento || [],
+      fotoUrl: dadoInicial.fotoUrl || '',
+      endereco: dadoInicial.endereco || {
+        rua: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
+        estado: '',
+        cep: '',
+        complemento: '',
+      },
+      formasPagamento: dadoInicial.formasPagamento || {
+        dinheiro: false,
+        pix: false,
+        cartaoCredito: false,
+        cartaoDebito: false,
+        valeRefeicao: false,
+      },
+      aceitaDelivery: dadoInicial.aceitaDelivery || true,
+      taxaEntrega: dadoInicial.taxaEntrega || 0,
+      pedidoMinimo: dadoInicial.pedidoMinimo || 0,
+      horarioFuncionamento: dadoInicial.horarioFuncionamento
     }
   }
 
-  protected validarCriacao(model: Omit<LojistaModel, 'id'>): void {
-    if (!model.nome || model.nome.trim() === '') {
+  protected validarCriacao(data: LojistaDto): void {
+    if (!data.nome || data.nome.trim() === '') {
       throw new Error('Nome é obrigatório')
     }
   }
 
   protected validarAtualizacao(model: Partial<LojistaModel>): void {
-    if (!model.nome || model.nome.trim() === '') {
+    if (!model.nomeLoja || model.nomeLoja.trim() === '') {
       throw new Error('Nome é obrigatório')
     }
   }

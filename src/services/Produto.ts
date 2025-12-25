@@ -1,3 +1,7 @@
+
+/**
+ * @deprecated Utilizar ProdutoDto ou ProdutoModel
+ */
 export interface Product {
   id: string | number
   nome: string

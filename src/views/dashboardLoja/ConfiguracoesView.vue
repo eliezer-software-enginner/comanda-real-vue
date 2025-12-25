@@ -61,7 +61,7 @@ function removerHorario(index: number) {
 
     <div :class="styles.formGroup">
       <label>Nome da Loja</label>
-      <input type="text" required v-model="inputData.nome" />
+      <input type="text" required v-model="inputData.nomeLoja" />
     </div>
 
     <div :class="styles.formGroup">
@@ -102,7 +102,7 @@ function removerHorario(index: number) {
 
     <div :class="styles.formGroup">
       <label>URL da Logo / Foto da Loja</label>
-      <input type="url" v-model="inputData.logoUrl" placeholder="https://exemplo.com/logo.jpg" />
+      <input type="url" v-model="inputData.fotoUrl" placeholder="https://exemplo.com/logo.jpg" />
     </div>
 
     <div :class="styles.formGroup">
