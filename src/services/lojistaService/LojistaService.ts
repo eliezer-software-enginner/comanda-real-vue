@@ -20,6 +20,9 @@ import { db } from '../firebaseConfig'
 import type { LojistaDto } from './LojistaDto'
 import type { LojistaModel } from './LojistaModel'
 
+/**
+ * Essa classe contém todos métodos necessários para o lojista
+ */
 export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     return doc(db, 'apps', 'comanda-real', 'lojistas', id)
