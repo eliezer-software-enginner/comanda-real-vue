@@ -21,7 +21,7 @@ const stats = ref({
   pedidos24h: 0,
   pedidos7d: 0,
   pedidos30d: 0,
-  produtosBaixoEstoque: 3,
+  produtosBaixoEstoque: 0,
   pedidosPendentes: 0,
 })
 

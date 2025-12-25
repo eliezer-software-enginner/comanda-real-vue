@@ -1,10 +1,11 @@
-import { getApp, getApps, initializeApp } from 'firebase/app'
-import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
 import { beforeAll, describe, expect, test } from 'vitest'
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import { getApp, getApps, initializeApp } from 'firebase/app'
 
-import { MOCK_FIREBASE_CONFIG } from '@/mocks/firebaseConfig.mock'
+import { LOJISTA_ID } from '@/mocks/lojista-mock'
 import type { LojistaDto } from './LojistaDto'
 import { LojistaService } from './LojistaService'
+import { MOCK_FIREBASE_CONFIG } from '@/mocks/firebaseConfig.mock'
 
 describe('crud de lojistas', () => {
   let service: LojistaService

@@ -4,11 +4,11 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-const styles = useCssModule()
-const service = new LojistaService()
-
 const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
+
+const styles = useCssModule()
+const service = new LojistaService()
 
 const inputData: Ref<LojistaModel | undefined> = ref(undefined)
 

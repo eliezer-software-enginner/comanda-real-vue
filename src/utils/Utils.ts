@@ -2,6 +2,7 @@
 // O Vite expõe o modo de ambiente em import.meta.env.MODE.
 // No desenvolvimento local (ex: 'npm run dev'), o MODE geralmente é 'development'.
 
+import logger from '@/plugins/logs'
 import { v4 as uuidv4 } from 'uuid'
 
 const isDevelopment = import.meta.env.MODE === 'development'
@@ -14,6 +15,20 @@ export const Utils = {
   },
 
   gerarUUID: () => uuidv4(),
+
+  getIniciaisDoNome: (nome: string | null) => {
+    if (nome == null) {
+      return 'LD'
+    }
+    const arr = nome.split(' ')
+    logger.info('obtendo iniciais do nome', {
+      label: 'Utils',
+      method: 'getIniciaisDoNome',
+      dado: { nome: nome, split: arr },
+    })
+
+    return (arr[0]?.charAt(0) ?? '') + (arr[1]?.charAt(0) ?? '')
+  },
 }
 
 /**@deprecated */

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import ButtonComponent from '@/components/ui/button/ButtonComponent.vue'
-import { computed, ref } from 'vue'
+import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
+import { Utils } from '@/utils/Utils'
+import { computed, onMounted, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import style from './DashboardView.module.css'
 
@@ -8,6 +11,8 @@ const route = useRoute()
 const router = useRouter()
 
 const lojaId = computed(() => route.params.id as string)
+
+const lojistaService = new LojistaService()
 
 const menuItems = [
   { name: 'Início', routeName: 'meu-painel' },
@@ -17,6 +22,7 @@ const menuItems = [
   { name: 'Configurações', routeName: 'meu-painel-configuracoes' },
 ]
 
+const lojista: Ref<LojistaModel | null> = ref(null)
 const isSidebarOpen = ref(true)
 
 const pageTitle = computed(() => {
@@ -30,6 +36,10 @@ const navigate = (routeName: string) => {
     params: { id: lojaId.value },
   })
 }
+
+onMounted(async () => {
+  lojista.value = await lojistaService.getById(lojaId.value)
+})
 </script>
 
 <template>
@@ -55,9 +65,9 @@ const navigate = (routeName: string) => {
 
       <div v-if="isSidebarOpen" :class="style.sidebarFooter">
         <div :class="style.userBox">
-          <div :class="style.avatar">LD</div>
+          <div :class="style.avatar">{{ Utils.getIniciaisDoNome(lojista?.nome || null) }}</div>
           <div :class="style.userInfo">
-            <span :class="style.userName">Lojista Demo</span>
+            <span :class="style.userName">{{ lojista?.nome }}</span>
             <span :class="style.logout">Sair</span>
           </div>
         </div>
