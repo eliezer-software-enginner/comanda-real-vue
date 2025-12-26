@@ -7,7 +7,7 @@
         {{ categoria.nome }}
       </div>
     </div>
-    <Cardapio :products="products" @category-visible="selectedcategoria = $event" />
+    <Cardapio :products="products" :categorias="categorias" @category-visible="selectedcategoria = $event" />
   </div>
 
   <v-footer app class="white--text" style="background-color: #fff">

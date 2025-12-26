@@ -56,9 +56,16 @@ function adicionarLinha() {
   })
 }
 
-function removerLinha(index: number) {
-  categoriaList.value.splice(index, 1)
+async function excluir(categoria:CategoriaModel, index:number){
+  try {
+   await categoriaService.excluir(categoria.id)
+   categoriaList.value.splice(index, 1)
+  } catch (error:any) {
+    alert(error.message)
+  }
 }
+
+
 </script>
 
 <template>
@@ -79,7 +86,7 @@ function removerLinha(index: number) {
 
         <button
           type="button"
-          @click="removerLinha(index)"
+          @click="excluir(cat,index)"
           :class="styles.btnDelete"
           title="Remover horário"
         >

@@ -1,25 +1,15 @@
 <template>
   <v-container :class="$style.menuContainer">
-    <div
-      v-for="categoria in groupedProducts"
-      :key="categoria.name"
-      :id="`categoria-${categoria.name}`"
-      :ref="el => setCategoryRef(categoria.name, el as HTMLElement | null)"
-      class="categoria-section"
-    >
-
+    <div v-for="grupo in agruparProdutos" :key="grupo.categoriaId" :id="`categoria-${grupo.categoriaId}`"
+      :ref="el => setCategoryRef(grupo.categoriaId, el as HTMLElement | null)" class="categoria-section">
       <!-- Título da categoria -->
       <div :class="$style.categoriaTitle">
-        {{ categoria.name }}
+        {{ grupo.categoriaNome }}
       </div>
 
       <!-- Produtos -->
-      <div
-        v-for="product in categoria.items"
-        :key="product.id"
-        :class="$style.productRow"
-        @click="$router.push({ name: 'detailProduct', params: { id: product.id } })"
-      >
+      <div v-for="product in grupo.produtos" :key="product.id" :class="$style.productRow"
+        @click="$router.push({ name: 'detailProduct', params: { id: product.id } })">
         <div :class="$style.productInfo">
           <div :class="$style.productName">
             {{ product.nome }}
@@ -42,8 +32,14 @@
 </template>
 
 <script lang="ts">
-import type { Product } from '@/services/Produto'
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel';
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel';
+
+type Grupo = {
+  categoriaId: string
+  categoriaNome: string
+  produtos: ProdutoModel[]
+}
 
 export default {
   name: 'CardapioProdutos',
@@ -55,6 +51,10 @@ export default {
       type: Array as () => ProdutoModel[],
       required: true,
     },
+    categorias: {
+      type: Array as () => CategoriaModel[],
+      required: true,
+    }
   },
 
   emits: ['category-visible'],
@@ -75,6 +75,15 @@ export default {
   },
 
   methods: {
+
+    // async buscarNome_aPartirDoId(id:string){
+    //   try{
+    //     const categoriaService = new CategoriaService(this.lo)
+    //     await categori
+    //   }catch(e){
+    //     return null
+    //   }
+    // },
     setCategoryRef(name: string, el: HTMLElement | null) {
       if (el && this.observer) {
         this.categoryRefs[name] = el
@@ -101,21 +110,19 @@ export default {
   },
 
   computed: {
-    groupedProducts(): { name: string; items: ProdutoModel[] }[] {
-      const groups: Record<string, ProdutoModel[]> = {}
+    agruparProdutos(): Grupo[] {
+      const grupos: Grupo[] = []
+      for (let categoria of this.categorias) {
+        const categoriaId = categoria.id;
 
-      console.log(this.products)
-      this.products.forEach((product) => {
-        if (!groups[product.categoriaId]) {
-          groups[product.categoriaId] = []
-        }
-        groups[product.categoriaId]!.push(product)
-      })
-
-      return Object.keys(groups).map((key) => ({
-        name: key,
-        items: groups[key]!,
-      }))
+        const produtosFiltrados = this.products.filter(p => p.categoriaId === categoriaId)
+        grupos.push({
+          categoriaId: categoriaId,
+          categoriaNome: categoria.nome,
+          produtos: produtosFiltrados
+        })
+      }
+      return grupos
     },
   },
 }
