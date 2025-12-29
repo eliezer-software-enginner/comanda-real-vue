@@ -36,14 +36,12 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
    * @deprecated Use getById() ao invés desse método
    */
   public async getData(lojaId: string): Promise<LojistaModel | null> {
-    
-     logger.info("Tentativa de obter dados do lojista", {
-      label:"LojistaService",
-      method:'getData',
-     dado: {
-      idRecebido: lojaId,
-    
-     }
+    logger.info('Tentativa de obter dados do lojista', {
+      label: 'LojistaService',
+      method: 'getData',
+      dado: {
+        idRecebido: lojaId,
+      },
     })
 
     const snap = await getDoc(this.getDoc(lojaId))
@@ -63,9 +61,10 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       aceitaDelivery: data.aceitaDelivery,
       taxaEntrega: data.taxaEntrega,
       pedidoMinimo: data.pedidoMinimo,
-      slug: data.slug, 
-      dtCriacao: data.dtCriacao, 
-      status:data.status
+      slug: data.slug,
+      dtCriacao: data.dtCriacao,
+      status: data.status,
+      instagram: data.instagram,
     }
   }
 
@@ -167,7 +166,8 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       aceitaDelivery: dadoInicial.aceitaDelivery || true,
       taxaEntrega: dadoInicial.taxaEntrega || 0,
       pedidoMinimo: dadoInicial.pedidoMinimo || 0,
-      horarioFuncionamento: dadoInicial.horarioFuncionamento
+      horarioFuncionamento: dadoInicial.horarioFuncionamento,
+      instagram: dadoInicial.instagram || '',
     }
   }
 

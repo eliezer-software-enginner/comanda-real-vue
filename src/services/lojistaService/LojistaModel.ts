@@ -37,6 +37,7 @@ export interface LojistaModel {
   aceitaDelivery: boolean
   taxaEntrega: number
   pedidoMinimo: number
+  instagram: string //considerar um lugar mais apropriado
 }
 
 type StatusLoja = 'ativo' | 'excluido' | 'suspenso'
@@ -45,13 +46,12 @@ export type HorariosFuncionamento = {
   ate: string
 }
 
-
-export type Endereco =  {
-    rua: string
-    numero: string
-    bairro: string
-    cidade: string
-    estado: string
-    cep: string
-    complemento?: string
-  }
+export type Endereco = {
+  rua: string
+  numero: string
+  bairro: string
+  cidade: string
+  estado: string
+  cep: string
+  complemento?: string
+}

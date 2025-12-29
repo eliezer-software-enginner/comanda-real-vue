@@ -4,6 +4,7 @@ import type { Endereco, HorariosFuncionamento } from './LojistaModel'
  * Este DTO refere-se aos dados básicos do lojista antes de se tornar @LojistaModel
  */
 export type LojistaDto = {
+  instagram?: string
   nome: string
   categoria?: string
   whatsapp?: string
