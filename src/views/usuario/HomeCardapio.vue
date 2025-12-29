@@ -41,6 +41,7 @@ import HeaderLoja from '@/components/usuario/HeaderLoja.vue'
 import logger from '@/plugins/logs'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
 import { CategoriaService } from '@/services/categoriasService/CategoriaService'
+import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
@@ -53,51 +54,43 @@ export default {
       categorias: [] as CategoriaModel[],
       selectedcategoria: undefined as string | undefined,
       slug: '',
-      lojista: null as any
-
+      lojista: null as LojistaModel | null,
     }
   },
   components: {
     Cardapio,
     HeaderLoja,
   },
-  async mounted() {},
+  async mounted() {
+    await this.carregarDadosLoja(this.$route.query.id as string)
+   },
   
-  watch: {
-    // Observa mudanças na query da URL
-    '$route.query.estabelecimento': {
-      async handler(newSlug) {
-        if (newSlug) {
-          await this.carregarDadosLoja(newSlug as string)
-        }
-      },
-      immediate: true, // Isso substitui a necessidade de chamar no mounted()
-    },
+  // watch: {
+  //   // Observa mudanças na query da URL
+  //   '$route.query.estabelecimento': {
+  //     async handler(newSlug) {
+  //       if (newSlug) {
+  //         await this.carregarDadosLoja(newSlug as string)
+  //       }
+  //     },
+  //     immediate: true, // Isso substitui a necessidade de chamar no mounted()
+  //   },
 
-    categories(newCategories) {
-      if (newCategories.length && !this.selectedcategoria) {
-        this.selectedcategoria = newCategories[0].id
-      }
-    },
-  },
+  //   categories(newCategories) {
+  //     if (newCategories.length && !this.selectedcategoria) {
+  //       this.selectedcategoria = newCategories[0].id
+  //     }
+  //   },
+  // },
 
   methods: {
-    async carregarDadosLoja(slug: string) {
+    async carregarDadosLoja(lojistaId: string) {
       try {
-        const lojistaService = new LojistaService()
-        const lojistaId = await lojistaService.getId_aPartirDaSlug(slug)
-
-        if (lojistaId == null) throw new Error("id do lojista inválido: " + lojistaId)
         const listaCategoria = await new CategoriaService(lojistaId).getLista()
-
         logger.info("id do lojista recuperado com sucesso", {
           id: lojistaId,
           categorias: listaCategoria
         })
-
-        if (!lojistaId) {
-          throw new Error('Nenhuma lanchonete encontrada com o nome: ' + slug)
-        }
 
         this.categorias = listaCategoria
         this.lojista = await this.getLojista(lojistaId)

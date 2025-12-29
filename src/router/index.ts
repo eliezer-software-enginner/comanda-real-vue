@@ -7,6 +7,7 @@ import DashboardLayout from '@/views/dashboardLoja/DashboardLayout.vue'
 import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
 import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
 import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
+import SobreLoja from '@/views/usuario/SobreLoja.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,6 +17,11 @@ const router = createRouter({
       path: '/cardapio',
       name: 'cardapio',
       component: HomeCardapio,
+    },
+    {
+      path: '/sobre',
+      name: 'sobre',
+      component: SobreLoja,
     },
 
     {

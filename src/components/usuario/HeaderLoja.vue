@@ -1,5 +1,11 @@
 <template>
-  <div :class="$style.headerLoja">
+  <div :class="$style.headerLoja" @click="$router.push({
+    name: 'sobre',
+    query: {
+      estabelecimento: $route.query.estabelecimento,
+      id: $route.query.id
+    }
+ })">
     <div :class="$style.storeHeader">
 
       <!-- Logo -->
@@ -21,12 +27,10 @@
           </div>
 
           <!-- Status -->
-          <div
-            :class="[
-              $style.storeStatus,
-              estaAberta ? $style.open : $style.closed
-            ]"
-          >
+          <div :class="[
+            $style.storeStatus,
+            estaAberta ? $style.open : $style.closed
+          ]">
             <v-icon size="16">mdi-clock-outline</v-icon>
             <span>{{ estaAberta ? 'Aberta' : 'Fechada' }}</span>
           </div>
@@ -69,7 +73,6 @@ export default {
       required: true,
     },
   },
-
   computed: {
     diaAtual(): string {
       const dias = [
@@ -84,8 +87,8 @@ export default {
       return dias[new Date().getDay()]!
     },
 
-    estaAberta(): boolean {
-      const hoje = this.lojista.horarioFuncionamento[this.diaAtual]
+    estaAberta() {
+      const hoje = this.lojista?.horarioFuncionamento[this.diaAtual]
 
       if (!hoje) return false
 
@@ -106,4 +109,3 @@ export default {
 
 
 <style module src='./HeaderLoja.module.css'></style>
-
