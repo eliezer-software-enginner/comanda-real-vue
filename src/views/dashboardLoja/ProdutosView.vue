@@ -11,7 +11,7 @@ import MenuDisplay from '../../components/MenuDisplay.vue'
 const styles = useCssModule()
 
 const route = useRoute()
-const lojistaId = computed(() => route.params.id as string)
+const lojistaId = computed(() => route.query.id as string)
 
 const cardapioService = new ProdutosService(lojistaId.value)
 const lojistaService = new LojistaService()
@@ -104,13 +104,12 @@ async function handleExcluirProduto(produtoId: string) {
         <div :class="styles.headerContent">
           <h1 :class="styles.headerTitle">Painel do Lojista</h1>
           <div :class="styles.headerActions">
-            <a
-              :href="`/cardapio?estabelecimento=${slug}`"
-              target="_blank"
-              :class="styles.viewStoreLink"
-            >
+            <router-link :to="{
+              name: 'cardapio',
+              query: { estabelecimento: slug,  id: lojistaId}
+            }" target="_blank" :class="styles.viewStoreLink">
               Ver Loja Online ↗
-            </a>
+            </router-link>
           </div>
         </div>
       </header>
