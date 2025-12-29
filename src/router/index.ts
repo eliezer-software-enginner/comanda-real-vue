@@ -8,6 +8,7 @@ import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
 import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
 import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
 import SobreLoja from '@/views/usuario/SobreLoja.vue'
+import DetalhesProduto from '@/components/usuario/DetalhesProduto.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +24,11 @@ const router = createRouter({
       name: 'sobre',
       component: SobreLoja,
     },
-
+    {
+      path: '/detalhes/:id',
+      name: 'detalhes',
+      component: DetalhesProduto,
+    },
     {
       path: '/meu-painel/:id',
       component: DashboardLayout,
