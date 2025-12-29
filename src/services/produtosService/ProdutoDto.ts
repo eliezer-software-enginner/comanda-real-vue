@@ -12,4 +12,6 @@ export interface ProdutoDto {
   categoriaId: string
   id?: string
   tipo: ProdutoTipo
+  adicionaisIds: string[]
+  acompanhamentosIds: string[]
 }

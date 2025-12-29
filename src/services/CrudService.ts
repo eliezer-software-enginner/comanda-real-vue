@@ -6,15 +6,21 @@ import {
   getDoc,
   getDocs,
   orderBy,
+  Query,
   query,
   setDoc,
+  where,
   type CollectionReference,
   type DocumentData,
   type OrderByDirection,
+  type WhereFilterOp,
 } from 'firebase/firestore'
 
 export type FiltroOptions = {
   campo: string
+  operador?: WhereFilterOp
+  valor?: string
+  valorDeOrdenacao?: string
   ordem: 'crescente' | 'decrescrente'
 }
 
@@ -116,10 +122,25 @@ export abstract class CrudService<InputData, T extends Identificavel> {
 
       const ref = this.getCollection()
 
+      const { campo, operador, valor, valorDeOrdenacao, ordem } = opcoesDeFiltro
+
       const orderByDirection: OrderByDirection =
         opcoesDeFiltro.ordem == 'crescente' ? 'asc' : 'desc'
 
-      const q = query(ref, orderBy(opcoesDeFiltro.campo, orderByDirection))
+      let q: Query<DocumentData, DocumentData>
+
+      if (
+        operador != undefined &&
+        valor != undefined &&
+        valorDeOrdenacao != undefined &&
+        ordem != undefined
+      ) {
+        q = query(ref, where(campo, operador, valor), orderBy(valorDeOrdenacao, orderByDirection))
+      } else if (operador != undefined && valor != undefined) {
+        q = query(ref, where(campo, operador, valor))
+      } else {
+        q = query(ref, orderBy(campo, orderByDirection))
+      }
 
       const snapshot = await getDocs(q)
 

@@ -10,7 +10,7 @@ import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { useRoute } from 'vue-router'
-import MenuDisplay from '../../components/MenuDisplay.vue'
+import MenuDisplay from '../../components/painel/MenuDisplay.vue'
 
 const styles = useCssModule()
 

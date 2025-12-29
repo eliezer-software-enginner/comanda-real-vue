@@ -41,6 +41,8 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       vendas: 0,
       status: 'ativo',
       tipo: data.tipo || 'principal',
+      acompanhamentosIds: data.acompanhamentosIds,
+      adicionaisIds: data.adicionaisIds,
     }
   }
 
@@ -63,6 +65,32 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
     this.validarId(this.lojistaId)
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
+  }
+
+  public async getListaAcompanhamentosGeral() {
+    return await this.getListaFromTipo('acompanhamento')
+  }
+
+  public async getListaAdicionaisGeral() {
+    return await this.getListaFromTipo('adicional')
+  }
+
+  //exemplo: getListaFromTipo("acompanhamento")
+  private async getListaFromTipo(tipo: ProdutoTipo): Promise<ProdutoModel[]> {
+    try {
+      this.validarId(this.lojistaId)
+
+      return await this.getListaBy({
+        campo: 'tipo',
+        operador: '==',
+        valor: tipo,
+        valorDeOrdenacao: 'nome',
+        ordem: 'crescente',
+      })
+    } catch (error: any) {
+      logger.error('Erro ao buscar produtos por tipo', { dado: tipo, erro: error.message })
+      throw error
+    }
   }
 
   async getMaisVendidos(quantidade: number = 3): Promise<ProdutoModel[]> {
@@ -136,6 +164,7 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
     // }
   }
 
+  //TODO remover daqui
   async uploadImagem(lojaId: string, arquivo: File): Promise<string> {
     try {
       // Cria um nome único para o arquivo usando timestamp

@@ -10,6 +10,8 @@ export interface ProdutoModel {
   dtCriacao: Date
   status: ProdutoStatus
   tipo: ProdutoTipo
+  adicionaisIds: string[]
+  acompanhamentosIds: string[]
 }
 
 export type ProdutoStatus = 'ativo' | 'arquivado' | 'excluido' | 'suspenso'

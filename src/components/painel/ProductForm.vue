@@ -4,7 +4,7 @@ import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel
 import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel, ProdutoTipo } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import { nextTick, ref, useCssModule, watch } from 'vue'
+import { nextTick, onMounted, ref, useCssModule, watch } from 'vue'
 // 1. Importar o hook da biblioteca
 import { useCurrencyInput } from 'vue-currency-input'
 
@@ -27,7 +27,6 @@ const service = new ProdutosService(props.lojistaId)
 // 2. Estado (ref)
 const nome = ref(props.initialData?.nome || '')
 const descricao = ref(props.initialData?.descricao || '')
-
 const categoriaId = ref(props.initialData?.categoriaId || '')
 const imagemUrl = ref(props.initialData?.imagemUrl || '')
 const subindoImagem = ref(false)
@@ -35,7 +34,12 @@ const subindoImagem = ref(false)
 const tiposProduto = ref(ProdutosService.TiposParaLista())
 const tipoSelecionado = ref<ProdutoTipo>(props.initialData?.tipo || 'principal')
 
-// 3. Configuração do Currency Input
+// 3. Estados para acompanhamentos
+const acompanhamentosDisponiveis = ref<ProdutoModel[]>([])
+const acompanhamentosSelecionadosIds = ref<string[]>(props.initialData?.acompanhamentosIds || [])
+const carregandoAcompanhamentos = ref(false)
+
+// 4. Configuração do Currency Input
 const { inputRef, numberValue, setValue } = useCurrencyInput({
   currency: 'BRL',
   locale: 'pt-BR',
@@ -45,6 +49,44 @@ const { inputRef, numberValue, setValue } = useCurrencyInput({
   hideGroupingSeparatorOnFocus: false,
 })
 
+// 5. Carregar acompanhamentos disponíveis
+
+async function carregarAcompanhamentosDisponiveis() {
+  //TODO usar função própria do ProdutoService
+  if (props.lojistaId) {
+    try {
+      carregandoAcompanhamentos.value = true
+      const produtos = await service.getLista()
+      // Filtrar apenas produtos do tipo 'acompanhamento' e que estão ativos
+      acompanhamentosDisponiveis.value = produtos.filter(
+        (produto) => produto.tipo === 'acompanhamento' && produto.status === 'ativo',
+      )
+    } catch (error) {
+      console.error('Erro ao carregar acompanhamentos:', error)
+      acompanhamentosDisponiveis.value = []
+    } finally {
+      carregandoAcompanhamentos.value = false
+    }
+  }
+}
+
+// 6. Função para alternar seleção de acompanhamento
+function toggleAcompanhamento(acompanhamentoId: string) {
+  const index = acompanhamentosSelecionadosIds.value.indexOf(acompanhamentoId)
+  if (index > -1) {
+    // Remover se já estiver selecionado
+    acompanhamentosSelecionadosIds.value.splice(index, 1)
+  } else {
+    // Adicionar se não estiver selecionado
+    acompanhamentosSelecionadosIds.value.push(acompanhamentoId)
+  }
+}
+
+// 7. Verificar se um acompanhamento está selecionado
+function isAcompanhamentoSelecionado(acompanhamentoId: string): boolean {
+  return acompanhamentosSelecionadosIds.value.includes(acompanhamentoId)
+}
+
 watch(
   () => props.initialData,
   async (newData) => {
@@ -53,6 +95,9 @@ watch(
     categoriaId.value = newData?.categoriaId || ''
     imagemUrl.value = newData?.imagemUrl || ''
 
+    // Atualizar acompanhamentos selecionados
+    acompanhamentosSelecionadosIds.value = newData?.acompanhamentosIds || []
+
     if (newData?.preco != null) {
       await nextTick() //aqui eu garanto que o input vai estar disponivel para receber um value
       setValue(newData.preco)
@@ -60,6 +105,11 @@ watch(
   },
   { immediate: true },
 )
+
+// 8. Carregar acompanhamentos quando o componente for montado
+onMounted(() => {
+  carregarAcompanhamentosDisponiveis()
+})
 
 async function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement
@@ -93,6 +143,8 @@ const handleSubmit = (e: Event) => {
       status: 'ativo',
       vendas: 0,
       tipo: tipoSelecionado.value,
+      adicionaisIds: [], //TODO obter do formulario
+      acompanhamentosIds: acompanhamentosSelecionadosIds.value, // Usar os acompanhamentos selecionados
     }
 
     logger.info('Produto em modo de edição', { dado: novoProduto })
@@ -109,6 +161,8 @@ const handleSubmit = (e: Event) => {
     imagemUrl: imagemUrl.value,
     lojistaId: props.lojistaId,
     tipo: tipoSelecionado.value,
+    adicionaisIds: [], //TODO obter do formulario
+    acompanhamentosIds: acompanhamentosSelecionadosIds.value, // Usar os acompanhamentos selecionados
   }
 
   logger.info('Produto em modo de criação', { dado: novoProduto })
@@ -145,10 +199,6 @@ const handleSubmit = (e: Event) => {
           </option>
         </select>
       </div>
-      <!-- <div :class="styles.formGroup">
-        <label>Categoria</label>
-        <input type="text" required placeholder="Ex: Lanches" v-model="categoria" />
-      </div> -->
     </div>
 
     <div :class="styles.formGroup">
@@ -168,6 +218,61 @@ const handleSubmit = (e: Event) => {
       <v-radio-group v-model="tipoSelecionado">
         <v-radio v-for="tipo in tiposProduto" :key="tipo" :label="tipo" :value="tipo"></v-radio>
       </v-radio-group>
+    </div>
+
+    <!-- Seção de Acompanhamentos -->
+    <div :class="styles.formGroup" v-if="tipoSelecionado === 'principal'">
+      <label>Acompanhamentos</label>
+      <p class="text-sm text-gray-600 mb-2">
+        Selecione os acompanhamentos disponíveis para este produto
+      </p>
+
+      <div v-if="carregandoAcompanhamentos" class="text-center py-4">
+        <p>Carregando acompanhamentos...</p>
+      </div>
+
+      <div
+        v-else-if="acompanhamentosDisponiveis.length === 0"
+        class="text-center py-4 border rounded"
+      >
+        <p class="text-gray-500">Nenhum acompanhamento cadastrado ainda.</p>
+      </div>
+
+      <div v-else class="space-y-2 max-h-60 overflow-y-auto p-2 border rounded">
+        <div
+          v-for="acompanhamento in acompanhamentosDisponiveis"
+          :key="acompanhamento.id"
+          class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
+          :class="{ 'bg-blue-50': isAcompanhamentoSelecionado(acompanhamento.id) }"
+          @click="toggleAcompanhamento(acompanhamento.id)"
+        >
+          <div class="flex items-center space-x-3 flex-1">
+            <input
+              type="checkbox"
+              :checked="isAcompanhamentoSelecionado(acompanhamento.id)"
+              @click.stop
+              @change="toggleAcompanhamento(acompanhamento.id)"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <img
+              v-if="acompanhamento.imagemUrl"
+              :src="acompanhamento.imagemUrl"
+              :alt="acompanhamento.nome"
+              class="w-10 h-10 object-cover rounded"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ acompanhamento.nome }}</p>
+              <p class="text-xs text-gray-500 truncate">R$ {{ acompanhamento.preco.toFixed(2) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="acompanhamentosSelecionadosIds.length > 0" class="mt-3">
+        <p class="text-sm font-medium text-gray-700">
+          {{ acompanhamentosSelecionadosIds.length }} acompanhamento(s) selecionado(s)
+        </p>
+      </div>
     </div>
 
     <div :class="styles.actions">
