@@ -18,7 +18,7 @@ import logger from '@/plugins/logs'
 import { CrudService } from '../CrudService'
 import { db, storage } from '../firebaseConfig'
 import type { ProdutoDto } from './ProdutoDto'
-import type { ProdutoModel } from './ProdutosModel'
+import type { ProdutoModel, ProdutoTipo } from './ProdutosModel'
 
 export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
   private lojistaId: string
@@ -40,17 +40,18 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       dtCriacao: new Date(),
       vendas: 0,
       status: 'ativo',
+      tipo: data.tipo || 'principal',
     }
   }
 
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
-    logger.info("Tentativa de obter a ref de produtos", {
-      label:"ProdutoService",
-      method:'getDoc',
-     dado: {
-      idRecebido: id,
-      idLojista: this.lojistaId
-     }
+    logger.info('Tentativa de obter a ref de produtos', {
+      label: 'ProdutoService',
+      method: 'getDoc',
+      dado: {
+        idRecebido: id,
+        idLojista: this.lojistaId,
+      },
     })
 
     this.validarId(id)
@@ -153,5 +154,10 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
       logger.error('Erro no upload da imagem:', error)
       throw new Error('Falha ao subir imagem')
     }
+  }
+
+  public static TiposParaLista() {
+    const list: ProdutoTipo[] = ['principal', 'acompanhamento', 'adicional']
+    return list
   }
 }

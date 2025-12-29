@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import logger from '@/plugins/logs'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
-import { CategoriaService } from '@/services/categoriasService/CategoriaService'
-import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
+import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
+import type { ProdutoModel, ProdutoTipo } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import { nextTick, onMounted, ref, useCssModule, watch } from 'vue'
+import { nextTick, ref, useCssModule, watch } from 'vue'
 // 1. Importar o hook da biblioteca
 import { useCurrencyInput } from 'vue-currency-input'
 
 interface ProductFormProps {
-  onSave: (produto: ProdutoModel) => void
+  onSave: (produto: ProdutoDto) => void
+  onEditar: (produto: ProdutoModel) => void
   onCancel: () => void
   initialData?: ProdutoModel
   lojistaId: string
+  isModoEdicao: boolean
+  categorias: CategoriaModel[]
 }
 
 const styles = useCssModule()
@@ -20,7 +23,6 @@ const styles = useCssModule()
 const props = defineProps<ProductFormProps>()
 
 const service = new ProdutosService(props.lojistaId)
-const categoriasService = new CategoriaService(props.lojistaId)
 
 // 2. Estado (ref)
 const nome = ref(props.initialData?.nome || '')
@@ -30,7 +32,8 @@ const categoriaId = ref(props.initialData?.categoriaId || '')
 const imagemUrl = ref(props.initialData?.imagemUrl || '')
 const subindoImagem = ref(false)
 
-const categorias = ref<CategoriaModel[]>([])
+const tiposProduto = ref(ProdutosService.TiposParaLista())
+const tipoSelecionado = ref<ProdutoTipo>(props.initialData?.tipo || 'principal')
 
 // 3. Configuração do Currency Input
 const { inputRef, numberValue, setValue } = useCurrencyInput({
@@ -40,19 +43,6 @@ const { inputRef, numberValue, setValue } = useCurrencyInput({
   valueRange: { min: 0 },
   hideCurrencySymbolOnFocus: false,
   hideGroupingSeparatorOnFocus: false,
-})
-
-onMounted(async () => {
-  logger.info('carregando produto', { label: 'ProdutoForm', dado: props.initialData })
-  try {
-    const lista = await categoriasService.getLista()
-    categorias.value = lista
-    logger.info('categorias carregadas', { label: 'ProdutoForm', total: lista.length })
-  } catch (error) {
-    logger.error('Erro ao carregar categorias', { error })
-  }
-
-  logger.info('carregando produto', { label: 'ProdutoForm', dado: props.initialData })
 })
 
 watch(
@@ -87,11 +77,30 @@ async function handleFileChange(event: Event) {
   }
 }
 
-// 5. Função de Submissão simplificada (não precisa mais de replace)
 const handleSubmit = (e: Event) => {
   e.preventDefault()
 
-  const novoProduto: ProdutoModel = {
+  if (props.isModoEdicao) {
+    const novoProduto: ProdutoModel = {
+      id: props.initialData?.id || `prod_${Date.now()}`,
+      nome: nome.value,
+      descricao: descricao.value,
+      preco: numberValue.value == null ? 0 : numberValue.value,
+      categoriaId: categoriaId.value,
+      imagemUrl: imagemUrl.value,
+      lojistaId: props.lojistaId,
+      dtCriacao: new Date(),
+      status: 'ativo',
+      vendas: 0,
+      tipo: tipoSelecionado.value,
+    }
+
+    logger.info('Produto em modo de edição', { dado: novoProduto })
+    props.onEditar(novoProduto)
+    return
+  }
+
+  const novoProduto: ProdutoDto = {
     id: props.initialData?.id || `prod_${Date.now()}`,
     nome: nome.value,
     descricao: descricao.value,
@@ -99,10 +108,10 @@ const handleSubmit = (e: Event) => {
     categoriaId: categoriaId.value,
     imagemUrl: imagemUrl.value,
     lojistaId: props.lojistaId,
-    dtCriacao: new Date(),
-    status: 'ativo',
-    vendas: 0,
+    tipo: tipoSelecionado.value,
   }
+
+  logger.info('Produto em modo de criação', { dado: novoProduto })
   props.onSave(novoProduto)
 }
 </script>
@@ -151,6 +160,14 @@ const handleSubmit = (e: Event) => {
 
       <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
       <p v-if="subindoImagem">Subindo imagem...</p>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Seu produto é:</label>
+      <br />
+      <v-radio-group v-model="tipoSelecionado">
+        <v-radio v-for="tipo in tiposProduto" :key="tipo" :label="tipo" :value="tipo"></v-radio>
+      </v-radio-group>
     </div>
 
     <div :class="styles.actions">

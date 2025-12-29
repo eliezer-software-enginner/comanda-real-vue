@@ -9,6 +9,8 @@ export interface ProdutoModel {
   vendas: number
   dtCriacao: Date
   status: ProdutoStatus
+  tipo: ProdutoTipo
 }
 
 export type ProdutoStatus = 'ativo' | 'arquivado' | 'excluido' | 'suspenso'
+export type ProdutoTipo = 'principal' | 'acompanhamento' | 'adicional'

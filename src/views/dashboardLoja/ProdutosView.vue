@@ -2,7 +2,11 @@
 import { computed, onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
+import logger from '@/plugins/logs'
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
+import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
+import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { useRoute } from 'vue-router'
@@ -11,9 +15,10 @@ import MenuDisplay from '../../components/MenuDisplay.vue'
 const styles = useCssModule()
 
 const route = useRoute()
-const lojistaId = computed(() => route.query.id as string)
+const lojistaId = computed(() => route.params.id as string)
 
 const cardapioService = new ProdutosService(lojistaId.value)
+const categoriasService = new CategoriaService(lojistaId.value)
 const lojistaService = new LojistaService()
 
 // 1. Estado Reativo (ref)
@@ -25,12 +30,15 @@ const slug = ref('')
 
 // Inicialização do estado base da loja
 const cardapio = ref<ProdutoModel[]>([])
+const categorias = ref<CategoriaModel[]>([])
 
+const isModoEdicao = ref(false)
 const editingProduct = ref<ProdutoModel | null>(null)
 
 // Crie a função para atribuir o valor ao ref
 const setEditingProduct = (produto: ProdutoModel) => {
   editingProduct.value = produto
+  isModoEdicao.value = true
 }
 
 const isAddingProduct = ref(false)
@@ -43,8 +51,11 @@ onMounted(() => {
       cardapio.value = lista
 
       slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
+      categorias.value = await categoriasService.getLista()
+
+      logger.info('categorias carregadas', { label: 'ProdutoForm', total: lista.length })
     } catch (error: unknown) {
-      console.error('Erro ao carregar cardápio:', error)
+      logger.error('Erro ao carregar os dados iniciais', error)
     } finally {
       initLoading.value = false
     }
@@ -52,26 +63,28 @@ onMounted(() => {
   fetchInitialData()
 })
 
-// 3. Handlers de Produto
-async function handleSaveProduct(produto: ProdutoModel) {
-  const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
-
+async function handleSaveProduct(produto: ProdutoDto) {
   try {
+    const produtoModel = await cardapioService.criar(produto)
+    cardapio.value.push(produtoModel)
+  } catch (e: any) {
+    console.error(e)
+    alert(e)
+  } finally {
+    // Reseta estado do formulário
+    editingProduct.value = null
+    isAddingProduct.value = false
+    isModoEdicao.value = false
+  }
+}
+
+async function handleEditProduct(produto: ProdutoModel) {
+  try {
+    const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
     if (existsIndex !== -1) {
       // Edição: Substitui o produto existente
       await cardapioService.atualizar(produto)
       cardapio.value[existsIndex] = produto
-    } else {
-      // Criação: Adiciona novo produto
-      await cardapioService.criar({
-        categoriaId: produto.categoriaId,
-        descricao: produto.descricao,
-        imagemUrl: produto.imagemUrl,
-        lojistaId: produto.lojistaId,
-        nome: produto.nome,
-        preco: produto.preco,
-      })
-      cardapio.value.push(produto)
     }
   } catch (e: any) {
     console.error(e)
@@ -80,6 +93,7 @@ async function handleSaveProduct(produto: ProdutoModel) {
     // Reseta estado do formulário
     editingProduct.value = null
     isAddingProduct.value = false
+    isModoEdicao.value = false
   }
 }
 
@@ -104,10 +118,14 @@ async function handleExcluirProduto(produtoId: string) {
         <div :class="styles.headerContent">
           <h1 :class="styles.headerTitle">Painel do Lojista</h1>
           <div :class="styles.headerActions">
-            <router-link :to="{
-              name: 'cardapio',
-              query: { estabelecimento: slug,  id: lojistaId}
-            }" target="_blank" :class="styles.viewStoreLink">
+            <router-link
+              :to="{
+                name: 'cardapio',
+                query: { estabelecimento: slug, id: lojistaId },
+              }"
+              target="_blank"
+              :class="styles.viewStoreLink"
+            >
               Ver Loja Online ↗
             </router-link>
           </div>
@@ -170,6 +188,8 @@ async function handleExcluirProduto(produtoId: string) {
                 v-else
                 :initial-data="editingProduct || undefined"
                 :onSave="handleSaveProduct"
+                :onEditar="handleEditProduct"
+                :isModoEdicao="isModoEdicao"
                 :onCancel="
                   () => {
                     isAddingProduct = false
@@ -177,6 +197,7 @@ async function handleExcluirProduto(produtoId: string) {
                   }
                 "
                 :lojista-id="lojistaId"
+                :categorias="categorias"
               />
             </div>
           </div>
