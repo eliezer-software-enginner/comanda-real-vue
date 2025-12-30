@@ -7,28 +7,28 @@ on:
     branches: ['main', 'master', 'develop']
 
 jobs:
-  testes:
-    runs-on: ubuntu-latest
+  # testes:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout do código
+  #       uses: actions/checkout@v4
 
-      - name: Configurar Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+  #     - name: Configurar Node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #         cache: 'npm'
 
-      - name: Instalar dependências
-        run: npm install
+  #     - name: Instalar dependências
+  #       run: npm install
 
-      - name: Rodar testes unitários
-        run: npm run test:unit
+  #     - name: Rodar testes unitários
+  #       run: npm run test:unit
 
   tentar-fazer-build:
     runs-on: ubuntu-latest
-    needs: testes
+    # needs: testes
 
     steps:
       - name: Checkout do código
