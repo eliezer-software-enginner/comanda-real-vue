@@ -28,6 +28,7 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
     this.lojistaId = lojistaId
   }
 
+  /**@override */
   protected prepararDadosPreCriacao(data: ProdutoDto): ProdutoModel {
     return {
       categoriaId: data.categoriaId,
@@ -65,6 +66,36 @@ export class ProdutosService extends CrudService<ProdutoDto, ProdutoModel> {
   protected getCollection(): CollectionReference<DocumentData, DocumentData> {
     this.validarId(this.lojistaId)
     return collection(db, 'apps', 'comanda-real', 'lojistas', this.lojistaId, 'produtos')
+  }
+
+  public async getAcompanhamentosDoProdutoFornecido(
+    produtoModel: ProdutoModel,
+  ): Promise<ProdutoModel[]> {
+    logger.info('tentativa de obter acompanhamentos completos do produto', {
+      label: 'ProdutoService',
+      method: 'getAcompanhamentosDoProdutoFornecido',
+      produtoRecebido: produtoModel,
+    })
+
+    const { acompanhamentosIds } = produtoModel
+
+    const acompanhamentos = await Promise.all(acompanhamentosIds.map((id) => super.getById(id)))
+    return acompanhamentos
+  }
+
+  public async getAdicionaisDoProdutoFornecido(
+    produtoModel: ProdutoModel,
+  ): Promise<ProdutoModel[]> {
+    logger.info('tentativa de obter adicionais completos do produto', {
+      label: 'ProdutoService',
+      method: 'getAdicionaisDoProdutoFornecido',
+      produtoRecebido: produtoModel,
+    })
+
+    const { adicionaisIds } = produtoModel
+
+    const adicionais = await Promise.all(adicionaisIds.map((id) => super.getById(id)))
+    return adicionais
   }
 
   public async getListaAcompanhamentosGeral() {
