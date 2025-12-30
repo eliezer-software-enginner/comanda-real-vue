@@ -5,12 +5,8 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import { MOCK_FIREBASE_CONFIG } from '@/mocks/firebaseConfig.mock'
 import { LOJISTA_ID } from '@/mocks/lojista-mock'
 import { produtosTeste } from '@/mocks/produtos.mock'
-import type { ProdutoDto } from './ProdutoDto'
+import { Utils } from '@/utils/Utils'
 import { ProdutosService } from './ProdutosService'
-
-function cloneProduto(produto: ProdutoDto): ProdutoDto {
-  return JSON.parse(JSON.stringify(produto))
-}
 
 describe('crud de produtos', () => {
   let service: ProdutosService
@@ -58,7 +54,7 @@ describe('crud de produtos', () => {
   })
 
   test('deve validar nome obrigatório na criação', async () => {
-    const produtoInvalido = cloneProduto(produtosTeste[0]!)
+    const produtoInvalido = Utils.clone(produtosTeste[0]!)
     produtoInvalido.nome = ''
 
     await expect(service.criar(produtoInvalido)).rejects.toThrow('Nome é obrigatório')
