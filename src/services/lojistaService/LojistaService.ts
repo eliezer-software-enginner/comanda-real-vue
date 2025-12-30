@@ -166,7 +166,15 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       aceitaDelivery: dadoInicial.aceitaDelivery || true,
       taxaEntrega: dadoInicial.taxaEntrega || 0,
       pedidoMinimo: dadoInicial.pedidoMinimo || 0,
-      horarioFuncionamento: dadoInicial.horarioFuncionamento,
+      horarioFuncionamento: dadoInicial.horarioFuncionamento || {
+        domingo: { abertura: '', fechamento: '' },
+        segunda: { abertura: '', fechamento: '' },
+        terca: { abertura: '', fechamento: '' },
+        quarta: { abertura: '', fechamento: '' },
+        quinta: { abertura: '', fechamento: '' },
+        sexta: { abertura: '', fechamento: '' },
+        sabado: { abertura: '', fechamento: '' },
+      },
       instagram: dadoInicial.instagram || '',
     }
   }
