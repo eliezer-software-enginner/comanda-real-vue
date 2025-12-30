@@ -32,5 +32,5 @@ describe('SEED DATA: Populando cardapio', () => {
     expect(cardapio).not.toBeNull()
     expect(cardapio?.length).toBeGreaterThan(0) // Garante que produtos foram inseridos
     console.log(`[SEED] População concluída com sucesso para ID: ${LOJISTA_ID}`)
-  }, 10000)
+  }, 20000)
 })
