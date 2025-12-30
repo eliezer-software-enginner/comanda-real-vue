@@ -37,7 +37,10 @@ const tipoSelecionado = ref<ProdutoTipo>(props.initialData?.tipo || 'principal')
 // 3. Estados para acompanhamentos
 const acompanhamentosDisponiveis = ref<ProdutoModel[]>([])
 const acompanhamentosSelecionadosIds = ref<string[]>(props.initialData?.acompanhamentosIds || [])
-const carregandoAcompanhamentos = ref(false)
+const carregandoAdicionaisEAcompanhamentos = ref(false)
+
+const adicionaisDisponiveis = ref<ProdutoModel[]>([])
+const adicionaisSelecionadosIds = ref<string[]>(props.initialData?.adicionaisIds || [])
 
 // 4. Configuração do Currency Input
 const { inputRef, numberValue, setValue } = useCurrencyInput({
@@ -49,23 +52,18 @@ const { inputRef, numberValue, setValue } = useCurrencyInput({
   hideGroupingSeparatorOnFocus: false,
 })
 
-// 5. Carregar acompanhamentos disponíveis
-
-async function carregarAcompanhamentosDisponiveis() {
-  //TODO usar função própria do ProdutoService
+async function carregarAcompanhamentosEAdicionaisDisponiveis() {
   if (props.lojistaId) {
     try {
-      carregandoAcompanhamentos.value = true
-      const produtos = await service.getLista()
-      // Filtrar apenas produtos do tipo 'acompanhamento' e que estão ativos
-      acompanhamentosDisponiveis.value = produtos.filter(
-        (produto) => produto.tipo === 'acompanhamento' && produto.status === 'ativo',
-      )
+      carregandoAdicionaisEAcompanhamentos.value = true
+      acompanhamentosDisponiveis.value = await service.getListaAcompanhamentosGeral()
+      adicionaisDisponiveis.value = await service.getListaAdicionaisGeral()
     } catch (error) {
-      console.error('Erro ao carregar acompanhamentos:', error)
+      console.error('Erro ao carregar acompanhamentos ou adicionais:', error)
       acompanhamentosDisponiveis.value = []
+      adicionaisDisponiveis.value = []
     } finally {
-      carregandoAcompanhamentos.value = false
+      carregandoAdicionaisEAcompanhamentos.value = false
     }
   }
 }
@@ -82,9 +80,22 @@ function toggleAcompanhamento(acompanhamentoId: string) {
   }
 }
 
-// 7. Verificar se um acompanhamento está selecionado
+function toggleAdicional(adicionalId: string) {
+  const index = adicionaisSelecionadosIds.value.indexOf(adicionalId)
+  if (index > -1) {
+    // Remover se já estiver selecionado
+    adicionaisSelecionadosIds.value.splice(index, 1)
+  } else {
+    // Adicionar se não estiver selecionado
+    adicionaisSelecionadosIds.value.push(adicionalId)
+  }
+}
+
 function isAcompanhamentoSelecionado(acompanhamentoId: string): boolean {
   return acompanhamentosSelecionadosIds.value.includes(acompanhamentoId)
+}
+function isAdicionalSelecionado(adicionalId: string): boolean {
+  return adicionaisSelecionadosIds.value.includes(adicionalId)
 }
 
 watch(
@@ -97,6 +108,7 @@ watch(
 
     // Atualizar acompanhamentos selecionados
     acompanhamentosSelecionadosIds.value = newData?.acompanhamentosIds || []
+    adicionaisSelecionadosIds.value = newData?.adicionaisIds || []
 
     if (newData?.preco != null) {
       await nextTick() //aqui eu garanto que o input vai estar disponivel para receber um value
@@ -108,7 +120,7 @@ watch(
 
 // 8. Carregar acompanhamentos quando o componente for montado
 onMounted(() => {
-  carregarAcompanhamentosDisponiveis()
+  carregarAcompanhamentosEAdicionaisDisponiveis()
 })
 
 async function handleFileChange(event: Event) {
@@ -131,6 +143,7 @@ const handleSubmit = (e: Event) => {
   e.preventDefault()
 
   if (props.isModoEdicao) {
+    //TODO trocar isso por um mapper
     const novoProduto: ProdutoModel = {
       id: props.initialData?.id || `prod_${Date.now()}`,
       nome: nome.value,
@@ -143,8 +156,8 @@ const handleSubmit = (e: Event) => {
       status: 'ativo',
       vendas: 0,
       tipo: tipoSelecionado.value,
-      adicionaisIds: [], //TODO obter do formulario
-      acompanhamentosIds: acompanhamentosSelecionadosIds.value, // Usar os acompanhamentos selecionados
+      adicionaisIds: adicionaisSelecionadosIds.value,
+      acompanhamentosIds: acompanhamentosSelecionadosIds.value,
     }
 
     logger.info('Produto em modo de edição', { dado: novoProduto })
@@ -161,7 +174,7 @@ const handleSubmit = (e: Event) => {
     imagemUrl: imagemUrl.value,
     lojistaId: props.lojistaId,
     tipo: tipoSelecionado.value,
-    adicionaisIds: [], //TODO obter do formulario
+    adicionaisIds: adicionaisSelecionadosIds.value,
     acompanhamentosIds: acompanhamentosSelecionadosIds.value, // Usar os acompanhamentos selecionados
   }
 
@@ -227,7 +240,7 @@ const handleSubmit = (e: Event) => {
         Selecione os acompanhamentos disponíveis para este produto
       </p>
 
-      <div v-if="carregandoAcompanhamentos" class="text-center py-4">
+      <div v-if="carregandoAdicionaisEAcompanhamentos" class="text-center py-4">
         <p>Carregando acompanhamentos...</p>
       </div>
 
@@ -271,6 +284,58 @@ const handleSubmit = (e: Event) => {
       <div v-if="acompanhamentosSelecionadosIds.length > 0" class="mt-3">
         <p class="text-sm font-medium text-gray-700">
           {{ acompanhamentosSelecionadosIds.length }} acompanhamento(s) selecionado(s)
+        </p>
+      </div>
+    </div>
+
+    <!-- Seção de Adicionais -->
+    <div :class="styles.formGroup" v-if="tipoSelecionado === 'principal'">
+      <label>Adicionais</label>
+      <p class="text-sm text-gray-600 mb-2">
+        Selecione os adicionais disponíveis para este produto
+      </p>
+
+      <div v-if="carregandoAdicionaisEAcompanhamentos" class="text-center py-4">
+        <p>Carregando adicionais...</p>
+      </div>
+
+      <div v-if="adicionaisDisponiveis.length === 0" class="text-center py-4 border rounded">
+        <p class="text-gray-500">Nenhum adicional cadastrado ainda.</p>
+      </div>
+
+      <div v-else class="space-y-2 max-h-60 overflow-y-auto p-2 border rounded">
+        <div
+          v-for="adicional in adicionaisDisponiveis"
+          :key="adicional.id"
+          class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
+          :class="{ 'bg-blue-50': isAdicionalSelecionado(adicional.id) }"
+          @click="toggleAdicional(adicional.id)"
+        >
+          <div class="flex items-center space-x-3 flex-1">
+            <input
+              type="checkbox"
+              :checked="isAdicionalSelecionado(adicional.id)"
+              @click.stop
+              @change="toggleAdicional(adicional.id)"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <img
+              v-if="adicional.imagemUrl"
+              :src="adicional.imagemUrl"
+              :alt="adicional.nome"
+              class="w-10 h-10 object-cover rounded"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ adicional.nome }}</p>
+              <p class="text-xs text-gray-500 truncate">R$ {{ adicional.preco.toFixed(2) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="adicionaisSelecionadosIds.length > 0" class="mt-3">
+        <p class="text-sm font-medium text-gray-700">
+          {{ adicionaisSelecionadosIds.length }} adicional selecionado(s)
         </p>
       </div>
     </div>
