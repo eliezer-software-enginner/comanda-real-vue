@@ -37,10 +37,10 @@
                     <div class="content-center">
 
                         <!-- Instagram (se existir futuramente) -->
-                        <div v-if="lojista?.instagram" class="instagram">
+                        <!-- <div v-if="lojista?.instagram" class="instagram">
                             <v-icon color="purple">mdi-instagram</v-icon>
                             <span>@{{ lojista?.instagram }}</span>
-                        </div>
+                        </div> -->
 
                         <!-- Contato -->
                         <h3 class="section-title" v-if="lojista?.whatsapp">Contato</h3>
