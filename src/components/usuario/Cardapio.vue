@@ -9,7 +9,14 @@
 
       <!-- Produtos -->
       <div v-for="product in grupo.produtos" :key="product.id" :class="$style.productRow"
-        @click="$router.push({ name: 'detailProduct', params: { id: product.id } })">
+      @click="$router.push({
+          name: 'detalhes',
+          params: { id: product.id },
+          query: {
+            estabelecimento: $route.query.estabelecimento,
+            id: $route.query.id
+          }
+      })">
         <div :class="$style.productInfo">
           <div :class="$style.productName">
             {{ product.nome }}
