@@ -127,7 +127,7 @@ describe('crud de produtos', () => {
 
   test('deve obter acompanhamentos do produto fornecido', async () => {
     const acompanhamento1 = await service.criar({
-      ...produtosTeste[0]!,
+      ...produtosTeste[1]!,
       tipo: 'acompanhamento',
     })
     const acompanhamento2 = await service.criar({
