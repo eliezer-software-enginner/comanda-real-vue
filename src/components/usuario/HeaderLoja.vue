@@ -48,9 +48,7 @@
       <!-- Seta -->
       <v-icon :class="$style.arrowIcon">mdi-chevron-right</v-icon>
     </div>
-
-    <v-divider />
-
+    </div>
     <div :class="$style.deliveryHeader">
       <v-icon size="16" :class="$style.deliveryIcon">
         mdi-bike-fast
@@ -59,7 +57,6 @@
       <span :class="$style.deliveryLabel">
         Selecione um endereço para entrega
       </span>
-    </div>
   </div>
 </template>
 

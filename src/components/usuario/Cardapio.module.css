@@ -2,6 +2,14 @@
   padding: 0 !important;
   margin: 0;
 }
+.semProdutos {
+  padding: 12px;
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
+  background-color: white;
+}
+
 
 /* Categoria */
 .categoriaTitle {
