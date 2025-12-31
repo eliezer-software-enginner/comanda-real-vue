@@ -7,9 +7,10 @@
         {{ grupo.categoriaNome }}
       </div>
 
-      <!-- Produtos -->
-      <div v-for="product in grupo.produtos" :key="product.id" :class="$style.productRow"
-      @click="$router.push({
+      <div v-if="!grupo.produtos || grupo.produtos.length === 0" :class="$style.semProdutos">
+        Nenhum produto disponível nesta categoria.
+      </div>
+      <div v-else v-for="product in grupo.produtos" :key="product.id" :class="$style.productRow" @click="$router.push({
           name: 'detalhes',
           params: { id: product.id },
           query: {
@@ -27,7 +28,9 @@
           </div>
 
           <div :class="$style.productPreco">
-            <strong style="color: #2bb673">R$ {{ Number(product.preco).toFixed(2) }}</strong>
+            <strong style="color: #2bb673">
+              R$ {{ Number(product.preco).toFixed(2) }}
+            </strong>
           </div>
         </div>
         <div v-if="product.imagemUrl" :class="$style.productImagemUrl">
@@ -50,9 +53,6 @@ type Grupo = {
 
 export default {
   name: 'CardapioProdutos',
-
-  //eu marquei esse Product como depreciado, pois ele tá errado mesmo
-  //usa ProdutoModel ao invés dele
   props: {
     products: {
       type: Array as () => ProdutoModel[],

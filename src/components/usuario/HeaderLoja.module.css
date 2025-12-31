@@ -12,13 +12,20 @@
 
 .headerLoja {
   background-color: #ffffff;
+  cursor: pointer;
 }
 
 .deliveryHeader {
   border-bottom: 1px solid #f0f0f0;
   padding: 10px 12px;
-  margin-top: 15px;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
 }
+
+.deliveryHeader:hover {
+  background-color: #f7f7f7; 
+}
+
 
 /* Logo */
 .storeLogo {
@@ -87,7 +94,11 @@
   color: #2bb673;
   background-color: #f1fcf7;
 }
-
+.storeStatus.closed {
+  border: 1px solid red;
+  color: red;
+  background-color: #fcefef;
+}
 /* Info extra */
 .storeExtra {
   display: flex;
