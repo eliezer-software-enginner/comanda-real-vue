@@ -32,6 +32,22 @@ export class CarrinhoService {
     return JSON.parse(jsonList) as ProdutoEmCarrinho[]
   }
 
+  public calcularTotal(): number {
+    const lista = this.listar()
+
+    return lista.reduce((total, produto) => {
+      return total + produto.preco * produto.quantidade
+    }, 0)
+  }
+
+  public quantidadeItens(): number {
+    const lista = this.listar()
+
+    return lista.reduce((total, produto) => {
+      return total + produto.quantidade
+    }, 0)
+  }
+
   public removerProduto(id: string) {
     const lista = this.listar()
     const produtoBuscado = this.buscarProduto(lista, id)

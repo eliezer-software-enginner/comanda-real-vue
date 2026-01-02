@@ -56,7 +56,7 @@
           </v-icon>
         </div>
 
-        <v-btn color="primary" outlined small class="btn-adicionar" @click="adicionarAoCarrinho">
+        <v-btn color="primary" outlined small class="btn-adicionar" @click="adicionarAoCarrinho()">
           <v-icon left small>mdi-cart-outline</v-icon>
           Adicionar
           <span class="ml-1" style="font-weight: normal;" v-if="precoTotal != 'NaN'">
@@ -70,6 +70,8 @@
 </template>
 
 <script lang="ts">
+import type { Carrinho } from '@/services/carrinhoService/CarrinhoModel';
+import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService';
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel';
 import { ProdutosService } from '@/services/produtosService/ProdutosService';
 
@@ -78,7 +80,8 @@ export default {
     return {
       quantidade: 1,
       produto: {} as ProdutoModel,
-      observacao: ""
+      observacao: "",
+      carrinho: [] as Carrinho[]
     }
   },
 
@@ -93,8 +96,16 @@ export default {
     this.produto = await produtosService.getById(this.$route.params.id as string)
   },
   methods: {
-    adicionarAoCarrinho() {
-
+    async adicionarAoCarrinho() {
+      new CarrinhoService().adicionarProduto(this.produto)
+      this.$router.push({
+        name: 'cardapio',
+        params: { id: this.produto.id },
+        query: {
+          estabelecimento: this.$route.query.estabelecimento,
+          id: this.$route.query.id
+        }
+      })
     }
   }
 }

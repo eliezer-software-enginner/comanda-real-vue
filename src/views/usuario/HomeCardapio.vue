@@ -9,36 +9,51 @@
     </div>
     <Cardapio :products="products" :categorias="categorias" @category-visible="selectedcategoria = $event" />
   </div>
+  <div class="carrinho-fixo">
+    <div class="carrinho-conteudo">
+      <div class="d-flex align-center">
+        <v-badge :content="qtdItensCarrinho" overlap bordered>
+          <v-icon size="26">mdi-cart</v-icon>
+        </v-badge>
+      </div>
 
-  <v-footer app class="white--text" style="background-color: #fff">
+
+      <span class="text-button text-none">
+        Ver carrinho
+      </span>
+      <strong>
+        R$ {{ totalCarrinho.toFixed(2).replace('.', ',') }}
+      </strong>
+    </div>
+  </div>
+
+  <!-- <v-footer app class="white--text" style="background-color: #fff">
     <v-container class="pa-0">
       <v-row no-gutters justify="space-around" align="center">
-        <!-- Ícone Início -->
         <v-col class="text-center">
           <v-icon color="black">mdi-home</v-icon>
           <div class="text-caption" style="color: black">Início</div>
         </v-col>
 
-        <!-- Ícone Pedidos -->
         <v-col class="text-center">
           <v-icon color="black">mdi-receipt-text</v-icon>
           <div class="text-caption" style="color: black">Pedidos</div>
         </v-col>
 
-        <!-- Ícone Perfil -->
         <v-col class="text-center">
           <v-icon color="black">mdi-account</v-icon>
           <div class="text-caption" style="color: black">Perfil</div>
         </v-col>
       </v-row>
     </v-container>
-  </v-footer>
+  </v-footer> -->
 </template>
 
 <script lang="ts">
 import Cardapio from '@/components/usuario/Cardapio.vue'
 import HeaderLoja from '@/components/usuario/HeaderLoja.vue'
 import logger from '@/plugins/logs'
+import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
 import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
@@ -50,11 +65,13 @@ export default {
   name: 'HomeCardapio',
   data() {
     return {
+      qtdItensCarrinho:  0,
       products: [] as ProdutoModel[],
       categorias: [] as CategoriaModel[],
       selectedcategoria: undefined as string | undefined,
       slug: '',
       lojista: null as LojistaModel | null,
+      totalCarrinho: 0
     }
   },
   components: {
@@ -63,8 +80,10 @@ export default {
   },
   async mounted() {
     await this.carregarDadosLoja(this.$route.query.id as string)
-   },
-  
+    this.totalCarrinho = new CarrinhoService().calcularTotal()
+    this.qtdItensCarrinho = new CarrinhoService().quantidadeItens()
+  },
+
   // watch: {
   //   // Observa mudanças na query da URL
   //   '$route.query.estabelecimento': {
@@ -192,5 +211,27 @@ export default {
 /* Remove scrollbar visual (opcional) */
 .categories-wrapper::-webkit-scrollbar {
   display: none;
+}
+
+.carrinho-fixo {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #1c8a54;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+
+.carrinho-conteudo {
+  width: 100%;
+  max-width: 600px;
+  padding: 0 24px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
