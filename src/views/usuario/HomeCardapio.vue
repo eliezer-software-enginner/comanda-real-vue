@@ -9,7 +9,7 @@
     </div>
     <Cardapio :products="products" :categorias="categorias" @category-visible="selectedcategoria = $event" />
   </div>
-  <div class="carrinho-fixo">
+  <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0">
     <div class="carrinho-conteudo">
       <div class="d-flex align-center">
         <v-badge :content="qtdItensCarrinho" overlap bordered>
