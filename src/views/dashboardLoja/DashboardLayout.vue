@@ -75,11 +75,11 @@ onMounted(async () => {
     </aside>
 
     <div :class="style.content">
-      <header :class="style.header">
+      <!-- <header :class="style.header">
         <h2 :class="style.headerTitle">
           {{ pageTitle }}
         </h2>
-      </header>
+      </header> -->
 
       <main :class="style.main">
         <!-- AQUI entram as telas -->
