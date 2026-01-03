@@ -21,7 +21,7 @@ echo -e "${GREEN}--- Iniciando Emuladores em Background ---${NC}"
 npm run firebase:emulators &
 
 # 3. Aguardar estabilização
-echo -e "Aguardando 10s..."
+echo -e "Aguardando 15s..."
 sleep 15
 
 # 4. Rodar Seed
