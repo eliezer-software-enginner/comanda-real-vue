@@ -87,3 +87,8 @@
 .saveButton:hover {
   background-color: #15803d;
 }
+
+.imgItem {
+  height: 40px;
+  width: 40px;
+}

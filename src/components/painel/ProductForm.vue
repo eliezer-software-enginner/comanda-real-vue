@@ -271,7 +271,7 @@ const handleSubmit = (e: Event) => {
               v-if="acompanhamento.imagemUrl"
               :src="acompanhamento.imagemUrl"
               :alt="acompanhamento.nome"
-              class="w-10 h-10 object-cover rounded"
+              :class="styles.imgItem"
             />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 truncate">{{ acompanhamento.nome }}</p>
@@ -323,7 +323,7 @@ const handleSubmit = (e: Event) => {
               v-if="adicional.imagemUrl"
               :src="adicional.imagemUrl"
               :alt="adicional.nome"
-              class="w-10 h-10 object-cover rounded"
+              :class="styles.imgItem"
             />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 truncate">{{ adicional.nome }}</p>
