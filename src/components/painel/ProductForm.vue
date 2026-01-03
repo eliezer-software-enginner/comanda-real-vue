@@ -259,24 +259,26 @@ const handleSubmit = (e: Event) => {
           :class="{ 'bg-blue-50': isAcompanhamentoSelecionado(acompanhamento.id) }"
           @click="toggleAcompanhamento(acompanhamento.id)"
         >
-          <div class="flex items-center space-x-3 flex-1">
+          <div :class="styles.checkboxWrapper">
+            <div>
+              <img
+                v-if="acompanhamento.imagemUrl"
+                :src="acompanhamento.imagemUrl"
+                :alt="acompanhamento.nome"
+                :class="styles.imgItem"
+              />
+
+              <p class="text-sm font-medium text-gray-900 truncate">{{ acompanhamento.nome }}</p>
+              <p class="text-xs text-gray-500 truncate">R$ {{ acompanhamento.preco.toFixed(2) }}</p>
+            </div>
+
             <input
               type="checkbox"
               :checked="isAcompanhamentoSelecionado(acompanhamento.id)"
               @click.stop
               @change="toggleAcompanhamento(acompanhamento.id)"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              :class="styles.checkbox"
             />
-            <img
-              v-if="acompanhamento.imagemUrl"
-              :src="acompanhamento.imagemUrl"
-              :alt="acompanhamento.nome"
-              :class="styles.imgItem"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ acompanhamento.nome }}</p>
-              <p class="text-xs text-gray-500 truncate">R$ {{ acompanhamento.preco.toFixed(2) }}</p>
-            </div>
           </div>
         </div>
       </div>
@@ -311,24 +313,25 @@ const handleSubmit = (e: Event) => {
           :class="{ 'bg-blue-50': isAdicionalSelecionado(adicional.id) }"
           @click="toggleAdicional(adicional.id)"
         >
-          <div class="flex items-center space-x-3 flex-1">
+          <div :class="styles.checkboxWrapper">
+            <div>
+              <img
+                v-if="adicional.imagemUrl"
+                :src="adicional.imagemUrl"
+                :alt="adicional.nome"
+                :class="styles.imgItem"
+              />
+              <p class="text-sm font-medium text-gray-900 truncate">{{ adicional.nome }}</p>
+              <p class="text-xs text-gray-500 truncate">R$ {{ adicional.preco.toFixed(2) }}</p>
+            </div>
+
             <input
               type="checkbox"
               :checked="isAdicionalSelecionado(adicional.id)"
               @click.stop
               @change="toggleAdicional(adicional.id)"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              :class="styles.checkbox"
             />
-            <img
-              v-if="adicional.imagemUrl"
-              :src="adicional.imagemUrl"
-              :alt="adicional.nome"
-              :class="styles.imgItem"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ adicional.nome }}</p>
-              <p class="text-xs text-gray-500 truncate">R$ {{ adicional.preco.toFixed(2) }}</p>
-            </div>
           </div>
         </div>
       </div>
