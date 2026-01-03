@@ -216,7 +216,7 @@ async function handleExcluirProduto(produtoId: string) {
         <main :class="styles.preview">
           <div :class="styles.previewInner">
             <div :class="styles.phoneFrame">
-              <div :class="styles.phoneNotch"></div>
+              <!-- <div :class="styles.phoneNotch"></div> -->
 
               <div :class="styles.phoneContent">
                 <MenuDisplay :cardapio="cardapio" :is-preview="true" />
