@@ -5,7 +5,7 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 import { Utils } from '@/utils/Utils'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import style from './DashboardView.module.css'
+import style from './DashboardLayout.module.css'
 
 const route = useRoute()
 const router = useRouter()
