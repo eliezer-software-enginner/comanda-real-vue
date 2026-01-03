@@ -9,6 +9,7 @@ import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
 import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
 import SobreLoja from '@/views/usuario/SobreLoja.vue'
 import DetalhesProduto from '@/components/usuario/DetalhesProduto.vue'
+import CarrinhoCompras from '@/views/usuario/CarrinhoCompras.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,11 @@ const router = createRouter({
       path: '/detalhes/:id',
       name: 'detalhes',
       component: DetalhesProduto,
+    },
+     {
+      path: '/carrinho',
+      name: 'carrinho',
+      component: CarrinhoCompras,
     },
     {
       path: '/meu-painel/:id',

@@ -5,7 +5,7 @@
       estabelecimento: $route.query.estabelecimento,
       id: $route.query.id
     }
- })">
+  })">
     <div :class="$style.storeHeader">
 
       <!-- Logo -->
@@ -48,19 +48,36 @@
       <!-- Seta -->
       <v-icon :class="$style.arrowIcon">mdi-chevron-right</v-icon>
     </div>
-    </div>
-    <div :class="$style.deliveryHeader">
-      <v-icon size="16" :class="$style.deliveryIcon">
-        mdi-bike-fast
-      </v-icon>
-
-      <span :class="$style.deliveryLabel">
-        Selecione um endereço para entrega
-      </span>
   </div>
+  <div :class="$style.deliveryHeader">
+    <v-icon size="16" :class="$style.deliveryIcon">
+      mdi-bike-fast
+    </v-icon>
+
+    <span :class="$style.deliveryLabel">
+      Selecione um endereço para entrega
+    </span>
+  </div>
+ <div :class="$style.categoriesWrapper">
+  <div
+    v-for="(categoria, index) in categorias"
+    :key="index"
+    :id="categoria.id"
+    :class="[
+      $style.categoriaItem,
+      selectedcategoria === categoria.id ? $style.active : ''
+    ]"
+    @click="selecionarCategoria(categoria.id)"
+  >
+    {{ categoria.nome }}
+  </div>
+</div>
+
 </template>
 
 <script lang="ts">
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel';
+import type { PropType } from 'vue';
 export default {
   name: "HeaderLoja",
 
@@ -69,6 +86,14 @@ export default {
       type: Object,
       required: true,
     },
+    categorias: {
+      type: Array as PropType<CategoriaModel[]>,
+      required: true,
+    },
+    selectedcategoria: {
+      type: String,
+      required: true
+    }
   },
   computed: {
     diaAtual(): string {
@@ -99,6 +124,13 @@ export default {
       const fechamento = Number(hF) * 60 + Number(mF)
 
       return minutosAgora >= abertura && minutosAgora <= fechamento
+    }
+  },
+  emits: ['categoria-selecionada'],
+
+  methods: {
+    selecionarCategoria(categoriaId: string) {
+      this.$emit('categoria-selecionada', categoriaId)
     }
   }
 }
