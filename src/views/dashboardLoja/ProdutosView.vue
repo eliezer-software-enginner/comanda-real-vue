@@ -107,6 +107,13 @@ async function handleExcluirProduto(produtoId: string) {
     }
   }
 }
+
+function copiarLink() {
+  const montarUrl = `http://localhost:5173/cardapio?estabelecimento=${slug.value}&id=${lojistaId.value}`
+
+  navigator.clipboard.writeText(montarUrl)
+  alert('Url copiada: ' + montarUrl)
+}
 </script>
 
 <template>
@@ -128,6 +135,10 @@ async function handleExcluirProduto(produtoId: string) {
             >
               Ver Loja Online ↗
             </router-link>
+
+            <span :class="styles.viewStoreLink" v-on:click="copiarLink()">
+              Copiar link da loja
+            </span>
           </div>
         </div>
       </header>
@@ -216,7 +227,7 @@ async function handleExcluirProduto(produtoId: string) {
         <main :class="styles.preview">
           <div :class="styles.previewInner">
             <div :class="styles.phoneFrame">
-              <div :class="styles.phoneNotch"></div>
+              <!-- <div :class="styles.phoneNotch"></div> -->
 
               <div :class="styles.phoneContent">
                 <MenuDisplay :cardapio="cardapio" :is-preview="true" />

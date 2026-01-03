@@ -5,7 +5,7 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 import { Utils } from '@/utils/Utils'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import style from './DashboardView.module.css'
+import style from './DashboardLayout.module.css'
 
 const route = useRoute()
 const router = useRouter()
@@ -75,11 +75,11 @@ onMounted(async () => {
     </aside>
 
     <div :class="style.content">
-      <header :class="style.header">
+      <!-- <header :class="style.header">
         <h2 :class="style.headerTitle">
           {{ pageTitle }}
         </h2>
-      </header>
+      </header> -->
 
       <main :class="style.main">
         <!-- AQUI entram as telas -->
