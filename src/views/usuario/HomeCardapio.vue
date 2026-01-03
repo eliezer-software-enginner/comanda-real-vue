@@ -1,30 +1,25 @@
 <template>
   <div class="home-page">
-    <HeaderLoja v-if="lojista" :lojista="lojista" />
-    <div class="categories-wrapper">
-      <div v-for="(categoria, index) in categorias" :key="index" class="categoria-item"
-        :class="{ active: selectedcategoria === categoria.id }" @click="scrollToCategory(categoria.id)">
-        {{ categoria.nome }}
-      </div>
-    </div>
+    <HeaderLoja v-if="lojista" :lojista="lojista" :categorias="categorias" :selectedcategoria="selectedcategoria"
+      @categoria-selecionada="scrollToCategory" />
     <Cardapio :products="products" :categorias="categorias" @category-visible="selectedcategoria = $event" />
   </div>
-  <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0">
-    <div class="carrinho-conteudo">
-      <div class="d-flex align-center">
-        <v-badge :content="qtdItensCarrinho" overlap bordered>
-          <v-icon size="26">mdi-cart</v-icon>
-        </v-badge>
-      </div>
-
-
-      <span class="text-button text-none">
-        Ver carrinho
-      </span>
-      <strong>
-        R$ {{ totalCarrinho.toFixed(2).replace('.', ',') }}
-      </strong>
+  <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0" @click="irParaCarrinho()"">
+    <div class=" carrinho-conteudo">
+    <div class="d-flex align-center">
+      <v-badge :content="qtdItensCarrinho" overlap bordered>
+        <v-icon size="26">mdi-cart</v-icon>
+      </v-badge>
     </div>
+
+
+    <span class="text-button text-none">
+      Ver carrinho
+    </span>
+    <strong>
+      R$ {{ totalCarrinho.toFixed(2).replace('.', ',') }}
+    </strong>
+  </div>
   </div>
 
   <!-- <v-footer app class="white--text" style="background-color: #fff">
@@ -68,7 +63,7 @@ export default {
       qtdItensCarrinho:  0,
       products: [] as ProdutoModel[],
       categorias: [] as CategoriaModel[],
-      selectedcategoria: undefined as string | undefined,
+      selectedcategoria: '' as string,
       slug: '',
       lojista: null as LojistaModel | null,
       totalCarrinho: 0
@@ -121,11 +116,15 @@ export default {
 
     scrollToCategory(categoriaId: string) {
       const el = document.getElementById(`categoria-${categoriaId}`)
+      const offset = 56 
 
       if (el) {
-        el.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
+        const y =
+          el.getBoundingClientRect().top + window.pageYOffset - offset
+
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
         })
       }
 
@@ -153,8 +152,17 @@ export default {
       } catch (error: any) {
         throw new Error(error.message)
       }
+    },
+    irParaCarrinho() {
+      this.$router.push({
+        name: 'carrinho',
+        //,params: { id: product.id },
+        query: {
+          estabelecimento: this.$route.query.estabelecimento,
+          id: this.$route.query.id
+        }
+      })
     }
-
   }
 };
 </script>
@@ -163,54 +171,6 @@ export default {
 .home-page {
   margin-top: 15px;
   background-color: rgb(235, 235, 235);
-}
-
-.categories-wrapper {
-  position: sticky;
-  top: 0.5px;
-  z-index: 100;
-  display: flex;
-  gap: 12px;
-  padding: 12px 20px;
-  background-color: #ffffff;
-  overflow-x: auto;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* Item */
-.categoria-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  background-color: #f3f4f6;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-/* Hover */
-.categoria-item:hover {
-  background-color: #e5e7eb;
-}
-
-/* Ativo */
-.categoria-item.active {
-  background-color: #2bb673;
-  color: #ffffff;
-}
-
-.categoria-item.active v-icon {
-  color: #ffffff;
-}
-
-/* Remove scrollbar visual (opcional) */
-.categories-wrapper::-webkit-scrollbar {
-  display: none;
 }
 
 .carrinho-fixo {
