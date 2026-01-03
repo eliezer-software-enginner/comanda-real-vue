@@ -85,5 +85,76 @@ describe('CarrinhoService', () => {
       const lista = service.listar()
       expect(lista).toEqual([])
     })
+
+    describe('calcularTotal', () => {
+      it('should return 0 when cart is empty', () => {
+        const total = service.calcularTotal()
+        expect(total).toBe(0)
+      })
+
+      it('should calculate total price correctly with single product', () => {
+        const produto: ProdutoModel = {
+          id: '1',
+          nome: 'Produto A',
+          preco: 10,
+          quantidade: 1,
+        } as unknown as ProdutoModel
+        service.adicionarProduto(produto)
+
+        const total = service.calcularTotal()
+        expect(total).toBe(10)
+      })
+
+      it('should calculate total price correctly with multiple products', () => {
+        const produtos: ProdutoEmCarrinho[] = [
+          { id: '1', nome: 'Produto A', preco: 10, quantidade: 2 } as ProdutoEmCarrinho,
+          { id: '2', nome: 'Produto B', preco: 15, quantidade: 3 } as ProdutoEmCarrinho,
+        ]
+        localStorage.setItem('produtos_json', JSON.stringify(produtos))
+
+        const total = service.calcularTotal()
+        expect(total).toBe(65)
+      })
+
+      it('should calculate total with decimal prices', () => {
+        const produtos: ProdutoEmCarrinho[] = [
+          { id: '1', nome: 'Produto A', preco: 10.5, quantidade: 2 } as ProdutoEmCarrinho,
+        ]
+        localStorage.setItem('produtos_json', JSON.stringify(produtos))
+
+        const total = service.calcularTotal()
+        expect(total).toBe(21)
+      })
+
+      describe('quantidadeItens', () => {
+        it('should return 0 when cart is empty', () => {
+          const quantidade = service.quantidadeItens()
+          expect(quantidade).toBe(0)
+        })
+
+        it('should return correct quantity with single product', () => {
+          const produto: ProdutoModel = {
+            id: '1',
+            nome: 'Produto A',
+            quantidade: 1,
+          } as unknown as ProdutoModel
+          service.adicionarProduto(produto)
+
+          const quantidade = service.quantidadeItens()
+          expect(quantidade).toBe(1)
+        })
+
+        it('should return sum of quantities with multiple products', () => {
+          const produtos: ProdutoEmCarrinho[] = [
+            { id: '1', nome: 'Produto A', quantidade: 2 } as ProdutoEmCarrinho,
+            { id: '2', nome: 'Produto B', quantidade: 3 } as ProdutoEmCarrinho,
+          ]
+          localStorage.setItem('produtos_json', JSON.stringify(produtos))
+
+          const quantidade = service.quantidadeItens()
+          expect(quantidade).toBe(5)
+        })
+      })
+    })
   })
 })
