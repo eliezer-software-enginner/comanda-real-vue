@@ -40,6 +40,37 @@ onMounted(async () => {
 
   produtos.value = await produtoService.getLista()
 })
+
+const diaAtual = computed(() => {
+  const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']
+  return dias[new Date().getDay()]!
+})
+
+const estaAberta = computed(() => {
+  if (!lojista.value) return false
+
+  const hoje =
+    lojista.value?.horarioFuncionamento?.[
+      diaAtual.value as keyof typeof lojista.value.horarioFuncionamento
+    ]
+
+  if (!hoje) return false
+
+  const agora = new Date()
+  const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+
+  const [hA, mA] = hoje.abertura.split(':')
+  const [hF, mF] = hoje.fechamento.split(':')
+
+  const abertura = Number(hA) * 60 + Number(mA)
+  const fechamento = Number(hF) * 60 + Number(mF)
+
+  return minutosAgora >= abertura && minutosAgora <= fechamento
+})
+
+const onCategoryVisible = (categoriaId: string) => {
+  selectedcategoria.value = categoriaId
+}
 </script>
 
 <template>
@@ -49,21 +80,15 @@ onMounted(async () => {
       :lojista="lojista"
       :categorias="categorias"
       :selectedcategoria="selectedcategoria"
+      :onHeaderClick="() => {}"
+      :estaAberta="estaAberta"
     />
-    <div class="categories-wrapper">
-      <div
-        v-for="(categoria, index) in categorias"
-        :key="index"
-        class="categoria-item"
-        :class="{ active: selectedcategoria === categoria.id }"
-      >
-        {{ categoria.nome }}
-      </div>
-    </div>
+
     <Cardapio
       :products="produtos"
       :categorias="categorias"
-      @category-visible="selectedcategoria = $event"
+      :onProductClick="() => {}"
+      :onCategoryVisible="onCategoryVisible"
     />
   </div>
 </template>

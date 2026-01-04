@@ -1,8 +1,20 @@
 <template>
   <div class="home-page">
-    <HeaderLoja v-if="lojista" :lojista="lojista" :categorias="categorias" :selectedcategoria="selectedcategoria"
-      @categoria-selecionada="scrollToCategory" />
-    <Cardapio :products="products" :categorias="categorias" @category-visible="selectedcategoria = $event" />
+    <HeaderLoja 
+      v-if="lojista" 
+      :lojista="lojista" 
+      :categorias="categorias" 
+      :selectedcategoria="selectedcategoria"
+      :onHeaderClick="goToSobreLoja"
+      :onCategoriaSelecionada="scrollToCategory"
+      :estaAberta="estaAberta" 
+    />
+    <Cardapio 
+      :products="products" 
+      :categorias="categorias" 
+      :onProductClick="goToDetalhesProduto"
+      :onCategoryVisible="onCategoryVisible" 
+    />
   </div>
   <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0" @click="irParaCarrinho()"">
     <div class=" carrinho-conteudo">
@@ -97,6 +109,40 @@ export default {
   //   },
   // },
 
+  computed: {
+    diaAtual(): string {
+      const dias = [
+        'domingo',
+        'segunda',
+        'terca',
+        'quarta',
+        'quinta',
+        'sexta',
+        'sabado',
+      ]
+      return dias[new Date().getDay()]!
+    },
+
+    estaAberta() {
+      if (!this.lojista || !this.lojista.horarioFuncionamento) return false
+
+      const hoje = this.lojista.horarioFuncionamento[this.diaAtual as keyof typeof this.lojista.horarioFuncionamento] as any
+
+      if (!hoje) return false
+
+      const agora = new Date()
+      const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+
+      const [hA, mA] = hoje.abertura.split(':')
+      const [hF, mF] = hoje.fechamento.split(':')
+
+      const abertura = Number(hA) * 60 + Number(mA)
+      const fechamento = Number(hF) * 60 + Number(mF)
+
+      return minutosAgora >= abertura && minutosAgora <= fechamento
+    }
+  },
+
   methods: {
     async carregarDadosLoja(lojistaId: string) {
       try {
@@ -129,6 +175,31 @@ export default {
       }
 
       this.selectedcategoria = categoriaId
+    },
+
+    onCategoryVisible(categoriaId: string) {
+      this.selectedcategoria = categoriaId
+    },
+
+    goToSobreLoja() {
+      this.$router.push({
+        name: 'sobre',
+        query: {
+          estabelecimento: this.$route.query.estabelecimento,
+          id: this.$route.query.id
+        }
+      })
+    },
+
+    goToDetalhesProduto(product: ProdutoModel) {
+      this.$router.push({
+        name: 'detalhes',
+        params: { id: product.id },
+        query: {
+          estabelecimento: this.$route.query.estabelecimento,
+          id: this.$route.query.id
+        }
+      })
     },
 
     //tipagem em retorno de função é opcional tá

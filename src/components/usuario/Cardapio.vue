@@ -1,7 +1,12 @@
 <template>
   <v-container :class="$style.menuContainer">
-    <div v-for="grupo in agruparProdutos" :key="grupo.categoriaId" :id="`categoria-${grupo.categoriaId}`"
-      :ref="el => setCategoryRef(grupo.categoriaId, el as HTMLElement | null)" class="categoria-section">
+    <div
+      v-for="grupo in agruparProdutos"
+      :key="grupo.categoriaId"
+      :id="`categoria-${grupo.categoriaId}`"
+      :ref="(el) => setCategoryRef(grupo.categoriaId, el as HTMLElement | null)"
+      class="categoria-section"
+    >
       <!-- Título da categoria -->
       <div :class="$style.categoriaTitle">
         {{ grupo.categoriaNome }}
@@ -10,14 +15,13 @@
       <div v-if="!grupo.produtos || grupo.produtos.length === 0" :class="$style.semProdutos">
         Nenhum produto disponível nesta categoria.
       </div>
-      <div v-else v-for="product in grupo.produtos" :key="product.id" :class="$style.productRow" @click="$router.push({
-          name: 'detalhes',
-          params: { id: product.id },
-          query: {
-            estabelecimento: $route.query.estabelecimento,
-            id: $route.query.id
-          }
-      })">
+      <div
+        v-else
+        v-for="product in grupo.produtos"
+        :key="product.id"
+        :class="$style.productRow"
+        @click="onProductClick(product)"
+      >
         <div :class="$style.productInfo">
           <div :class="$style.productName">
             {{ product.nome }}
@@ -28,9 +32,7 @@
           </div>
 
           <div :class="$style.productPreco">
-            <strong style="color: #2bb673">
-              R$ {{ Number(product.preco).toFixed(2) }}
-            </strong>
+            <strong style="color: #2bb673"> R$ {{ Number(product.preco).toFixed(2) }} </strong>
           </div>
         </div>
         <div v-if="product.imagemUrl" :class="$style.productImagemUrl">
@@ -42,8 +44,9 @@
 </template>
 
 <script lang="ts">
-import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel';
-import type { ProdutoModel } from '@/services/produtosService/ProdutosModel';
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
+import type { PropType } from 'vue'
 
 type Grupo = {
   categoriaId: string
@@ -55,16 +58,22 @@ export default {
   name: 'CardapioProdutos',
   props: {
     products: {
-      type: Array as () => ProdutoModel[],
+      type: Array as PropType<ProdutoModel[]>,
       required: true,
     },
     categorias: {
-      type: Array as () => CategoriaModel[],
+      type: Array as PropType<CategoriaModel[]>,
       required: true,
-    }
+    },
+    onProductClick: {
+      type: Function as PropType<(product: ProdutoModel) => void>,
+      default: () => {},
+    },
+    onCategoryVisible: {
+      type: Function as PropType<(categoriaId: string) => void>,
+      default: undefined,
+    },
   },
-
-  emits: ['category-visible'],
 
   data() {
     return {
@@ -82,15 +91,6 @@ export default {
   },
 
   methods: {
-
-    // async buscarNome_aPartirDoId(id:string){
-    //   try{
-    //     const categoriaService = new CategoriaService(this.lo)
-    //     await categori
-    //   }catch(e){
-    //     return null
-    //   }
-    // },
     setCategoryRef(name: string, el: HTMLElement | null) {
       if (el && this.observer) {
         this.categoryRefs[name] = el
@@ -104,14 +104,16 @@ export default {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               const categoria = entry.target.id.replace('categoria-', '')
-              this.$emit('category-visible', categoria)
+              if (this.onCategoryVisible) {
+                this.onCategoryVisible(categoria)
+              }
             }
           })
         },
         {
           rootMargin: '-40% 0px -50% 0px',
           threshold: 0,
-        }
+        },
       )
     },
   },
@@ -120,13 +122,13 @@ export default {
     agruparProdutos(): Grupo[] {
       const grupos: Grupo[] = []
       for (let categoria of this.categorias) {
-        const categoriaId = categoria.id;
+        const categoriaId = categoria.id
 
-        const produtosFiltrados = this.products.filter(p => p.categoriaId === categoriaId)
+        const produtosFiltrados = this.products.filter((p) => p.categoriaId === categoriaId)
         grupos.push({
           categoriaId: categoriaId,
           categoriaNome: categoria.nome,
-          produtos: produtosFiltrados
+          produtos: produtosFiltrados,
         })
       }
       return grupos
