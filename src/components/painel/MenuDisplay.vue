@@ -44,7 +44,12 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <HeaderLoja v-if="lojista" :lojista="lojista" />
+    <HeaderLoja
+      v-if="lojista"
+      :lojista="lojista"
+      :categorias="categorias"
+      :selectedcategoria="selectedcategoria"
+    />
     <div class="categories-wrapper">
       <div
         v-for="(categoria, index) in categorias"
