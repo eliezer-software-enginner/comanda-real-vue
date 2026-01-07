@@ -79,6 +79,8 @@ function toggleDia(diaKey: DiaSemana) {
 
   if (dia.aberto && !dia.horario) {
     dia.horario = { abertura: '08:00', fechamento: '18:00' }
+  } else if (!dia.aberto) {
+    dia.horario = undefined
   }
 }
 
@@ -112,7 +114,7 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
               <input
                 type="checkbox"
                 :id="dia.key"
-                v-model="dia.aberto"
+                :checked="dia.aberto"
                 @change="toggleDia(dia.key)"
                 class="toggle-input"
               />
