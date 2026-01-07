@@ -97,16 +97,18 @@
       <v-btn
         block
         color="#008a00"
-        size="x-large"
+        size="large"
         class="text-none text-white font-weight-bold"
         rounded="lg"
         :disabled="carrinho.length === 0"
         @click="finalizarPedido"
       >
-        <v-icon left>mdi-whatsapp</v-icon>
-        Fazer pedido pelo WhatsApp
+        <v-icon left size="20">mdi-whatsapp</v-icon>
+        Fazer pedido
         <v-spacer></v-spacer>
-        <span class="text-body-2">R$ {{ (precoTotalCarrinho + taxaEntrega).toFixed(2) }}</span>
+        <span class="text-body-2 font-weight-medium"
+          >R$ {{ (precoTotalCarrinho + taxaEntrega).toFixed(2) }}</span
+        >
       </v-btn>
     </v-footer>
   </v-container>
@@ -331,5 +333,50 @@ body {
     width: 50px !important;
     height: 50px !important;
   }
+
+  .v-footer .v-btn {
+    font-size: 0.9rem !important;
+    padding: 0 16px !important;
+    height: 52px !important;
+  }
+
+  .v-footer .v-btn .v-icon {
+    font-size: 18px !important;
+  }
+
+  .v-footer .v-btn .text-body-2 {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Para dispositivos pequenos */
+@media (max-width: 400px) {
+  .v-footer .v-btn {
+    font-size: 0.95rem !important;
+  }
+}
+
+/* Botão principal de WhatsApp */
+.v-footer .v-btn {
+  height: 56px !important;
+  min-height: 56px !important;
+  border-radius: 16px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: -0.3px !important;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 0 20px !important;
+  white-space: nowrap !important;
+}
+
+.v-footer .v-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.4) !important;
+}
+
+.v-footer .v-btn:active {
+  transform: translateY(0) !important;
 }
 </style>
