@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import ButtonComponent from '@/components/ui/button/ButtonComponent.vue'
-import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
-import { LojistaService } from '@/services/lojistaService/LojistaService'
+import { useLojistaStore } from '@/stores/lojista'
 import { Utils } from '@/utils/Utils'
-import { computed, onMounted, ref, type Ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import style from './DashboardLayout.module.css'
 
@@ -12,7 +11,9 @@ const router = useRouter()
 
 const lojaId = computed(() => route.params.id as string)
 
-const lojistaService = new LojistaService()
+// Store do lojista
+const lojistaStore = useLojistaStore()
+const { lojista, loading } = lojistaStore
 
 const menuItems = [
   { name: 'Início', routeName: 'meu-painel' },
@@ -22,7 +23,6 @@ const menuItems = [
   { name: 'Configurações', routeName: 'meu-painel-configuracoes' },
 ]
 
-const lojista: Ref<LojistaModel | null> = ref(null)
 const isSidebarOpen = ref(true)
 
 const pageTitle = computed(() => {
@@ -38,7 +38,12 @@ const navigate = (routeName: string) => {
 }
 
 onMounted(async () => {
-  lojista.value = await lojistaService.getById(lojaId.value)
+  try {
+    await lojistaStore.fetchLojista(lojaId.value)
+  } catch (err) {
+    console.error('Erro ao carregar lojista no DashboardLayout:', err)
+    // Opcional: redirecionar para página de erro
+  }
 })
 </script>
 
