@@ -1,12 +1,18 @@
 <template>
-  <v-container class="pa-0 bg-grey-lighten-4 fill-height align-start">
+  <v-container
+    class="pa-0 bg-grey-lighten-4 fill-height align-start"
+    style="max-width: 100%; overflow-x: hidden"
+  >
     <v-toolbar flat color="white" class="border-b">
       <v-btn icon @click="$router.back()"><v-icon>mdi-arrow-left</v-icon></v-btn>
       <v-toolbar-title class="text-body-1 font-weight-bold text-center">Meu pedido</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
 
-    <div class="pa-4 w-100 bg-white">
+    <div
+      class="pa-4 bg-white"
+      style="width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden"
+    >
       <v-card
         v-for="(item, index) in carrinho"
         :key="item.id"
@@ -219,10 +225,30 @@ export default {
 </script>
 
 <style scoped>
+/* Prevenir overflow horizontal */
+.v-container {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  padding-bottom: 100px !important;
+}
+
+/* Garantir que não ultrapasse o viewport */
+* {
+  box-sizing: border-box;
+}
+
+/* Container de conteúdo com contenção adequada */
+.pa-4.bg-white {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
 /* Card de item com borda fina e arredondada */
 .item-card {
   border: 1px solid #e0e0e0 !important;
   border-radius: 12px !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
 }
 
 /* Seletor de quantidade no estilo cinza claro da Goomer */
@@ -232,13 +258,33 @@ export default {
   background-color: #f5f5f5;
   border-radius: 8px;
   padding: 4px;
+  flex-shrink: 0;
 }
 
-/* Card de resumo do pedido */
-.resumo-card {
-  background-color: #fafafa;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+/* Garantir que textos não quebrem layout */
+.d-flex {
+  max-width: 100%;
+  flex-wrap: nowrap;
+}
+
+/* Avatar com tamanho fixo */
+.v-avatar {
+  flex-shrink: 0;
+}
+
+/* Área de texto com quebra adequada */
+.flex-grow-1 {
+  min-width: 0; /* Permite que o texto encolha se necessário */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Ajuste no Radio Group para ocupar o card todo */
+.goomer-radio :deep(.v-selection-control) {
+  width: 100%;
+  justify-content: space-between;
+  flex-direction: row-reverse;
 }
 
 /* Remove sombras excessivas do Vuetify para um look flat */
@@ -246,31 +292,42 @@ export default {
   box-shadow: none !important;
 }
 
-/* Espaçamento para o footer fixo não cobrir o conteúdo */
-.v-container {
-  padding-bottom: 120px !important;
-}
-
-/* Animação suave para o footer */
-.v-footer {
-  transition: all 0.3s ease;
-}
-
-/* Estilo para botão desabilitado */
-.v-btn--disabled {
-  opacity: 0.6 !important;
-  background-color: #cccccc !important;
-}
-
-/* Melhorias no textarea */
-.v-textarea fieldset {
-  border-radius: 12px;
-}
-
 /* Responsividade */
 @media (max-width: 600px) {
   .v-container {
-    padding-bottom: 140px !important;
+    padding-bottom: 120px !important;
+  }
+
+  .item-card {
+    margin-bottom: 8px !important;
+  }
+
+  .stepper-goomer {
+    margin-left: 8px;
+  }
+}
+
+/* Evitar rolagem horizontal */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Para dispositivos muito pequenos */
+@media (max-width: 360px) {
+  .d-flex {
+    flex-wrap: wrap;
+  }
+
+  .stepper-goomer {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  .v-avatar {
+    width: 50px !important;
+    height: 50px !important;
   }
 }
 </style>
