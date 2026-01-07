@@ -142,14 +142,14 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
 
     <div :class="styles.formGroup">
       <label>Endereço da Loja</label>
-      <div class="endereco-grid">
+      <div :class="styles.enderecoGrid">
         <input v-model="inputData.endereco.rua" placeholder="Rua" />
-        <div class="endereco-row">
+        <div :class="styles.enderecoRow">
           <input v-model="inputData.endereco.numero" placeholder="Número" />
           <input v-model="inputData.endereco.cep" placeholder="CEP" />
         </div>
         <input v-model="inputData.endereco.bairro" placeholder="Bairro" />
-        <div class="endereco-row">
+        <div :class="styles.enderecoRow">
           <input v-model="inputData.endereco.cidade" placeholder="Cidade" />
           <input v-model="inputData.endereco.estado" placeholder="UF" maxlength="2" />
         </div>
@@ -159,25 +159,32 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
 
     <div :class="styles.formGroup">
       <label>Formas de Pagamento</label>
-      <label class="payment-checkbox">
+      <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.dinheiro" />
         <span>Dinheiro</span>
       </label>
-      <label class="payment-checkbox">
+      <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.pix" />
         <span>PIX</span>
       </label>
-      <label class="payment-checkbox">
+      <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.cartaoCredito" />
         <span>Cartão de Crédito</span>
       </label>
-      <label class="payment-checkbox">
+      <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.cartaoDebito" />
-        <span>Cartão de Débito</span>
+        <span>Cartão Débito</span>
       </label>
-      <label class="payment-checkbox">
+      <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.valeRefeicao" />
         <span>Vale Refeição</span>
+      </label>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label :class="styles.deliveryCheckbox">
+        <input type="checkbox" v-model="inputData.aceitaDelivery" />
+        <span>Aceita Delivery</span>
       </label>
     </div>
 
@@ -188,7 +195,7 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
       </label>
     </div>
 
-    <div v-if="inputData.aceitaDelivery" class="delivery-section">
+    <div v-if="inputData.aceitaDelivery" :class="styles.deliverySection">
       <div :class="styles.formGroup">
         <label>Taxa de Entrega (R$)</label>
         <input type="number" step="0.01" v-model="inputData.taxaEntrega" min="0" />
