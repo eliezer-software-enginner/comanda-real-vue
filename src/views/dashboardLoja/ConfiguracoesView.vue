@@ -104,14 +104,105 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
       <input type="text" required v-model="inputData.nomeLoja" />
     </div>
 
-    <div :class="styles.formGroup">
+<div :class="styles.formGroup">
       <label>Categoria</label>
-      <select v-model="inputData.categoria" class="form-select">
+      <select v-model="inputData.categoria" :class="styles.formSelect">
         <option value="">Selecione</option>
         <option value="restaurant">Restaurante</option>
         <option value="lanchonete">Lanchonete</option>
         <option value="pizzaria">Pizzaria</option>
+        <option value="hamburgueria">Hamburgueria</option>
+        <option value="cafeteria">Cafeteria</option>
+        <option value="sorveteria">Sorveteria</option>
       </select>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>WhatsApp</label>
+      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>URL (slug)</label>
+      <input v-model="inputData.slug" placeholder="minha-lanchonete" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Foto URL</label>
+      <input type="url" v-model="inputData.fotoUrl" placeholder="https://..." />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Status</label>
+      <select v-model="inputData.status" :class="styles.formSelect">
+        <option value="ativo">Ativo</option>
+        <option value="suspenso">Suspenso</option>
+      </select>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Endereço</label>
+      <input v-model="inputData.endereco.rua" placeholder="Rua" />
+      <div :class="styles.enderecoRow">
+        <input v-model="inputData.endereco.numero" placeholder="Número" />
+        <input v-model="inputData.endereco.cep" placeholder="CEP" />
+      </div>
+      <input v-model="inputData.endereco.bairro" placeholder="Bairro" />
+      <div :class="styles.enderecoRow">
+        <input v-model="inputData.endereco.cidade" placeholder="Cidade" />
+        <input v-model="inputData.endereco.estado" placeholder="UF" maxlength="2" />
+      </div>
+      <input v-model="inputData.endereco.complemento" placeholder="Complemento (opcional)" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Formas de Pagamento</label>
+      <div :class="styles.pagamentoGrid">
+        <label :class="styles.paymentCheckbox">
+          <input type="checkbox" v-model="inputData.formasPagamento.dinheiro" />
+          <span>Dinheiro</span>
+        </label>
+        <label :class="styles.paymentCheckbox">
+          <input type="checkbox" v-model="inputData.formasPagamento.pix" />
+          <span>PIX</span>
+        </label>
+        <label :class="styles.paymentCheckbox">
+          <input type="checkbox" v-model="inputData.formasPagamento.cartaoCredito" />
+          <span>Cartão Crédito</span>
+        </label>
+        <label :class="styles.paymentCheckbox">
+          <input type="checkbox" v-model="inputData.formasPagamento.cartaoDebito" />
+          <span>Cartão Débito</span>
+        </label>
+        <label :class="styles.paymentCheckbox">
+          <input type="checkbox" v-model="inputData.formasPagamento.valeRefeicao" />
+          <span>Vale Refeição</span>
+        </label>
+      </div>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label :class="styles.checkboxLabel">
+        <input type="checkbox" v-model="inputData.aceitaDelivery" />
+        <span>Aceita Delivery</span>
+      </label>
+    </div>
+
+    <div v-if="inputData.aceitaDelivery" :class="styles.deliverySection">
+      <div :class="styles.formGroup">
+        <label>Taxa de Entrega (R$)</label>
+        <input type="number" step="0.01" v-model="inputData.taxaEntrega" />
+      </div>
+
+      <div :class="styles.formGroup">
+        <label>Pedido Mínimo (R$)</label>
+        <input type="number" step="0.01" v-model="inputData.pedidoMinimo" />
+      </div>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Instagram</label>
+      <input v-model="inputData.instagram" placeholder="@seuinstagram" />
     </div>
 
     <div :class="styles.formGroup">
@@ -436,4 +527,4 @@ label {
 input[type='checkbox'] {
   margin-right: 0.5rem;
 }
-</style>
+
