@@ -105,6 +105,82 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
     </div>
 
     <div :class="styles.formGroup">
+      <label>Categoria</label>
+      <select v-model="inputData.categoria" class="form-select">
+        <option value="">Selecione</option>
+        <option value="restaurant">Restaurante</option>
+        <option value="lanchonete">Lanchonete</option>
+        <option value="pizzaria">Pizzaria</option>
+      </select>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>WhatsApp</label>
+      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>URL (slug)</label>
+      <input v-model="inputData.slug" placeholder="minha-lanchonete" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Foto URL</label>
+      <input type="url" v-model="inputData.fotoUrl" placeholder="https://..." />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Status</label>
+      <select v-model="inputData.status" class="form-select">
+        <option value="ativo">Ativo</option>
+        <option value="suspenso">Suspenso</option>
+      </select>
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Endereço</label>
+      <input v-model="inputData.endereco.rua" placeholder="Rua" />
+      <input v-model="inputData.endereco.numero" placeholder="Número" />
+      <input v-model="inputData.endereco.bairro" placeholder="Bairro" />
+      <input v-model="inputData.endereco.cidade" placeholder="Cidade" />
+      <input v-model="inputData.endereco.estado" placeholder="UF" />
+      <input v-model="inputData.endereco.cep" placeholder="CEP" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Formas de Pagamento</label>
+      <label><input type="checkbox" v-model="inputData.formasPagamento.dinheiro" /> Dinheiro</label>
+      <label><input type="checkbox" v-model="inputData.formasPagamento.pix" /> PIX</label>
+      <label
+        ><input type="checkbox" v-model="inputData.formasPagamento.cartaoCredito" /> Cartão
+        Crédito</label
+      >
+      <label
+        ><input type="checkbox" v-model="inputData.formasPagamento.cartaoDebito" /> Cartão
+        Débito</label
+      >
+    </div>
+
+    <div :class="styles.formGroup">
+      <label><input type="checkbox" v-model="inputData.aceitaDelivery" /> Aceita Delivery</label>
+    </div>
+
+    <div v-if="inputData.aceitaDelivery" :class="styles.formGroup">
+      <label>Taxa de Entrega (R$)</label>
+      <input type="number" step="0.01" v-model="inputData.taxaEntrega" />
+    </div>
+
+    <div v-if="inputData.aceitaDelivery" :class="styles.formGroup">
+      <label>Pedido Mínimo (R$)</label>
+      <input type="number" step="0.01" v-model="inputData.pedidoMinimo" />
+    </div>
+
+    <div :class="styles.formGroup">
+      <label>Instagram</label>
+      <input v-model="inputData.instagram" placeholder="@seuinstagram" />
+    </div>
+
+    <div :class="styles.formGroup">
       <label>Horários de Funcionamento</label>
       <div :class="styles.horariosSemanais">
         <div v-for="dia in diasConfigurados" :key="dia.key" :class="styles.diaRow">
@@ -333,5 +409,31 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
 
 .submitButton:hover {
   background: #0056b3;
+}
+
+/* Estilos para campos adicionais */
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+  margin-bottom: 0.5rem;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+input[type='checkbox'] {
+  margin-right: 0.5rem;
 }
 </style>
