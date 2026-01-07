@@ -100,7 +100,7 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
   <form v-if="inputData" @submit.prevent="handleSubmit" :class="styles.form">
     <h3 :class="styles.title">Configurações da Loja</h3>
 
-<div :class="styles.formGroup">
+    <div :class="styles.formGroup">
       <label>Nome da Loja</label>
       <input type="text" required v-model="inputData.nomeLoja" />
     </div>
@@ -462,3 +462,70 @@ input[type='checkbox'] {
   margin-right: 0.5rem;
 }
 
+/* Estilos para campos adicionais */
+.formSelect {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+  background: white;
+  margin-top: 0.25rem;
+}
+
+.formSelect:focus {
+  border-color: #16a34a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.paymentCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.paymentCheckbox input {
+  accent-color: #16a34a;
+}
+
+.deliveryCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.deliveryCheckbox input {
+  accent-color: #16a34a;
+}
+
+.enderecoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.enderecoRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.enderecoRow input {
+  flex: 1;
+}
+
+.deliverySection {
+  background: #f8fafc;
+  border-left: 4px solid #16a34a;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+</style>
