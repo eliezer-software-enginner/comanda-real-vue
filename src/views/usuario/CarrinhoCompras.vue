@@ -241,6 +241,7 @@ export default {
 .pa-4.bg-white {
   max-width: 100% !important;
   overflow-x: hidden !important;
+  padding-top: 24px !important; /* Adiciona mais espaço no topo */
 }
 
 /* Card de item com borda fina e arredondada */
@@ -249,6 +250,7 @@ export default {
   border-radius: 12px !important;
   max-width: 100% !important;
   overflow: hidden !important;
+  margin-bottom: 16px !important; /* Aumenta espaçamento entre cards */
 }
 
 /* Seletor de quantidade no estilo cinza claro da Goomer */
