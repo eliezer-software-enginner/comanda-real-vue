@@ -188,13 +188,6 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
       </label>
     </div>
 
-    <div :class="styles.formGroup">
-      <label class="delivery-checkbox">
-        <input type="checkbox" v-model="inputData.aceitaDelivery" />
-        <span>Aceita Delivery</span>
-      </label>
-    </div>
-
     <div v-if="inputData.aceitaDelivery" :class="styles.deliverySection">
       <div :class="styles.formGroup">
         <label>Taxa de Entrega (R$)</label>
