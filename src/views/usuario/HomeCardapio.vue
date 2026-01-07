@@ -1,37 +1,32 @@
 <template>
   <div class="home-page">
-    <HeaderLoja 
-      v-if="lojista" 
-      :lojista="lojista" 
-      :categorias="categorias" 
+    <HeaderLoja
+      v-if="lojista"
+      :lojista="lojista"
+      :categorias="categorias"
       :selectedcategoria="selectedcategoria"
       :onHeaderClick="goToSobreLoja"
       :onCategoriaSelecionada="scrollToCategory"
-      :estaAberta="estaAberta" 
+      :estaAberta="estaAberta"
     />
-    <Cardapio 
-      :products="products" 
-      :categorias="categorias" 
+    <Cardapio
+      :products="products"
+      :categorias="categorias"
       :onProductClick="goToDetalhesProduto"
-      :onCategoryVisible="onCategoryVisible" 
+      :onCategoryVisible="onCategoryVisible"
     />
   </div>
-  <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0" @click="irParaCarrinho()"">
-    <div class=" carrinho-conteudo">
-    <div class="d-flex align-center">
-      <v-badge :content="qtdItensCarrinho" overlap bordered>
-        <v-icon size="26">mdi-cart</v-icon>
-      </v-badge>
+  <div class="carrinho-fixo" v-if="qtdItensCarrinho > 0" @click="irParaCarrinho()">
+    <div class="carrinho-conteudo">
+      <div class="d-flex align-center">
+        <v-badge :content="qtdItensCarrinho" overlap bordered>
+          <v-icon size="26">mdi-cart</v-icon>
+        </v-badge>
+      </div>
+
+      <span class="text-button text-none"> Ver carrinho </span>
+      <strong> R$ {{ totalCarrinho.toFixed(2).replace('.', ',') }} </strong>
     </div>
-
-
-    <span class="text-button text-none">
-      Ver carrinho
-    </span>
-    <strong>
-      R$ {{ totalCarrinho.toFixed(2).replace('.', ',') }}
-    </strong>
-  </div>
   </div>
 
   <!-- <v-footer app class="white--text" style="background-color: #fff">
@@ -72,13 +67,13 @@ export default {
   name: 'HomeCardapio',
   data() {
     return {
-      qtdItensCarrinho:  0,
+      qtdItensCarrinho: 0,
       products: [] as ProdutoModel[],
       categorias: [] as CategoriaModel[],
       selectedcategoria: '' as string,
       slug: '',
       lojista: null as LojistaModel | null,
-      totalCarrinho: 0
+      totalCarrinho: 0,
     }
   },
   components: {
@@ -87,8 +82,15 @@ export default {
   },
   async mounted() {
     await this.carregarDadosLoja(this.$route.query.id as string)
-    this.totalCarrinho = new CarrinhoService().calcularTotal()
-    this.qtdItensCarrinho = new CarrinhoService().quantidadeItens()
+    this.atualizarDadosCarrinho()
+
+    // Escuta atualizações do carrinho
+    window.addEventListener('carrinho-atualizado', this.atualizarDadosCarrinho)
+  },
+
+  beforeUnmount() {
+    // Remove o listener ao destruir o componente
+    window.removeEventListener('carrinho-atualizado', this.atualizarDadosCarrinho)
   },
 
   // watch: {
@@ -111,22 +113,16 @@ export default {
 
   computed: {
     diaAtual(): string {
-      const dias = [
-        'domingo',
-        'segunda',
-        'terca',
-        'quarta',
-        'quinta',
-        'sexta',
-        'sabado',
-      ]
+      const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']
       return dias[new Date().getDay()]!
     },
 
     estaAberta() {
       if (!this.lojista || !this.lojista.horarioFuncionamento) return false
 
-      const hoje = this.lojista.horarioFuncionamento[this.diaAtual as keyof typeof this.lojista.horarioFuncionamento] as any
+      const hoje = this.lojista.horarioFuncionamento[
+        this.diaAtual as keyof typeof this.lojista.horarioFuncionamento
+      ] as any
 
       if (!hoje) return false
 
@@ -140,16 +136,21 @@ export default {
       const fechamento = Number(hF) * 60 + Number(mF)
 
       return minutosAgora >= abertura && minutosAgora <= fechamento
-    }
+    },
   },
 
   methods: {
+    atualizarDadosCarrinho() {
+      this.totalCarrinho = new CarrinhoService().calcularTotal()
+      this.qtdItensCarrinho = new CarrinhoService().quantidadeItens()
+    },
+
     async carregarDadosLoja(lojistaId: string) {
       try {
         const listaCategoria = await new CategoriaService(lojistaId).getLista()
-        logger.info("id do lojista recuperado com sucesso", {
+        logger.info('id do lojista recuperado com sucesso', {
           id: lojistaId,
-          categorias: listaCategoria
+          categorias: listaCategoria,
         })
 
         this.categorias = listaCategoria
@@ -162,15 +163,14 @@ export default {
 
     scrollToCategory(categoriaId: string) {
       const el = document.getElementById(`categoria-${categoriaId}`)
-      const offset = 56 
+      const offset = 56
 
       if (el) {
-        const y =
-          el.getBoundingClientRect().top + window.pageYOffset - offset
+        const y = el.getBoundingClientRect().top + window.pageYOffset - offset
 
         window.scrollTo({
           top: y,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
 
@@ -186,8 +186,8 @@ export default {
         name: 'sobre',
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id
-        }
+          id: this.$route.query.id,
+        },
       })
     },
 
@@ -197,8 +197,8 @@ export default {
         params: { id: product.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id
-        }
+          id: this.$route.query.id,
+        },
       })
     },
 
@@ -211,7 +211,6 @@ export default {
       try {
         const produtosService = new ProdutosService(lojaId)
         return await produtosService.getLista()
-
       } catch (error: any) {
         throw new Error(error.message)
       }
@@ -230,12 +229,12 @@ export default {
         //,params: { id: product.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id
-        }
+          id: this.$route.query.id,
+        },
       })
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style scoped>
