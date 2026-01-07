@@ -25,23 +25,13 @@
           </div>
 
           <div class="stepper-goomer">
-            <v-btn
-              icon
-              variant="text"
-              size="x-small"
-              @click="diminuirQuantidade(item)"
-            >
+            <v-btn icon variant="text" size="x-small" @click="diminuirQuantidade(item)">
               <v-icon :color="item.quantidade === 1 ? 'red' : 'grey-darken-1'">
                 {{ item.quantidade === 1 ? 'mdi-delete-outline' : 'mdi-minus' }}
               </v-icon>
             </v-btn>
             <span class="px-2 text-body-2 font-weight-bold">{{ item.quantidade }}</span>
-            <v-btn
-              icon
-              variant="text"
-              size="x-small"
-              @click="aumentarQuantidade(item)"
-            >
+            <v-btn icon variant="text" size="x-small" @click="aumentarQuantidade(item)">
               <v-icon color="grey-darken-3">mdi-plus</v-icon>
             </v-btn>
           </div>
@@ -90,17 +80,14 @@ export default {
     return {
       carrinho: [] as ProdutoEmCarrinho[],
       taxaEntrega: 2,
-      carrinhoService: new CarrinhoService()
+      carrinhoService: new CarrinhoService(),
     }
   },
 
   computed: {
     precoTotalCarrinho() {
-      return this.carrinho.reduce(
-        (total, item) => total + item.preco * item.quantidade,
-        0
-      )
-    }
+      return this.carrinho.reduce((total, item) => total + item.preco * item.quantidade, 0)
+    },
   },
 
   mounted() {
@@ -119,25 +106,14 @@ export default {
     },
 
     diminuirQuantidade(item: ProdutoEmCarrinho) {
-      if (item.quantidade === 1) {
-        this.carrinhoService.removerProduto(item.id)
-      } else {
-        item.quantidade--
-        localStorage.setItem(
-          'produtos_json',
-          JSON.stringify(this.carrinho)
-        )
-      }
+      this.carrinhoService.diminuirQuantidade(item.id)
       this.atualizarCarrinho()
       window.dispatchEvent(new Event('carrinho-atualizado'))
     },
-    finalizarPedido(){
-
-    }
-  }
+    finalizarPedido() {},
+  },
 }
 </script>
-
 
 <style scoped>
 /* Card de item com borda fina e arredondada */

@@ -40,6 +40,27 @@ describe('CarrinhoService', () => {
       expect(lista).toBeDefined()
       expect(lista[0]?.quantidade).toBe(2)
     })
+
+    it('should add product with custom quantity', () => {
+      const produto: ProdutoModel = { id: '1', nome: 'Produto A' } as ProdutoModel
+
+      service.adicionarProduto(produto, 5)
+
+      const lista = service.listar()
+      expect(lista).toHaveLength(1)
+      expect(lista[0]?.quantidade).toBe(5)
+    })
+
+    it('should increment by custom quantity if product already exists', () => {
+      const produto: ProdutoModel = { id: '1', nome: 'Produto A' } as ProdutoModel
+
+      service.adicionarProduto(produto, 2)
+      service.adicionarProduto(produto, 3)
+
+      const lista = service.listar()
+      expect(lista).toHaveLength(1)
+      expect(lista[0]?.quantidade).toBe(5)
+    })
   })
 
   describe('listar', () => {
@@ -72,6 +93,33 @@ describe('CarrinhoService', () => {
 
     it('should not throw error if product does not exist', () => {
       expect(() => service.removerProduto('999')).not.toThrow()
+    })
+  })
+
+  describe('diminuirQuantidade', () => {
+    it('should remove product when quantity is 1', () => {
+      const produto: ProdutoModel = { id: '1', nome: 'Produto A' } as ProdutoModel
+      service.adicionarProduto(produto)
+
+      service.diminuirQuantidade('1')
+
+      const lista = service.listar()
+      expect(lista).toHaveLength(0)
+    })
+
+    it('should decrement quantity when quantity > 1', () => {
+      const produto: ProdutoModel = { id: '1', nome: 'Produto A' } as ProdutoModel
+      service.adicionarProduto(produto, 3)
+
+      service.diminuirQuantidade('1')
+
+      const lista = service.listar()
+      expect(lista).toHaveLength(1)
+      expect(lista[0]?.quantidade).toBe(2)
+    })
+
+    it('should not throw error if product does not exist', () => {
+      expect(() => service.diminuirQuantidade('999')).not.toThrow()
     })
   })
 

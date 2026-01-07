@@ -16,6 +16,7 @@ This file contains guidelines and commands for agentic coding agents working in 
 - `npm run test:unit` - Run all unit tests once
 - `npm run test:unit <file>` - Run single test file (e.g., `npm run test:unit src/services/lojistaService/LojistaService.test.ts`)
 - `npm run seed` - Populate database with mock data (runs multiple mock test files)
+- Test files use `.test.ts` extension and are placed alongside service files
 
 ### Code Quality Commands
 
@@ -74,6 +75,7 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 - Prefer `ref` over `reactive` for primitive values
 - Use `watch` with immediate option for prop changes
 - Handle form submissions with preventDefault
+- Import pattern: `<style module src="./Component.module.css">`
 
 ### Service Layer Patterns
 
@@ -116,9 +118,12 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 
 - `src/services/` - Business logic and data access
 - `src/components/` - Vue components organized by feature
+- `src/views/` - Page components (dashboardLoja/, usuario/)
 - `src/mocks/` - Test data and mock configurations
 - `src/utils/` - Utility functions and helpers
 - `src/types/` - TypeScript type definitions
+- `src/plugins/` - Vue plugins (logs, vuetify)
+- `src/stores/` - Pinia state management
 
 ### Service Architecture
 
