@@ -121,7 +121,7 @@ export default {
   computed: {
     agruparProdutos(): Grupo[] {
       const grupos: Grupo[] = []
-      for (let categoria of this.categorias) {
+      for (const categoria of this.categorias) {
         const categoriaId = categoria.id
 
         const produtosFiltrados = this.products.filter((p) => p.categoriaId === categoriaId)

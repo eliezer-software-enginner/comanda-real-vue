@@ -25,6 +25,7 @@ export type LojistaDto = {
   taxaEntrega?: number
   pedidoMinimo?: number
 
+  /**@deprecated @since 7 de janeiro */
   horariosFuncionamento?: HorariosFuncionamento[]
   horarioFuncionamento?: {
     segunda?: { abertura: string; fechamento: string } | null

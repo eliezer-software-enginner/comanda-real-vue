@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
+import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTypes'
+import { DIAS_SEMANA } from '@/types/HorarioTypes'
 import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -11,47 +13,83 @@ const styles = useCssModule()
 const service = new LojistaService()
 
 const inputData: Ref<LojistaModel | undefined> = ref(undefined)
+const diasConfigurados = ref<DiaSemanaLabel[]>([])
 
 onMounted(async () => {
   try {
     const data = await service.getData(lojistaId.value)
 
     if (data) {
-      console.log(data)
       inputData.value = data
+      inicializarDiasConfigurados()
     }
   } catch (error) {
     console.error('Erro ao carregar dados:', error)
   }
 })
 
-// 4. Função de Submissão
+function inicializarDiasConfigurados() {
+  if (!inputData.value?.horarioFuncionamento) {
+    diasConfigurados.value = DIAS_SEMANA.map((dia) => ({ ...dia }))
+    return
+  }
+
+  diasConfigurados.value = DIAS_SEMANA.map((dia) => {
+    const horario = inputData.value?.horarioFuncionamento?.[dia.key]
+    return {
+      ...dia,
+      aberto: !!horario,
+      horario: horario || undefined,
+    }
+  })
+}
+
 async function handleSubmit(e: Event) {
   e.preventDefault()
 
-  alert(lojistaId.value)
-  if (inputData.value == null) return
+  if (!inputData.value) return
 
   try {
+    // Constrói o novo objeto de horários
+    const novoHorarioFuncionamento: Record<string, HorarioDiario | null> = {}
+
+    diasConfigurados.value.forEach((dia) => {
+      if (dia.aberto && dia.horario) {
+        novoHorarioFuncionamento[dia.key] = dia.horario
+      } else {
+        novoHorarioFuncionamento[dia.key] = null
+      }
+    })
+
+    inputData.value.horarioFuncionamento = novoHorarioFuncionamento
+    delete inputData.value.horariosFuncionamento // Remove campo deprecated
+
     await service.atualizar(inputData.value!)
+    alert('Configurações salvas com sucesso!')
   } catch (e: any) {
     alert(e.message)
   }
 }
 
-function adicionarHorario() {
-  if (!inputData.value) return
+function toggleDia(diaKey: DiaSemana) {
+  const dia = diasConfigurados.value.find((d) => d.key === diaKey)
+  if (!dia) return
 
-  // Inicializa o array caso esteja undefined
-  if (!inputData.value.horariosFuncionamento) {
-    inputData.value.horariosFuncionamento = []
+  dia.aberto = !dia.aberto
+
+  if (dia.aberto && !dia.horario) {
+    dia.horario = { abertura: '08:00', fechamento: '18:00' }
   }
-
-  inputData.value.horariosFuncionamento.push({ de: '08:00', ate: '18:00' })
 }
 
-function removerHorario(index: number) {
-  inputData.value?.horariosFuncionamento?.splice(index, 1)
+function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', valor: string) {
+  const dia = diasConfigurados.value.find((d) => d.key === diaKey)
+  if (dia) {
+    dia.horario = {
+      ...dia.horario,
+      [campo]: valor,
+    } as HorarioDiario
+  }
 }
 </script>
 
@@ -65,39 +103,50 @@ function removerHorario(index: number) {
     </div>
 
     <div :class="styles.formGroup">
-      <div :class="styles.labelHeader">
-        <label>Horários de Funcionamento</label>
-        <button type="button" @click="adicionarHorario" :class="styles.btnAdd">+ Adicionar</button>
-      </div>
+      <label>Horários de Funcionamento</label>
+      <div :class="styles.horariosSemanais">
+        <div v-for="dia in diasConfigurados" :key="dia.key" :class="styles.diaRow">
+          <div :class="styles.diaHeader">
+            <label class="dia-label">{{ dia.label }}</label>
+            <div class="toggle-container">
+              <input
+                type="checkbox"
+                :id="dia.key"
+                v-model="dia.aberto"
+                @change="toggleDia(dia.key)"
+                class="toggle-input"
+              />
+              <label :for="dia.key" class="toggle-label"></label>
+            </div>
+          </div>
 
-      <div
-        v-for="(horario, index) in inputData.horariosFuncionamento"
-        :key="index"
-        :class="styles.horarioRow"
-      >
-        <div :class="styles.timeInputGroup">
-          <span>De:</span>
-          <input type="time" v-model="horario.de" required />
+          <div v-if="dia.aberto" :class="styles.horarioInputs">
+            <div class="time-input-group">
+              <span>Abertura:</span>
+              <input
+                type="time"
+                :value="dia.horario?.abertura"
+                @input="
+                  atualizarHorario(dia.key, 'abertura', ($event.target as HTMLInputElement).value)
+                "
+                required
+              />
+            </div>
+
+            <div class="time-input-group">
+              <span>Fechamento:</span>
+              <input
+                type="time"
+                :value="dia.horario?.fechamento"
+                @input="
+                  atualizarHorario(dia.key, 'fechamento', ($event.target as HTMLInputElement).value)
+                "
+                required
+              />
+            </div>
+          </div>
         </div>
-
-        <div :class="styles.timeInputGroup">
-          <span>Até:</span>
-          <input type="time" v-model="horario.ate" required />
-        </div>
-
-        <button
-          type="button"
-          @click="removerHorario(index)"
-          :class="styles.btnDelete"
-          title="Remover horário"
-        >
-          ✕
-        </button>
       </div>
-
-      <p v-if="!inputData.horariosFuncionamento?.length" :class="styles.emptyMsg">
-        Nenhum horário configurado.
-      </p>
     </div>
 
     <div :class="styles.formGroup">
@@ -123,4 +172,164 @@ function removerHorario(index: number) {
   <div v-else class="p-8 text-center text-gray-500">Carregando configurações...</div>
 </template>
 
-<style module src="./ConfiguracoesView.module.css"></style>
+<style module>
+.form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.formGroup input[type='text'],
+.formGroup input[type='url'],
+.formGroup input[type='tel'] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.horariosSemanais {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.diaRow {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.diaRow:last-child {
+  border-bottom: none;
+}
+
+.diaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.dia-label {
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.toggle-container {
+  position: relative;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-label {
+  display: block;
+  width: 50px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-label::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label {
+  background: #007bff;
+}
+
+.toggle-input:checked + .toggle-label::after {
+  transform: translateX(24px);
+}
+
+.horarioInputs {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.time-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.time-input-group span {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.time-input-group input[type='time'] {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.submitSection {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.submitButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background: #0056b3;
+}
+</style>
