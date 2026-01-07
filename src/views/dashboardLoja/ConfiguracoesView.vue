@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { useLojistaStore } from '@/stores/lojista'
 import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
-import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTypes'
 import { DIAS_SEMANA } from '@/types/HorarioTypes'
 import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
@@ -10,17 +10,19 @@ const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
 
 const styles = useCssModule()
-const service = new LojistaService()
+const lojistaStore = useLojistaStore()
 
 const inputData: Ref<LojistaModel | undefined> = ref(undefined)
 const diasConfigurados = ref<DiaSemanaLabel[]>([])
 
 onMounted(async () => {
   try {
-    const data = await service.getData(lojistaId.value)
+    // Usa o store para obter dados do lojista
+    await lojistaStore.fetchLojista(lojistaId.value)
 
-    if (data) {
-      inputData.value = data
+    // Clona os dados para edição local
+    if (lojistaStore.lojista) {
+      inputData.value = { ...lojistaStore.lojista }
       inicializarDiasConfigurados()
     }
   } catch (error) {
@@ -64,7 +66,7 @@ async function handleSubmit(e: Event) {
     inputData.value.horarioFuncionamento = novoHorarioFuncionamento
     delete inputData.value.horariosFuncionamento // Remove campo deprecated
 
-    await service.atualizar(inputData.value!)
+    await lojistaStore.updateLojista(inputData.value!)
     alert('Configurações salvas com sucesso!')
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido'
