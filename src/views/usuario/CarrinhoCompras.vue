@@ -13,13 +13,7 @@
       class="pa-4 bg-white"
       style="width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden"
     >
-      <v-card
-        v-for="(item, index) in carrinho"
-        :key="item.id"
-        flat
-        outlined
-        class="mb-3 pa-3 item-card"
-      >
+      <v-card v-for="item in carrinho" :key="item.id" flat outlined class="mb-3 pa-3 item-card">
         <div class="d-flex align-center">
           <v-avatar size="60" rounded="lg" class="mr-3">
             <v-img :src="item.imagemUrl" cover></v-img>

@@ -66,8 +66,9 @@ async function handleSubmit(e: Event) {
 
     await service.atualizar(inputData.value!)
     alert('Configurações salvas com sucesso!')
-  } catch (e: any) {
-    alert(e.message)
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido'
+    alert(errorMessage)
   }
 }
 
