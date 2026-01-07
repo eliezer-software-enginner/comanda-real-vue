@@ -147,3 +147,11 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 5. Check types: `npm run type-check`
 6. Format code: `npm run format`
 7. Run pre-commit check: `npm run pre-commit`
+
+## Git Commit Guidelines
+
+- **IMPORTANT**: Always make commit immediately after implementing working changes
+- Use descriptive Portuguese commit messages
+- Include brief summary of what was changed and why
+- Example: `git commit -m "corrige adição de múltiplas unidades no carrinho"`
+- Do not batch multiple working changes - commit each functional improvement separately
