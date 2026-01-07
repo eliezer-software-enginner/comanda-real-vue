@@ -3,7 +3,7 @@ import { useLojistaStore } from '@/stores/lojista'
 import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
 import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTypes'
 import { DIAS_SEMANA } from '@/types/HorarioTypes'
-import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
+import { computed, onMounted, ref, useCssModule, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -15,20 +15,18 @@ const lojistaStore = useLojistaStore()
 const inputData: Ref<LojistaModel | undefined> = ref(undefined)
 const diasConfigurados = ref<DiaSemanaLabel[]>([])
 
-onMounted(async () => {
-  try {
-    // Usa o store para obter dados do lojista
-    await lojistaStore.fetchLojista(lojistaId.value)
-
-    // Clona os dados para edição local
-    if (lojistaStore.lojista) {
-      inputData.value = { ...lojistaStore.lojista }
+// Watch para quando o lojista for carregado no DashboardLayout
+watch(
+  () => lojistaStore.lojista,
+  (novoLojista) => {
+    if (novoLojista) {
+      // Clona os dados para edição local
+      inputData.value = { ...novoLojista }
       inicializarDiasConfigurados()
     }
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error)
-  }
-})
+  },
+  { immediate: true }, // Executa imediatamente se já tiver dados
+)
 
 function inicializarDiasConfigurados() {
   if (!inputData.value?.horarioFuncionamento) {
