@@ -84,6 +84,22 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn
+            color="secondary"
+            variant="outlined"
+            @click="exportarPDF(pedidoSelecionado!)"
+            prepend-icon="mdi-file-pdf"
+          >
+            PDF
+          </v-btn>
+          <v-btn
+            color="secondary"
+            variant="outlined"
+            @click="exportarPNG(pedidoSelecionado!)"
+            prepend-icon="mdi-file-image"
+          >
+            PNG
+          </v-btn>
           <v-btn color="primary" variant="text" @click="dialog = false">Fechar</v-btn>
         </v-card-actions>
       </v-card>
@@ -95,6 +111,7 @@
 import type { PedidoModel, PedidoStatus } from '@/services/pedidoService/PedidoModel'
 import { Clock, Receipt } from 'lucide-vue-next'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { ExportService } from '@/services/exportService/ExportService'
 
 interface Props {
   status: PedidoStatus
@@ -104,6 +121,9 @@ interface Props {
 
 const props = defineProps<Props>()
 defineEmits(['mudar-status'])
+
+// --- SERVIÇO DE EXPORTAÇÃO ---
+const exportService = new ExportService()
 
 // --- ESTADO DO DIALOG ---
 const dialog = ref(false)
@@ -165,6 +185,27 @@ const tempoMedio = computed(() => {
 
 function formatarMoeda(valor: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
+}
+
+// --- FUNÇÕES DE EXPORTAÇÃO ---
+async function exportarPDF(pedido: PedidoModel) {
+  try {
+    const blob = await exportService.gerarPDF(pedido)
+    const filename = `pedido-${pedido.numero}-${new Date().toISOString().split('T')[0]}.pdf`
+    exportService.downloadBlob(blob, filename)
+  } catch (error) {
+    console.error('Erro ao exportar PDF:', error)
+  }
+}
+
+async function exportarPNG(pedido: PedidoModel) {
+  try {
+    const blob = await exportService.gerarPNG(pedido)
+    const filename = `pedido-${pedido.numero}-${new Date().toISOString().split('T')[0]}.png`
+    exportService.downloadBlob(blob, filename)
+  } catch (error) {
+    console.error('Erro ao exportar PNG:', error)
+  }
 }
 </script>
 
