@@ -92,14 +92,7 @@
           >
             PDF
           </v-btn>
-          <v-btn
-            color="secondary"
-            variant="outlined"
-            @click="exportarPNG(pedidoSelecionado!)"
-            prepend-icon="mdi-file-image"
-          >
-            PNG
-          </v-btn>
+
           <v-btn color="primary" variant="text" @click="dialog = false">Fechar</v-btn>
         </v-card-actions>
       </v-card>
@@ -108,10 +101,10 @@
 </template>
 
 <script setup lang="ts">
+import { ExportService } from '@/services/exportService/ExportService'
 import type { PedidoModel, PedidoStatus } from '@/services/pedidoService/PedidoModel'
 import { Clock, Receipt } from 'lucide-vue-next'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { ExportService } from '@/services/exportService/ExportService'
 
 interface Props {
   status: PedidoStatus
@@ -195,16 +188,6 @@ async function exportarPDF(pedido: PedidoModel) {
     exportService.downloadBlob(blob, filename)
   } catch (error) {
     console.error('Erro ao exportar PDF:', error)
-  }
-}
-
-async function exportarPNG(pedido: PedidoModel) {
-  try {
-    const blob = await exportService.gerarPNG(pedido)
-    const filename = `pedido-${pedido.numero}-${new Date().toISOString().split('T')[0]}.png`
-    exportService.downloadBlob(blob, filename)
-  } catch (error) {
-    console.error('Erro ao exportar PNG:', error)
   }
 }
 </script>

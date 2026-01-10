@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+
 import { ExportService } from './ExportService'
 import type { PedidoModel } from '@/services/pedidoService/PedidoModel'
-import html2canvas from 'html2canvas'
 
 // Mock das dependências externas
 const mockJsPDF = {
@@ -162,36 +162,6 @@ describe('ExportService', () => {
 
       await expect(exportService.gerarPDF(mockPedido)).rejects.toThrow(
         'Não foi possível gerar o PDF do pedido',
-      )
-    })
-  })
-
-  describe('gerarPNG', () => {
-    test('deve gerar PNG com sucesso para pedido individual', async () => {
-      const result = await exportService.gerarPNG(mockPedido)
-
-      expect(result).toBeInstanceOf(Blob)
-      expect(result.type).toBe('image/png')
-    })
-
-    test('deve remover elemento DOM temporário após geração', async () => {
-      const mockContainer = {
-        style: {},
-        innerHTML: '',
-      }
-      document.createElement = vi.fn().mockReturnValue(mockContainer)
-
-      await exportService.gerarPNG(mockPedido)
-
-      expect(document.body.appendChild).toHaveBeenCalledWith(mockContainer)
-      expect(document.body.removeChild).toHaveBeenCalledWith(mockContainer)
-    })
-
-    test('deve lidar com erro na geração de PNG', async () => {
-      vi.mocked(html2canvas).mockRejectedValue(new Error('Erro no html2canvas'))
-
-      await expect(exportService.gerarPNG(mockPedido)).rejects.toThrow(
-        'Não foi possível gerar o PNG do pedido',
       )
     })
   })

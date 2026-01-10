@@ -1,7 +1,6 @@
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
-import logger from '@/plugins/logs'
 import type { PedidoModel } from '@/services/pedidoService/PedidoModel'
+import jsPDF from 'jspdf'
+import logger from '@/plugins/logs'
 
 export class ExportService {
   private readonly label = 'ExportService'
@@ -9,7 +8,11 @@ export class ExportService {
   async gerarPDF(pedido: PedidoModel): Promise<Blob> {
     const method = 'gerarPDF'
     try {
-      logger.info(this.label, method, 'Iniciando geração de PDF', { pedidoId: pedido.id })
+      logger.info('Iniciando geração de PDF', {
+        label: this.label,
+        method: method,
+        pedidoId: pedido.id,
+      })
 
       const pdf = new jsPDF()
       const pageWidth = pdf.internal.pageSize.getWidth()
@@ -133,65 +136,30 @@ export class ExportService {
         }
       }
 
-      logger.info(this.label, method, 'PDF gerado com sucesso', { pedidoId: pedido.id })
+      logger.info('PDF gerado com sucesso', {
+        label: this.label,
+        method: method,
+        pedidoId: pedido.id,
+      })
+
       return pdf.output('blob')
     } catch (error) {
-      logger.error(this.label, method, 'Erro ao gerar PDF', { error, pedidoId: pedido.id })
+      logger.error('Erro ao gerar PDF', {
+        label: this.label,
+        method: method,
+        pedidoId: pedido.id,
+      })
+
       throw new Error('Não foi possível gerar o PDF do pedido')
-    }
-  }
-
-  async gerarPNG(pedido: PedidoModel): Promise<Blob> {
-    const method = 'gerarPNG'
-    try {
-      logger.info(this.label, method, 'Iniciando geração de PNG', { pedidoId: pedido.id })
-
-      // Criar elemento HTML temporário
-      const container = document.createElement('div')
-      container.style.position = 'absolute'
-      container.style.left = '-9999px'
-      container.style.top = '0'
-      container.style.width = '400px'
-      container.style.padding = '20px'
-      container.style.backgroundColor = 'white'
-      container.style.fontFamily = 'Arial, sans-serif'
-      container.style.fontSize = '12px'
-
-      container.innerHTML = this.criarTemplateHTML(pedido)
-      document.body.appendChild(container)
-
-      try {
-        const canvas = await html2canvas(container, {
-          scale: 2,
-          backgroundColor: '#ffffff',
-          logging: false,
-        })
-
-        const blob = await new Promise<Blob>((resolve) => {
-          canvas.toBlob((blob) => {
-            if (blob) {
-              resolve(blob)
-            } else {
-              throw new Error('Não foi possível converter canvas para blob')
-            }
-          }, 'image/png')
-        })
-
-        logger.info(this.label, method, 'PNG gerado com sucesso', { pedidoId: pedido.id })
-        return blob
-      } finally {
-        document.body.removeChild(container)
-      }
-    } catch (error) {
-      logger.error(this.label, method, 'Erro ao gerar PNG', { error, pedidoId: pedido.id })
-      throw new Error('Não foi possível gerar o PNG do pedido')
     }
   }
 
   async gerarPDFLista(pedidos: PedidoModel[]): Promise<Blob> {
     const method = 'gerarPDFLista'
     try {
-      logger.info(this.label, method, 'Iniciando geração de PDF em lote', {
+      logger.info('Iniciando geração de PDF', {
+        label: this.label,
+        method: method,
         quantidade: pedidos.length,
       })
 
@@ -253,12 +221,19 @@ export class ExportService {
         }
       })
 
-      logger.info(this.label, method, 'PDF em lote gerado com sucesso', {
+      logger.info('PD em lote gerado com sucesso', {
+        label: this.label,
+        method: method,
         quantidade: pedidos.length,
       })
       return pdf.output('blob')
     } catch (error) {
-      logger.error(this.label, method, 'Erro ao gerar PDF em lote', { error })
+      logger.info('Erro ao gerar PDF em lote', {
+        label: this.label,
+        method: method,
+        error: error,
+      })
+
       throw new Error('Não foi possível gerar o PDF da lista de pedidos')
     }
   }
