@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useLojistaStore } from '@/stores/lojista'
 import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
+import { useLojistaStore } from '@/stores/lojista'
 import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTypes'
 import { DIAS_SEMANA } from '@/types/HorarioTypes'
-import { computed, onMounted, ref, useCssModule, watch, type Ref } from 'vue'
+import { computed, ref, useCssModule, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -114,6 +114,7 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
         <option value="pizzaria">Pizzaria</option>
         <option value="hamburgueria">Hamburgueria</option>
         <option value="cafeteria">Cafeteria</option>
+        <option value="cafeteria">Açaiteria</option>
       </select>
     </div>
 
