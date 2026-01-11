@@ -173,20 +173,50 @@ export default {
       tipoEntrega: null,
       dialogEndereco: false,
       erroEntrega: false,
+      observacaoPedido: ""
     }
   },
 
   computed: {
     precoTotalCarrinho() {
-      return this.carrinho.reduce(
-        (total, item) => total + item.preco * item.quantidade,
-        0
-      )
-    }
+      return this.carrinho.reduce((total, item) => total + item.preco * item.quantidade, 0)
+    },
+
+    totalComTaxa() {
+      return this.precoTotalCarrinho + this.taxaEntrega
+    },
+
+    whatsappMessage() {
+      if (this.carrinho.length === 0) return ''
+
+      let message = `🛒 *NOVO PEDIDO*\n\n`
+      message += `*Itens do pedido:*\n`
+
+      this.carrinho.forEach((item, index) => {
+        message += `${index + 1}. ${item.nome} - ${item.quantidade}x - R$ ${(item.preco * item.quantidade).toFixed(2)}\n`
+      })
+
+      message += `\n*Subtotal:* R$ ${this.precoTotalCarrinho.toFixed(2)}`
+      message += `\n*Taxa de entrega:* R$ ${this.taxaEntrega.toFixed(2)}`
+      message += `\n*TOTAL:* R$ ${this.totalComTaxa.toFixed(2)}`
+
+      if (this.observacaoPedido.trim()) {
+        message += `\n\n*Observações:* ${this.observacaoPedido}`
+      }
+
+      return message
+    },
   },
 
   mounted() {
     this.atualizarCarrinho()
+
+    // Escuta atualizações do carrinho
+    window.addEventListener('carrinho-atualizado', this.atualizarCarrinho)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('carrinho-atualizado', this.atualizarCarrinho)
   },
 
   methods: {
@@ -244,13 +274,45 @@ export default {
         }
       })
     },
-    finalizarPedido() {
 
-    }
-  }
+    voltarAoCardapio() {
+      this.$router.push({
+        name: 'cardapio',
+        query: {
+          estabelecimento: this.$route.query.estabelecimento,
+          id: this.$route.query.id,
+        },
+      })
+    },
+
+    finalizarPedido() {
+      if (this.carrinho.length === 0) {
+        alert('Seu carrinho está vazio!')
+        return
+      }
+
+      // Obtém o WhatsApp do lojista (poderia vir do serviço ou rota)
+      const whatsappLojista = (this.$route.query.whatsapp as string) || '5511999999999'
+
+      // Formata o número para o WhatsApp
+      const whatsappFormatted = whatsappLojista.replace(/\D/g, '')
+
+      // Codifica a mensagem para URL
+      const encodedMessage = encodeURIComponent(this.whatsappMessage)
+
+      // Constrói a URL do WhatsApp
+      const whatsappUrl = `https://wa.me/${whatsappFormatted}?text=${encodedMessage}`
+
+      // Abre o WhatsApp em nova aba
+      window.open(whatsappUrl, '_blank')
+
+      // Opcional: limpar carrinho após finalizar
+      // this.carrinhoService.esvaziarCarrinho()
+      // this.atualizarCarrinho()
+    },
+  },
 }
 </script>
-
 
 <style scoped>
 :deep(.v-toolbar),
@@ -268,6 +330,9 @@ export default {
 .item-card {
   border: 1px solid #e0e0e0 !important;
   border-radius: 12px !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  margin-bottom: 16px !important; /* Aumenta espaçamento entre cards */
 }
 
 .dialog {

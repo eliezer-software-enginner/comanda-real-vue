@@ -26,7 +26,7 @@ describe('SEED DATA: População Inicial no Firebase Emulator', () => {
 
   test('deve criar o lojista de teste se não existir', async () => {
     try {
-      let lojista = await lojistaService.getById(LOJISTA_ID)
+      const lojista = await lojistaService.getById(LOJISTA_ID)
 
       if (!lojista) {
         console.log(`[SEED] Criando lojista ${LOJISTA_ID}...`)

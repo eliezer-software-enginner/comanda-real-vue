@@ -9,6 +9,7 @@ import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
+import { WhatsAppService, type PedidoSimuladoDto } from '@/services/whatsappService/WhatsAppService'
 import { useRoute } from 'vue-router'
 import MenuDisplay from '../../components/painel/MenuDisplay.vue'
 
@@ -20,6 +21,7 @@ const lojistaId = computed(() => route.params.id as string)
 const cardapioService = new ProdutosService(lojistaId.value)
 const categoriasService = new CategoriaService(lojistaId.value)
 const lojistaService = new LojistaService()
+const whatsAppService = new WhatsAppService()
 
 // 1. Estado Reativo (ref)
 const activeTab = ref<'produtos' | 'loja'>('produtos')
@@ -114,6 +116,33 @@ function copiarLink() {
   navigator.clipboard.writeText(montarUrl)
   alert('Url copiada: ' + montarUrl)
 }
+
+async function simularRecebimentoPedido() {
+  try {
+    // Criar pedido simulado com os primeiros 3 produtos ou menos
+    const produtosParaSimular = cardapio.value.slice(0, 3).map(produto => ({
+      nome: produto.nome,
+      quantidade: Math.floor(Math.random() * 3) + 1, // 1 a 3 unidades
+      preco: produto.preco
+    }))
+
+    const total = produtosParaSimular.reduce((sum, item) => sum + (item.preco * item.quantidade), 0)
+
+    const pedidoSimulado: PedidoSimuladoDto = {
+      lojistaId: lojistaId.value,
+      nomeCliente: 'Cliente Teste',
+      produtos: produtosParaSimular,
+      total: total,
+      observacoes: 'Este é um pedido de teste para simulação do sistema.'
+    }
+
+    await whatsAppService.simularRecebimentoPedido(pedidoSimulado)
+    alert('Pedido simulado enviado com sucesso! Verifique seu WhatsApp.')
+  } catch (error) {
+    console.error('Erro ao simular pedido:', error)
+    alert('Erro ao simular pedido. Tente novamente.')
+  }
+}
 </script>
 
 <template>
@@ -138,6 +167,10 @@ function copiarLink() {
 
             <span :class="styles.viewStoreLink" v-on:click="copiarLink()">
               Copiar link da loja
+            </span>
+
+            <span :class="styles.viewStoreLink" v-on:click="simularRecebimentoPedido()">
+              Simular recebimento de pedido
             </span>
           </div>
         </div>

@@ -7,6 +7,7 @@ export interface LojistaModel {
   slug: string
   dtCriacao: Date
   status: StatusLoja
+  /**@deprecated @since 7 de janeiro */
   horariosFuncionamento?: HorariosFuncionamento[]
   fotoUrl: string
 
@@ -41,6 +42,8 @@ export interface LojistaModel {
 }
 
 type StatusLoja = 'ativo' | 'excluido' | 'suspenso'
+
+/**@deprecated @since 7 de janeiro */
 export type HorariosFuncionamento = {
   de: string
   ate: string

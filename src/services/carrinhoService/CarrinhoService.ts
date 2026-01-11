@@ -4,19 +4,19 @@ import type { ProdutoEmCarrinho } from './CarrinhoModel'
 export class CarrinhoService {
   private KEY = 'produtos_json'
 
-  public adicionarProduto(produto: ProdutoModel) {
+  public adicionarProduto(produto: ProdutoModel, quantidade: number = 1) {
     const lista = this.listar()
 
     const produtoBuscado = this.buscarProduto(lista, produto.id)
 
     if (produtoBuscado != undefined) {
-      produtoBuscado.quantidade = produtoBuscado.quantidade + 1
+      produtoBuscado.quantidade = produtoBuscado.quantidade + quantidade
 
       this.persistir(lista)
       return
     }
 
-    const produtoDeCarrinho: ProdutoEmCarrinho = { ...produto, quantidade: 1 }
+    const produtoDeCarrinho: ProdutoEmCarrinho = { ...produto, quantidade }
     lista.push(produtoDeCarrinho)
 
     this.persistir(lista)
@@ -55,6 +55,20 @@ export class CarrinhoService {
     if (produtoBuscado != undefined) {
       const novaLista = lista.filter((p) => p.id != id)
       this.persistir(novaLista)
+    }
+  }
+
+  public diminuirQuantidade(id: string) {
+    const lista = this.listar()
+    const produtoBuscado = this.buscarProduto(lista, id)
+
+    if (produtoBuscado != undefined) {
+      if (produtoBuscado.quantidade > 1) {
+        produtoBuscado.quantidade = produtoBuscado.quantidade - 1
+        this.persistir(lista)
+      } else {
+        this.removerProduto(id)
+      }
     }
   }
 

@@ -1,13 +1,6 @@
 <template>
-  <div :class="$style.headerLoja" @click="$router.push({
-    name: 'sobre',
-    query: {
-      estabelecimento: $route.query.estabelecimento,
-      id: $route.query.id
-    }
-  })">
+  <div :class="$style.headerLoja" @click="onHeaderClick">
     <div :class="$style.storeHeader">
-
       <!-- Logo -->
       <div :class="$style.storeLogo">
         <img :src="lojista.fotoUrl" alt="Logo da loja" />
@@ -27,10 +20,7 @@
           </div>
 
           <!-- Status -->
-          <div :class="[
-            $style.storeStatus,
-            estaAberta ? $style.open : $style.closed
-          ]">
+          <div :class="[$style.storeStatus, estaAberta ? $style.open : $style.closed]">
             <v-icon size="16">mdi-clock-outline</v-icon>
             <span>{{ estaAberta ? 'Aberta' : 'Fechada' }}</span>
           </div>
@@ -50,40 +40,33 @@
     </div>
   </div>
   <div :class="$style.deliveryHeader">
-    <v-icon size="16" :class="$style.deliveryIcon">
-      mdi-bike-fast
-    </v-icon>
+    <v-icon size="16" :class="$style.deliveryIcon"> mdi-bike-fast </v-icon>
 
-    <span :class="$style.deliveryLabel">
-      Selecione um endereço para entrega
-    </span>
+    <span :class="$style.deliveryLabel"> Selecione um endereço para entrega </span>
   </div>
- <div :class="$style.categoriesWrapper">
-  <div
-    v-for="(categoria, index) in categorias"
-    :key="index"
-    :id="categoria.id"
-    :class="[
-      $style.categoriaItem,
-      selectedcategoria === categoria.id ? $style.active : ''
-    ]"
-    @click="selecionarCategoria(categoria.id)"
-  >
-    {{ categoria.nome }}
+  <div :class="$style.categoriesWrapper">
+    <div
+      v-for="(categoria, index) in categorias"
+      :key="index"
+      :id="categoria.id"
+      :class="[$style.categoriaItem, selectedcategoria === categoria.id ? $style.active : '']"
+      @click="selecionarCategoria(categoria.id)"
+    >
+      {{ categoria.nome }}
+    </div>
   </div>
-</div>
-
 </template>
 
 <script lang="ts">
-import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel';
-import type { PropType } from 'vue';
+import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
+import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
+import type { PropType } from 'vue'
 export default {
-  name: "HeaderLoja",
+  name: 'HeaderLoja',
 
   props: {
     lojista: {
-      type: Object,
+      type: Object as PropType<LojistaModel>,
       required: true,
     },
     categorias: {
@@ -92,49 +75,30 @@ export default {
     },
     selectedcategoria: {
       type: String,
-      required: true
-    }
-  },
-  computed: {
-    diaAtual(): string {
-      const dias = [
-        'domingo',
-        'segunda',
-        'terca',
-        'quarta',
-        'quinta',
-        'sexta',
-        'sabado',
-      ]
-      return dias[new Date().getDay()]!
+      required: true,
     },
-
-    estaAberta() {
-      const hoje = this.lojista?.horarioFuncionamento[this.diaAtual]
-
-      if (!hoje) return false
-
-      const agora = new Date()
-      const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
-
-      const [hA, mA] = hoje.abertura.split(':')
-      const [hF, mF] = hoje.fechamento.split(':')
-
-      const abertura = Number(hA) * 60 + Number(mA)
-      const fechamento = Number(hF) * 60 + Number(mF)
-
-      return minutosAgora >= abertura && minutosAgora <= fechamento
-    }
+    onHeaderClick: {
+      type: Function as PropType<(payload: PointerEvent) => void>,
+      default: () => {},
+    },
+    onCategoriaSelecionada: {
+      type: Function as PropType<(categoriaId: string) => void>,
+      default: undefined,
+    },
+    estaAberta: {
+      type: Boolean,
+      required: true,
+    },
   },
-  emits: ['categoria-selecionada'],
 
   methods: {
     selecionarCategoria(categoriaId: string) {
-      this.$emit('categoria-selecionada', categoriaId)
-    }
-  }
+      if (this.onCategoriaSelecionada) {
+        this.onCategoriaSelecionada(categoriaId)
+      }
+    },
+  },
 }
 </script>
 
-
-<style module src='./HeaderLoja.module.css'></style>
+<style module src="./HeaderLoja.module.css"></style>

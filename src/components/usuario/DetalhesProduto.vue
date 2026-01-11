@@ -18,14 +18,11 @@
 
       <!-- Preço -->
       <v-col>
-        <h3 class="d-flex align-center" style="color: green; font-weight: bold; margin: 0;">
-          <span v-if="produto?.preco != null">
-            R$ {{ Number(produto.preco).toFixed(2) }}
-          </span>
+        <h3 class="d-flex align-center" style="color: green; font-weight: bold; margin: 0">
+          <span v-if="produto?.preco != null"> R$ {{ Number(produto.preco).toFixed(2) }} </span>
           <span v-else>R$</span>
         </h3>
       </v-col>
-
 
       <!-- Colocar os diferentes ifs, dependendo do
        tipo de informação que tem no produto -->
@@ -33,33 +30,41 @@
       <!-- Observação -->
       <v-col cols="12">
         <div class="d-flex align-center mb-2">
-          <h3 style="font-weight: 600; color: #1f1f1f;">
+          <h3 style="font-weight: 600; color: #1f1f1f">
             <v-icon color="primary" class="mr-2">mdi-chat-outline</v-icon> Alguma observação?
           </h3>
         </div>
 
         <div class="observacao-wrapper">
-          <textarea v-model="observacao" placeholder="Digite aqui (opcional)" maxlength="140" rows="2"></textarea>
+          <textarea
+            v-model="observacao"
+            placeholder="Digite aqui (opcional)"
+            maxlength="140"
+            rows="2"
+          ></textarea>
         </div>
       </v-col>
       <!-- ✅ BARRA FIXA FORA DO v-row -->
       <div class="barra-fixa">
         <div class="controle-quantidade">
-          <v-icon small class="icone-quantidade" @click="quantidade--" :class="{ desabilitado: quantidade <= 1 }">
+          <v-icon
+            small
+            class="icone-quantidade"
+            @click="quantidade--"
+            :class="{ desabilitado: quantidade <= 1 }"
+          >
             mdi-minus
           </v-icon>
 
           <span class="quantidade">{{ quantidade }}</span>
 
-          <v-icon small class="icone-quantidade" @click="quantidade++">
-            mdi-plus
-          </v-icon>
+          <v-icon small class="icone-quantidade" @click="quantidade++"> mdi-plus </v-icon>
         </div>
 
         <v-btn color="primary" outlined small class="btn-adicionar" @click="adicionarAoCarrinho()">
           <v-icon left small>mdi-cart-outline</v-icon>
           Adicionar
-          <span class="ml-1" style="font-weight: normal;" v-if="precoTotal != 'NaN'">
+          <span class="ml-1" style="font-weight: normal" v-if="precoTotal != 'NaN'">
             R$ {{ precoTotal }}
           </span>
           <span v-else>R$</span>
@@ -70,25 +75,25 @@
 </template>
 
 <script lang="ts">
-import type { Carrinho } from '@/services/carrinhoService/CarrinhoModel';
-import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService';
-import type { ProdutoModel } from '@/services/produtosService/ProdutosModel';
-import { ProdutosService } from '@/services/produtosService/ProdutosService';
+import type { Carrinho } from '@/services/carrinhoService/CarrinhoModel'
+import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService'
+import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
+import { ProdutosService } from '@/services/produtosService/ProdutosService'
 
 export default {
   data() {
     return {
       quantidade: 1,
       produto: {} as ProdutoModel,
-      observacao: "",
-      carrinho: [] as Carrinho[]
+      observacao: '',
+      carrinho: [] as Carrinho[],
     }
   },
 
   computed: {
     precoTotal() {
-      return (this.produto.preco * this.quantidade).toFixed(2);
-    }
+      return (this.produto.preco * this.quantidade).toFixed(2)
+    },
   },
 
   async mounted() {
@@ -97,26 +102,18 @@ export default {
   },
   methods: {
     async adicionarAoCarrinho() {
-      const itemCarrinho = {
-        ...this.produto,
-        quantidade: this.quantidade,
-        observacao: this.observacao
-      }
-
-      new CarrinhoService().adicionarProduto(itemCarrinho)
+      new CarrinhoService().adicionarProduto(this.produto, this.quantidade)
       this.$router.push({
         name: 'cardapio',
         params: { id: this.produto.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id
-        }
+          id: this.$route.query.id,
+        },
       })
-    }
-  }
+    },
+  },
 }
-
-
 </script>
 
 <style scoped>
@@ -141,7 +138,6 @@ export default {
   font-family: inherit;
   line-height: 1.4;
 }
-
 
 .imagem-produto {
   width: 100%;
@@ -170,7 +166,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: #FF0303;
+  background-color: #ff0303;
   padding: 4px 8px;
   border-radius: 15px;
 }
