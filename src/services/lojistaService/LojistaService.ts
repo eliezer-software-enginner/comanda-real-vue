@@ -191,8 +191,40 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
     }
   }
 
+  // Implementar mais a frente
+  public estaAberta(lojista: LojistaModel): boolean {
+    return false;
+    // const dias = [
+    //   'domingo',
+    //   'segunda',
+    //   'terca',
+    //   'quarta',
+    //   'quinta',
+    //   'sexta',
+    //   'sabado',
+    // ]
+
+    // const diaAtual = dias[new Date().getDay()]!
+
+    // const hoje = lojista?.horarioFuncionamento?.[diaAtual]
+
+    // if (!hoje) return false
+
+    // const agora = new Date()
+    // const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+
+    // const [hA, mA] = hoje.abertura.split(':')
+    // const [hF, mF] = hoje.fechamento.split(':')
+
+    // const abertura = Number(hA) * 60 + Number(mA)
+    // const fechamento = Number(hF) * 60 + Number(mF)
+
+    // return minutosAgora >= abertura && minutosAgora <= fechamento
+  }
+
   /**
    * Verifica se o lojista está aberto com base nos horários de funcionamento
+   * @deprecated
    */
   public async isAbertaAgora(lojistaId: string): Promise<boolean> {
     logger.info('verificando se a loja está aberta agora', {

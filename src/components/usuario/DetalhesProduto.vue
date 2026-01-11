@@ -97,7 +97,13 @@ export default {
   },
   methods: {
     async adicionarAoCarrinho() {
-      new CarrinhoService().adicionarProduto(this.produto)
+      const itemCarrinho = {
+        ...this.produto,
+        quantidade: this.quantidade,
+        observacao: this.observacao
+      }
+
+      new CarrinhoService().adicionarProduto(itemCarrinho)
       this.$router.push({
         name: 'cardapio',
         params: { id: this.produto.id },
