@@ -24,7 +24,7 @@ export class WhatsAppService {
       )
     const pedido: RecebimentoPedidoLojista = {
       nomeCliente: 'Cliente Teste',
-      telefoneCliente: '5532998008182',
+      telefoneCliente: '5512345678910',
       telefoneLojista: whatsapp,
       produtos: [
         {
