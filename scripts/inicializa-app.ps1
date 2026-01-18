@@ -33,7 +33,7 @@ Start-Process `
     -NoNewWindow
 
 # 4. Aguardar estabilização
-Write-Host "Aguardando 10s para estabilização..." -ForegroundColor DarkGray
+Write-Host "Aguardando 35s para estabilização..." -ForegroundColor DarkGray
 Start-Sleep -Seconds 35
 
 # 5. Seed (BLOQUEANTE)
