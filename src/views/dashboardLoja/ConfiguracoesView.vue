@@ -132,8 +132,8 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
     </div>
 
     <div :class="styles.formGroup">
-      <label>Sua URL (slug)</label>
-      <input v-model="inputData.slug" placeholder="minha-lanchonete" />
+      <label>Sua url final (exemplo: minha-lanchonete)</label>
+      <input v-model="inputData.slug" placeholder="exemplo: minha-lanchonete" />
     </div>
 
     <div :class="styles.formGroup">
@@ -251,21 +251,6 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
           </div>
         </div>
       </div>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>URL da Logo / Foto da Loja</label>
-      <input type="url" v-model="inputData.fotoUrl" placeholder="https://exemplo.com/logo.jpg" />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>WhatsApp para Pedidos</label>
-      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Sua url final (exemplo: minha-lanchonete)</label>
-      <input v-model="inputData.slug" placeholder="exemplo: minha-lanchonete" />
     </div>
 
     <div :class="styles.submitSection">

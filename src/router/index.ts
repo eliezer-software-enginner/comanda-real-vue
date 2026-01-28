@@ -79,4 +79,33 @@ const router = createRouter({
   ],
 })
 
+// Guard de rota para proteger rotas que exigem autenticação
+router.beforeEach((to, from, next) => {
+  // Importar dinamicamente o store dentro do guard para evitar circular dependency
+  import('@/stores/auth').then(({ useAuthStore }) => {
+    const authStore = useAuthStore()
+
+    // Se está indo para uma rota protegida (meu-painel)
+    if (to.path.startsWith('/meu-painel') && to.path !== '/meu-painel/TESTE_DEV_LOJA') {
+      if (!authStore.isAuthenticated) {
+        // Se não está autenticado, redirecionar para login
+        next({ name: 'login' })
+      } else {
+        // Se está autenticado, permitir acesso
+        next()
+      }
+    } else if (to.name === 'login') {
+      // Se já está autenticado e tenta acessar login, redirecionar para painel
+      if (authStore.isAuthenticated && authStore.user) {
+        next({ path: `/meu-painel/${authStore.user.uid}` })
+      } else {
+        next()
+      }
+    } else {
+      // Para outras rotas, permitir acesso
+      next()
+    }
+  })
+})
+
 export default router

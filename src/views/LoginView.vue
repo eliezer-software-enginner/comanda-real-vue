@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import ButtonComponent from '@/components/ui/button/ButtonComponent.vue'
 import style from './LoginView.module.css'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const entrarComoTestador = () => {
   router.push('/meu-painel/TESTE_DEV_LOJA')
 }
 
-// Placeholder para função de login (não implementado ainda)
-const fazerLogin = () => {
-  // TODO: Implementar lógica de login
-  console.log('Função de login ainda não implementada')
+const fazerLogin = async () => {
+  try {
+    await authStore.loginWithGoogle()
+
+    // Se o login foi bem sucedido e o usuário tem um lojista associado,
+    // redirecionar para o painel dele
+    if (authStore.isAuthenticated && authStore.user) {
+      router.push(`/meu-painel/${authStore.user.uid}`)
+    }
+  } catch (error) {
+    console.error('Erro ao fazer login:', error)
+    // Aqui poderíamos mostrar uma mensagem de erro para o usuário
+  }
 }
 </script>
 
@@ -25,9 +36,10 @@ const fazerLogin = () => {
       </div>
 
       <div :class="style.formSection">
-        <h2 :class="style.sectionTitle">Login</h2>
+        <h2 :class="style.sectionTitle">Acesso Principal</h2>
+        <p :class="style.loginDescription">Faça login com sua conta Google ou crie uma nova loja</p>
         <ButtonComponent
-          texto="Fazer Login"
+          texto="Fazer Login/Cadastro"
           cor="primary"
           @click="fazerLogin"
           :class="style.loginButton"

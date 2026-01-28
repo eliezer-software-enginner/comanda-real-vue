@@ -80,6 +80,53 @@ export const useLojistaStore = defineStore('lojista', () => {
     }
   }
 
+  async function criarLojistaBasico(basicData: {
+    id: string
+    nome: string
+    email: string | null
+  }): Promise<void> {
+    try {
+      loading.value = true
+      error.value = null
+
+      logger.info('Criando lojista básico', {
+        userId: basicData.id,
+        nome: basicData.nome,
+      })
+
+      const service = new LojistaService()
+
+      // Criar lojista básico com dados do Google
+      const lojistaData = await service.criar({
+        id: basicData.id,
+        nome: basicData.nome,
+        // Usar email como whatsapp por enquanto (pode ser alterado depois)
+        whatsapp: basicData.email?.replace(/[^0-9]/g, '') || '',
+        categoria: 'Geral',
+        slug: `${basicData.nome.toLowerCase().replace(/\s+/g, '-')}-${basicData.id.slice(-6)}`,
+      })
+
+      lojista.value = lojistaData
+
+      logger.info('Lojista básico criado com sucesso', {
+        lojistaId: lojistaData.id,
+        nomeLoja: lojistaData.nomeLoja,
+      })
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lojista básico'
+      error.value = errorMessage
+
+      logger.error('Erro ao criar lojista básico', {
+        userId: basicData.id,
+        erro: err,
+      })
+
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function updateLojista(data: Partial<LojistaModel>): Promise<void> {
     if (!lojista.value) {
       error.value = 'Nenhum lojista carregado para atualizar'
@@ -143,6 +190,7 @@ export const useLojistaStore = defineStore('lojista', () => {
 
     // Ações
     fetchLojista,
+    criarLojistaBasico,
     updateLojista,
     clearLojista,
     setLoading,
