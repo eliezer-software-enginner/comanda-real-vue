@@ -79,6 +79,7 @@ import type { Carrinho } from '@/services/carrinhoService/CarrinhoModel'
 import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
 
 export default {
   data() {
@@ -97,18 +98,33 @@ export default {
   },
 
   async mounted() {
-    const produtosService = new ProdutosService(this.$route.query.id as string)
+    // Busca o ID do lojista pelo slug
+    const estabelecimentoSlug = this.$route.query.estabelecimento as string
+    const lojistaId = await this.getLojistaIdPorSlug(estabelecimentoSlug)
+
+    if (!lojistaId) {
+      throw new Error('Lojista não encontrado')
+    }
+
+    const produtosService = new ProdutosService(lojistaId)
     this.produto = await produtosService.getById(this.$route.params.id as string)
   },
   methods: {
+    async getLojistaIdPorSlug(slug: string): Promise<string | null> {
+      try {
+        const lojistaService = new LojistaService()
+        return await lojistaService.getId_aPartirDaSlug(slug)
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar lojista'
+        throw new Error(errorMessage)
+      }
+    },
     async adicionarAoCarrinho() {
       new CarrinhoService().adicionarProduto(this.produto, this.quantidade)
       this.$router.push({
         name: 'cardapio',
-        params: { id: this.produto.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id,
         },
       })
     },

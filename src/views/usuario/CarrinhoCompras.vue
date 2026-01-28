@@ -7,19 +7,21 @@
     </v-toolbar>
 
     <br />
-    <ListaProdutos :carrinho="carrinho" @aumentar="aumentarQuantidade" @diminuir="diminuirQuantidade"
-      @confirmar-exclusao="excluirProduto" @adicionar-mais="redirecionaAoCardapio" />
+    <ListaProdutos
+      :carrinho="carrinho"
+      @aumentar="aumentarQuantidade"
+      @diminuir="diminuirQuantidade"
+      @confirmar-exclusao="excluirProduto"
+      @adicionar-mais="redirecionaAoCardapio"
+    />
 
-    <FormaEntrega 
-      v-model:tipoEntrega="tipoEntrega" 
-      :enderecoSelecionado="enderecoSelecionado" 
-      @abrir-endereco="dialogEndereco = true" 
-      @editar-endereco="abrirDialogEdicao" 
+    <FormaEntrega
+      v-model:tipoEntrega="tipoEntrega"
+      :enderecoSelecionado="enderecoSelecionado"
+      @abrir-endereco="dialogEndereco = true"
+      @editar-endereco="abrirDialogEdicao"
     />
-    <EnderecoEntrega 
-      v-model="dialogEndereco" 
-      @confirmar="enderecoConfirmado" 
-    />
+    <EnderecoEntrega v-model="dialogEndereco" @confirmar="enderecoConfirmado" />
 
     <div class="btnFinalizar" @click="finalizarPedido">
       <span>Finalizar pedido <v-icon>mdi-arrow-right</v-icon></span>
@@ -29,9 +31,9 @@
 </template>
 
 <script lang="ts">
-import EnderecoEntrega from '@/components/usuario/EnderecoEntrega.vue';
-import FormaEntrega from '@/components/usuario/FormaEntrega.vue';
-import ListaProdutos from '@/components/usuario/ListaProdutos.vue';
+import EnderecoEntrega from '@/components/usuario/EnderecoEntrega.vue'
+import FormaEntrega from '@/components/usuario/FormaEntrega.vue'
+import ListaProdutos from '@/components/usuario/ListaProdutos.vue'
 import type { ProdutoEmCarrinho } from '@/services/carrinhoService/CarrinhoModel'
 import type { EnderecoSalvo } from '@/services/enderecosSalvosService/EnderecosSalvosService'
 import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService'
@@ -48,16 +50,16 @@ export default {
       tipoEntrega: null,
       dialogEndereco: false,
       erroEntrega: false,
-      observacaoPedido: "",
+      observacaoPedido: '',
       enderecoSelecionado: null as EnderecoSalvo | null,
-      enderecosSalvosService: new EnderecosSalvosService()
+      enderecosSalvosService: new EnderecosSalvosService(),
     }
   },
 
   components: {
     ListaProdutos,
     FormaEntrega,
-    EnderecoEntrega
+    EnderecoEntrega,
   },
   computed: {
     precoTotalCarrinho() {
@@ -123,10 +125,7 @@ export default {
 
     diminuirQuantidade(item: ProdutoEmCarrinho) {
       item.quantidade--
-      localStorage.setItem(
-        'produtos_json',
-        JSON.stringify(this.carrinho)
-      )
+      localStorage.setItem('produtos_json', JSON.stringify(this.carrinho))
 
       this.atualizarCarrinho()
       window.dispatchEvent(new Event('carrinho-atualizado'))
@@ -140,7 +139,7 @@ export default {
       try {
         // Primeiro, tenta migrar endereços antigos
         this.enderecosSalvosService.migrarEnderecoAntigo()
-        
+
         // Depois, carrega o endereço padrão
         const enderecoPadrao = this.enderecosSalvosService.obterPadrao()
         if (enderecoPadrao) {
@@ -164,8 +163,7 @@ export default {
         name: 'cardapio',
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id
-        }
+        },
       })
     },
 
@@ -174,7 +172,6 @@ export default {
         name: 'cardapio',
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id,
         },
       })
     },
@@ -199,7 +196,7 @@ export default {
 
       // Constrói mensagem com endereço se for delivery
       let mensagemFinal = this.whatsappMessage
-      
+
       if (this.tipoEntrega === 'entrega' && this.enderecoSelecionado) {
         mensagemFinal += `\n\n*Endereço de Entrega:*\n`
         mensagemFinal += `*${this.enderecoSelecionado.nome}*\n`

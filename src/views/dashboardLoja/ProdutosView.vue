@@ -114,7 +114,7 @@ async function handleExcluirProduto(produtoId: string) {
 }
 
 function copiarLink() {
-  const montarUrl = `http://localhost:5173/cardapio?estabelecimento=${slug.value}&id=${lojistaId.value}`
+  const montarUrl = `http://localhost:5173/cardapio?estabelecimento=${slug.value}`
 
   navigator.clipboard.writeText(montarUrl)
   alert('Url copiada: ' + montarUrl)
@@ -149,7 +149,7 @@ async function simularRecebimentoPedido() {
             <router-link
               :to="{
                 name: 'cardapio',
-                query: { estabelecimento: slug, id: lojistaId },
+                query: { estabelecimento: slug },
               }"
               target="_blank"
               :class="styles.viewStoreLink"

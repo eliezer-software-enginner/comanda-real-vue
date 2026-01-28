@@ -62,6 +62,7 @@ import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
+import { useLojistaStore } from '@/stores/lojista'
 
 export default {
   name: 'HomeCardapio',
@@ -80,8 +81,34 @@ export default {
     Cardapio,
     HeaderLoja,
   },
+
+  setup() {
+    const lojistaStore = useLojistaStore()
+
+    return {
+      useLojistaStore: () => lojistaStore,
+    }
+  },
   async mounted() {
-    await this.carregarDadosLoja(this.$route.query.id as string)
+    // Tenta obter o ID do lojista do store primeiro, senão busca pelo slug
+    const lojistaStore = this.useLojistaStore()
+    let lojistaId = lojistaStore.lojistaId
+
+    if (!lojistaId) {
+      // Se não há lojista no store, busca ID pelo slug da URL
+      const estabelecimentoSlug = this.$route.query.estabelecimento as string
+      if (estabelecimentoSlug) {
+        const idFromSlug = await this.getLojistaIdPorSlug(estabelecimentoSlug)
+        if (idFromSlug) {
+          lojistaId = idFromSlug
+        }
+      }
+    }
+
+    if (lojistaId) {
+      await this.carregarDadosLoja(lojistaId)
+    }
+
     this.atualizarDadosCarrinho()
 
     // Escuta atualizações do carrinho
@@ -145,6 +172,19 @@ export default {
       this.qtdItensCarrinho = new CarrinhoService().quantidadeItens()
     },
 
+    async getLojistaIdPorSlug(slug: string): Promise<string | null> {
+      try {
+        logger.info('buscando lojista a partir da slug (nome da lanchonete)', {
+          slug: slug,
+        })
+        const lojistaService = new LojistaService()
+        return await lojistaService.getId_aPartirDaSlug(slug)
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar lojista'
+        throw new Error(errorMessage)
+      }
+    },
+
     async carregarDadosLoja(lojistaId: string) {
       try {
         const listaCategoria = await new CategoriaService(lojistaId).getLista()
@@ -186,7 +226,6 @@ export default {
         name: 'sobre',
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id,
         },
       })
     },
@@ -197,7 +236,6 @@ export default {
         params: { id: product.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id,
         },
       })
     },
@@ -211,25 +249,25 @@ export default {
       try {
         const produtosService = new ProdutosService(lojaId)
         return await produtosService.getLista()
-      } catch (error: any) {
-        throw new Error(error.message)
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar lojista'
+        throw new Error(errorMessage)
       }
     },
     async getLojista(lojaId: string) {
       try {
         const lojistaService = new LojistaService()
         return await lojistaService.getData(lojaId)
-      } catch (error: any) {
-        throw new Error(error.message)
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar lojista'
+        throw new Error(errorMessage)
       }
     },
     irParaCarrinho() {
       this.$router.push({
         name: 'carrinho',
-        //,params: { id: product.id },
         query: {
           estabelecimento: this.$route.query.estabelecimento,
-          id: this.$route.query.id,
         },
       })
     },
