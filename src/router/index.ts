@@ -25,10 +25,13 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      // path: '/cardapio/:id',
       path: '/cardapio',
       name: 'cardapio',
       component: HomeCardapio,
+      props: (route) => ({
+        estabelecimento: route.query.estabelecimento,
+        id: route.query.id,
+      }),
     },
     {
       path: '/sobre',

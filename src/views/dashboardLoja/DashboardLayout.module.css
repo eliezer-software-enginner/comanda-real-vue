@@ -58,6 +58,12 @@
   gap: 8px;
 }
 
+.cardapioButton {
+  margin-top: 16px;
+  border-top: 1px solid #1e293b;
+  padding-top: 16px;
+}
+
 .navItem {
   text-decoration: none;
 }
