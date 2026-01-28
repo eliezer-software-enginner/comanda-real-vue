@@ -7,149 +7,19 @@
     </v-toolbar>
 
     <br />
-    <div class="listaProdutos">
-      <v-card v-for="(item, index) in carrinho" :key="item.id" flat outlined class="item-card">
-        <div class="itemContainer">
-          <!-- Imagem -->
-          <div class="itemContainer">
-            <v-avatar size="40" rounded="" class="mr-3 flex-shrink-0">
-              <v-img :src="item.imagemUrl" cover></v-img>
-            </v-avatar>
-            <!-- Texto -->
-            <div class="textContainer">
-              <strong>
-                {{ item.nome }}
-              </strong>
-              <span class="descricao">{{ item.descricao }}</span>
-              <span class="price">
-                R$ {{ (item.preco * item.quantidade).toFixed(2) }}
-              </span>
-            </div>
-          </div>
+    <ListaProdutos :carrinho="carrinho" @aumentar="aumentarQuantidade" @diminuir="diminuirQuantidade"
+      @confirmar-exclusao="excluirProduto" @adicionar-mais="redirecionaAoCardapio" />
 
-          <!-- Stepper -->
-          <div class="quantidadeContainer d-flex align-center">
-            <v-icon size="small" :disabled="dialogExcluir"
-              :color="Number(item.quantidade) === 1 ? 'error' : 'grey-darken-1'" @click="diminuirQuantidade(item)">
-              {{ Number(item.quantidade) <= 1 ? 'mdi-delete-outline' : 'mdi-minus' }} </v-icon>
-                <span class="px-2 text-body-2 font-weight-bold">
-                  {{ item.quantidade }}
-                </span>
-                <v-icon size="small" color="grey-darken-3" @click="aumentarQuantidade(item)">mdi-plus</v-icon>
-          </div>
-        </div>
-      </v-card>
-
-      <v-btn variant="text" block color="secondary" class="text-none mt-4 font-weight-bold py-6" rounded="lg"
-        @click="redirecionaAoCardapio()">
-        <v-icon start>mdi-plus</v-icon>
-        Adicionar mais itens
-      </v-btn>
-
-      <br />
-      <v-dialog v-model="dialogExcluir" max-width="360" persistent class="dialog">
-        <v-card class="pa-4 text-center" elevation="10" style="border-radius: 16px;">
-
-          <v-card-title class="justify-center text-h6 font-weight-bold" style="color: #1f1f1f;">
-            Excluir {{ produtoSelecionado?.nome }}?
-          </v-card-title>
-          <v-card-text class="text-body-2" style="color: #555;">
-            Essa ação removerá o produto do carrinho.
-            Deseja realmente continuar?
-          </v-card-text>
-
-          <v-card-actions class="justify-center">
-            <v-btn variant="outlined" color="secondary" class="px-6" @click="dialogExcluir = false">
-              Cancelar
-            </v-btn>
-            <v-btn color="error" variant="flat" class="px-6" @click="excluirProduto">
-              Sim, excluir
-            </v-btn>
-
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
-
-    <div class="formaEntregaContainer">
-      <h4>Como deseja receber seu pedido?</h4>
-
-      <div class="tipoEntrega">
-        <v-btn-toggle v-model="tipoEntrega" mandatory color="secondary">
-          <v-btn value="entrega" class="flex-1" :variant="tipoEntrega === 'entrega' ? 'flat' : 'outlined'">
-            <div class="d-flex flex-column align-center">
-              <v-icon size="24" class="mb-1">mdi-moped</v-icon>
-              <span>Entrega</span>
-            </div>
-          </v-btn>
-
-          <v-btn value="retirada" class="flex-1" :variant="tipoEntrega === 'retirada' ? 'flat' : 'outlined'">
-            <div class="d-flex flex-column align-center">
-              <v-icon size="24" class="mb-1">mdi-store-outline</v-icon>
-              <span>Retirada</span>
-            </div>
-          </v-btn>
-        </v-btn-toggle>
-      </div>
-    </div>
-
-    <div v-if="tipoEntrega === 'entrega'" class="mt-4" style="margin-left: 5%; margin-right: 5%;">
-      <br/>
-      <div class="headerInline">
-        <h4 class="text-subtitle-1 font-weight-medium mb-0">Qual o seu endereço?</h4>
-        <span class="text-error"
-          style="letter-spacing: 1px; opacity: 0.8; font-size: 11px; font-weight:bold">
-          * Obrigatório
-        </span>
-      </div>
-
-      <div class="cursor-pointer text-secondary item-card linkEndereco" @click="dialogEndereco = true"
-        style="gap: 4px;">
-        <v-icon size="small" icon="mdi-map-marker-outline"></v-icon>
-        <span style="text-decoration: underline; font-size: 0.9rem; font-weight: 500;">
-          Selecionar o endereço de entrega
-        </span>
-      </div>
-    </div>
-
-    <v-dialog v-model="dialogEndereco" fullscreen transition="dialog-bottom-transition">
-      <v-card>
-        <!-- TOPO (como header de página) -->
-        <v-toolbar color="secondary" dark>
-          <v-btn icon @click="dialogEndereco = false">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
-
-          <v-toolbar-title>Endereço de Entrega</v-toolbar-title>
-
-          <v-spacer />
-        </v-toolbar>
-
-        <!-- CONTEÚDO -->
-        <v-card-text class="pa-4">
-          <p class="mb-4">
-            Selecione ou cadastre um endereço de entrega.
-          </p>
-
-          <!-- Exemplo -->
-          <v-list>
-            <v-list-item>
-              <v-list-item-title>
-                Rua Exemplo, 123 - Centro
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-
-        <!-- AÇÕES FIXAS NO RODAPÉ -->
-        <v-card-actions class="pa-4">
-          <v-btn block color="secondary" size="large" @click="dialogEndereco = false">
-            Confirmar endereço
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
+    <FormaEntrega 
+      v-model:tipoEntrega="tipoEntrega" 
+      :enderecoSelecionado="enderecoSelecionado" 
+      @abrir-endereco="dialogEndereco = true" 
+      @editar-endereco="abrirDialogEdicao" 
+    />
+    <EnderecoEntrega 
+      v-model="dialogEndereco" 
+      @confirmar="enderecoConfirmado" 
+    />
 
     <div class="btnFinalizar" @click="finalizarPedido">
       <span>Finalizar pedido <v-icon>mdi-arrow-right</v-icon></span>
@@ -159,8 +29,14 @@
 </template>
 
 <script lang="ts">
+import EnderecoEntrega from '@/components/usuario/EnderecoEntrega.vue';
+import FormaEntrega from '@/components/usuario/FormaEntrega.vue';
+import ListaProdutos from '@/components/usuario/ListaProdutos.vue';
 import type { ProdutoEmCarrinho } from '@/services/carrinhoService/CarrinhoModel'
+import type { EnderecoSalvo } from '@/services/enderecosSalvosService/EnderecosSalvosService'
 import { CarrinhoService } from '@/services/carrinhoService/CarrinhoService'
+import { LojistaService } from '@/services/lojistaService/LojistaService'
+import { EnderecosSalvosService } from '@/services/enderecosSalvosService/EnderecosSalvosService'
 
 export default {
   data() {
@@ -168,15 +44,21 @@ export default {
       carrinho: [] as ProdutoEmCarrinho[],
       taxaEntrega: 2,
       carrinhoService: new CarrinhoService(),
-      dialogExcluir: false,
-      produtoSelecionado: null as ProdutoEmCarrinho | null,
+      lojistaService: new LojistaService(),
       tipoEntrega: null,
       dialogEndereco: false,
       erroEntrega: false,
-      observacaoPedido: ""
+      observacaoPedido: "",
+      enderecoSelecionado: null as EnderecoSalvo | null,
+      enderecosSalvosService: new EnderecosSalvosService()
     }
   },
 
+  components: {
+    ListaProdutos,
+    FormaEntrega,
+    EnderecoEntrega
+  },
   computed: {
     precoTotalCarrinho() {
       return this.carrinho.reduce((total, item) => total + item.preco * item.quantidade, 0)
@@ -210,6 +92,7 @@ export default {
 
   mounted() {
     this.atualizarCarrinho()
+    this.migrarECarregarEnderecos()
 
     // Escuta atualizações do carrinho
     window.addEventListener('carrinho-atualizado', this.atualizarCarrinho)
@@ -239,12 +122,6 @@ export default {
     },
 
     diminuirQuantidade(item: ProdutoEmCarrinho) {
-      if (item.quantidade === 1) {
-        this.produtoSelecionado = item
-        this.dialogExcluir = true
-        return
-      }
-
       item.quantidade--
       localStorage.setItem(
         'produtos_json',
@@ -254,17 +131,34 @@ export default {
       this.atualizarCarrinho()
       window.dispatchEvent(new Event('carrinho-atualizado'))
     },
-    excluirProduto() {
-      if (!this.produtoSelecionado) return
-
-      this.carrinhoService.removerProduto(this.produtoSelecionado.id)
-
-      this.dialogExcluir = false
-      this.produtoSelecionado = null
-
+    excluirProduto(produto: ProdutoEmCarrinho) {
+      this.carrinhoService.removerProduto(produto.id)
       this.atualizarCarrinho()
       window.dispatchEvent(new Event('carrinho-atualizado'))
     },
+    migrarECarregarEnderecos() {
+      try {
+        // Primeiro, tenta migrar endereços antigos
+        this.enderecosSalvosService.migrarEnderecoAntigo()
+        
+        // Depois, carrega o endereço padrão
+        const enderecoPadrao = this.enderecosSalvosService.obterPadrao()
+        if (enderecoPadrao) {
+          this.enderecoSelecionado = enderecoPadrao
+        }
+      } catch (error) {
+        console.error('Erro ao carregar endereços:', error)
+      }
+    },
+
+    enderecoConfirmado(endereco: EnderecoSalvo) {
+      this.enderecoSelecionado = endereco
+    },
+
+    abrirDialogEdicao() {
+      this.dialogEndereco = true
+    },
+
     redirecionaAoCardapio() {
       this.$router.push({
         name: 'cardapio',
@@ -285,10 +179,40 @@ export default {
       })
     },
 
-    finalizarPedido() {
+    async finalizarPedido() {
       if (this.carrinho.length === 0) {
         alert('Seu carrinho está vazio!')
         return
+      }
+
+      // Validação de tipo de entrega
+      if (!this.tipoEntrega) {
+        alert('Por favor, selecione o tipo de entrega.')
+        return
+      }
+
+      // Validação de endereço para delivery
+      if (this.tipoEntrega === 'entrega' && !this.enderecoSelecionado) {
+        alert('Por favor, informe seu endereço de entrega.')
+        return
+      }
+
+      // Constrói mensagem com endereço se for delivery
+      let mensagemFinal = this.whatsappMessage
+      
+      if (this.tipoEntrega === 'entrega' && this.enderecoSelecionado) {
+        mensagemFinal += `\n\n*Endereço de Entrega:*\n`
+        mensagemFinal += `*${this.enderecoSelecionado.nome}*\n`
+        mensagemFinal += `${this.enderecoSelecionado.rua}, ${this.enderecoSelecionado.numero}`
+        if (this.enderecoSelecionado.complemento) {
+          mensagemFinal += ` - ${this.enderecoSelecionado.complemento}`
+        }
+        mensagemFinal += `\nBairro: ${this.enderecoSelecionado.bairro}`
+        mensagemFinal += `\n${this.enderecoSelecionado.cidade}/${this.enderecoSelecionado.estado}`
+        mensagemFinal += `\nCEP: ${this.enderecoSelecionado.cep}`
+        mensagemFinal += `\nReferência: ${this.enderecoSelecionado.referencia}`
+      } else if (this.tipoEntrega === 'retirada') {
+        mensagemFinal += `\n\n*Tipo de entrega:* Retirada no local`
       }
 
       // Obtém o WhatsApp do lojista (poderia vir do serviço ou rota)
@@ -298,7 +222,7 @@ export default {
       const whatsappFormatted = whatsappLojista.replace(/\D/g, '')
 
       // Codifica a mensagem para URL
-      const encodedMessage = encodeURIComponent(this.whatsappMessage)
+      const encodedMessage = encodeURIComponent(mensagemFinal)
 
       // Constrói a URL do WhatsApp
       const whatsappUrl = `https://wa.me/${whatsappFormatted}?text=${encodedMessage}`
@@ -320,76 +244,6 @@ export default {
   background-color: #ffffff !important;
 }
 
-.listaProdutos {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Card de item com borda fina e arredondada */
-.item-card {
-  border: 1px solid #e0e0e0 !important;
-  border-radius: 12px !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-  margin-bottom: 16px !important; /* Aumenta espaçamento entre cards */
-}
-
-.dialog {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.itemContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 10px;
-  gap: 15px;
-}
-
-.descricao {
-  font-size: small;
-  padding-top: 5px;
-  padding-bottom: 10px;
-}
-
-.price {
-  font-weight: 600;
-  font-size: 13px;
-  color: rgb(56, 56, 56);
-}
-
-/* Seletor de quantidade no estilo cinza claro da Goomer */
-.quantidadeContainer {
-  display: flex;
-  align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 2px;
-  height: 30px;
-  gap: 10px
-}
-
-.textContainer {
-  display: flex;
-  flex-direction: column;
-}
-
-.goomer-radio :deep(.v-selection-control) {
-  width: 100%;
-  justify-content: space-between;
-  flex-direction: row-reverse;
-}
-
-.v-btn {
-  box-shadow: none !important;
-}
-
-.v-container {
-  padding-bottom: 100px !important;
-}
-
 .btnFinalizar {
   position: fixed;
   bottom: 0;
@@ -404,35 +258,5 @@ export default {
   align-items: center;
   z-index: 2;
   background-color: rgb(0, 145, 19);
-}
-
-.formaEntregaContainer {
-  display: flex;
-  flex-direction: column;
-  width: 90%;
-  margin-left: 5%;
-  align-items: center;
-  background-color: #fbfbfb;
-  padding-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid rgb(223, 223, 223)
-}
-
-.cursor-pointer {
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.cursor-pointer:hover {
-  opacity: 0.7;
-}
-.headerInline{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.linkEndereco{
-  padding: 10px;
 }
 </style>

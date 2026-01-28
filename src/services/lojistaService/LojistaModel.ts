@@ -39,6 +39,7 @@ export interface LojistaModel {
   taxaEntrega: number
   pedidoMinimo: number
   instagram: string //considerar um lugar mais apropriado
+  cepsAtendidos?: string[] // Lista de CEPs que o lojista atende
 }
 
 type StatusLoja = 'ativo' | 'excluido' | 'suspenso'

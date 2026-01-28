@@ -24,6 +24,7 @@ export type LojistaDto = {
   aceitaDelivery?: boolean
   taxaEntrega?: number
   pedidoMinimo?: number
+  cepsAtendidos?: string[]
 
   /**@deprecated @since 7 de janeiro */
   horariosFuncionamento?: HorariosFuncionamento[]

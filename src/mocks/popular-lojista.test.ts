@@ -34,6 +34,14 @@ describe('SEED DATA: População Inicial no Firebase Emulator', () => {
 
         expect(lojista).not.toBeNull()
         expect(lojista).toBeDefined()
+      } else {
+        // Verifica se o lojista já tem os CEPs atendidos
+        if (!lojista.cepsAtendidos || lojista.cepsAtendidos.length === 0) {
+          console.log(`[SEED] Atualizando lojista ${LOJISTA_ID} com CEPs atendidos...`)
+          lojista.cepsAtendidos = INITIAL_LOJISTA_DATA.cepsAtendidos || []
+          await lojistaService.atualizar(lojista)
+          console.log(`[SEED] Lojista atualizado com ${lojista.cepsAtendidos.length} CEPs atendidos`)
+        }
       }
     } catch (e) {
       console.log(`[SEED] Criando lojista ${LOJISTA_ID}...`)

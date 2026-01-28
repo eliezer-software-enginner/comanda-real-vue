@@ -17,6 +17,7 @@ import logger from '@/plugins/logs'
 import { Utils } from '@/utils/Utils'
 import { CrudService } from '../CrudService'
 import { db } from '../firebaseConfig'
+import { EnderecoService } from '../enderecoService/EnderecoService'
 import type { LojistaDto } from './LojistaDto'
 import type { LojistaModel } from './LojistaModel'
 
@@ -24,6 +25,13 @@ import type { LojistaModel } from './LojistaModel'
  * Essa classe contém todos métodos necessários para o lojista
  */
 export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
+  private enderecoService: EnderecoService
+
+  constructor() {
+    super()
+    this.enderecoService = new EnderecoService()
+  }
+
   protected getDoc(id: string): DocumentReference<DocumentData, DocumentData> {
     return doc(db, 'apps', 'comanda-real', 'lojistas', id)
   }
@@ -166,6 +174,7 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
       aceitaDelivery: dadoInicial.aceitaDelivery || true,
       taxaEntrega: dadoInicial.taxaEntrega || 0,
       pedidoMinimo: dadoInicial.pedidoMinimo || 0,
+      cepsAtendidos: dadoInicial.cepsAtendidos || [],
       horarioFuncionamento: dadoInicial.horarioFuncionamento || {
         domingo: { abertura: '', fechamento: '' },
         segunda: { abertura: '', fechamento: '' },
@@ -183,11 +192,122 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
     if (!data.nome || data.nome.trim() === '') {
       throw new Error('Nome é obrigatório')
     }
+
+    if (data.endereco) {
+      const enderecoValido = this.enderecoService.validarEnderecoCompleto(data.endereco)
+      if (!enderecoValido) {
+        throw new Error('Endereço incompleto. Verifique todos os campos obrigatórios.')
+      }
+    }
   }
 
   protected validarAtualizacao(model: Partial<LojistaModel>): void {
     if (!model.nomeLoja || model.nomeLoja.trim() === '') {
       throw new Error('Nome é obrigatório')
+    }
+
+    if (model.endereco) {
+      const enderecoValido = this.enderecoService.validarEnderecoCompleto(model.endereco)
+      if (!enderecoValido) {
+        throw new Error('Endereço incompleto. Verifique todos os campos obrigatórios.')
+      }
+    }
+  }
+
+  /**
+   * Verifica se o lojista entrega em determinado CEP
+   * Verifica na lista de CEPs cadastrados pelo lojista
+   */
+  public async verificaEntregaNoCep(lojistaId: string, cepCliente: string): Promise<boolean> {
+    logger.info('verificando se lojista entrega no CEP', {
+      label: 'LojistaService',
+      method: 'verificaEntregaNoCep',
+      dado: { lojistaId, cepCliente }
+    })
+
+    try {
+      const lojista = await this.getById(lojistaId)
+      
+      if (!lojista.aceitaDelivery) {
+        logger.warn('lojista não aceita delivery', {
+          label: 'LojistaService',
+          method: 'verificaEntregaNoCep',
+          dado: { lojistaId, aceitaDelivery: lojista.aceitaDelivery }
+        })
+        return false
+      }
+
+      // Verifica se CEP do cliente é válido
+      const enderecoCliente = await this.enderecoService.buscarEnderecoPorCep(cepCliente)
+      if (!enderecoCliente) {
+        logger.warn('CEP do cliente inválido', {
+          label: 'LojistaService',
+          method: 'verificaEntregaNoCep',
+          dado: { cepCliente }
+        })
+        return false
+      }
+
+      // Obtém a lista de CEPs atendidos pelo lojista
+      const cepsAtendidos = lojista.cepsAtendidos || []
+      
+      // Limpa o CEP para comparação (remove formatação)
+      const cepClienteLimpo = cepCliente.replace(/\D/g, '')
+
+      // Verifica se o CEP do cliente está na lista de atendidos
+      const entregaDisponivel = cepsAtendidos.some(cepAtendido => {
+        const cepAtendidoLimpo = cepAtendido.replace(/\D/g, '')
+        return cepClienteLimpo === cepAtendidoLimpo
+      })
+
+      logger.info('resultado da verificação de entrega', {
+        label: 'LojistaService',
+        method: 'verificaEntregaNoCep',
+        dado: {
+          lojistaId,
+          cepCliente: cepClienteLimpo,
+          cepsAtendidos: cepsAtendidos.map(cep => cep.replace(/\D/g, '')),
+          cepEncontradoNaLista: entregaDisponivel,
+          totalCepsAtendidos: cepsAtendidos.length
+        }
+      })
+
+      return entregaDisponivel
+
+    } catch (error) {
+      logger.error('erro ao verificar entrega no CEP', {
+        label: 'LojistaService',
+        method: 'verificaEntregaNoCep',
+        dado: { lojistaId, cepCliente },
+        error
+      })
+      return false
+    }
+  }
+
+
+
+  /**
+   * Busca endereço do lojista para exibição
+   */
+  public async buscarEnderecoLojista(lojistaId: string): Promise<string> {
+    logger.info('buscando endereço do lojista', {
+      label: 'LojistaService',
+      method: 'buscarEnderecoLojista',
+      dado: { lojistaId }
+    })
+
+    try {
+      const lojista = await this.getById(lojistaId)
+      return this.enderecoService.formatarEnderecoParaExibicao(lojista.endereco)
+    } catch (error) {
+      logger.error('erro ao buscar endereço do lojista', {
+        label: 'LojistaService',
+        method: 'buscarEnderecoLojista',
+        dado: { lojistaId },
+        error
+      })
+      return 'Endereço não disponível'
     }
   }
 

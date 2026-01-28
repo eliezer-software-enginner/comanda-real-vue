@@ -30,7 +30,7 @@ const router = createRouter({
       name: 'detalhes',
       component: DetalhesProduto,
     },
-     {
+    {
       path: '/carrinho',
       name: 'carrinho',
       component: CarrinhoCompras,

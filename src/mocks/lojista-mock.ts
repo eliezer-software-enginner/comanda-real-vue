@@ -47,5 +47,8 @@ export const INITIAL_LOJISTA_DATA:LojistaDto = {
   taxaEntrega: 5.0,
   pedidoMinimo: 20.0,
   slug: 'lanchonete-dev',
+  cepsAtendidos: [
+    '36542000', // Brás Pires - Centro
+  ],
 };
 
