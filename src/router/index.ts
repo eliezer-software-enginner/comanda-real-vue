@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import LoginView from '@/views/LoginView.vue'
 import CategoriasView from '@/views/dashboardLoja/CategoriasView.vue'
 import ConfiguracoesView from '@/views/dashboardLoja/ConfiguracoesView.vue'
 import DashboardHomeView from '@/views/dashboardLoja/DashboardHomeView.vue'
@@ -14,6 +15,15 @@ import CarrinhoCompras from '@/views/usuario/CarrinhoCompras.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      redirect: '/login',
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+    },
     {
       // path: '/cardapio/:id',
       path: '/cardapio',
