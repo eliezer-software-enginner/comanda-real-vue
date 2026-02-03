@@ -28,7 +28,6 @@ const whatsAppService = new WhatsAppService()
 const activeTab = ref<'produtos' | 'loja'>('produtos')
 const initLoading = ref(true)
 const message = ref('')
-const slug = ref('')
 
 // Usar categorias do store
 const categorias = computed(() => categoriasStore.categorias)
@@ -58,8 +57,6 @@ onMounted(async () => {
       if (lojistaId.value === 'TESTE_DEV_LOJA' && categoriasStore.categorias.length === 0) {
         await categoriasStore.inicializarCategoriasTeste(lojistaId.value)
       }
-
-      slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
 
       logger.info('Dados iniciais carregados', {
         label: 'ProdutosView',
@@ -117,7 +114,7 @@ async function handleExcluirProduto(produtoId: string) {
 }
 
 function copiarLink() {
-  const montarUrl = `http://localhost:5173/cardapio?estabelecimento=${slug.value}`
+  const montarUrl = `http://localhost:5173/cardapio?estabelecimento=${lojistaStore.lojista?.slug}`
 
   navigator.clipboard.writeText(montarUrl)
   alert('Url copiada: ' + montarUrl)
@@ -152,7 +149,7 @@ async function simularRecebimentoPedido() {
             <router-link
               :to="{
                 name: 'cardapio',
-                query: { estabelecimento: slug },
+                query: { estabelecimento: lojistaStore.lojista?.slug },
               }"
               target="_blank"
               :class="styles.viewStoreLink"

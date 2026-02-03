@@ -1,32 +1,17 @@
 <script setup lang="ts">
-import logger from '@/plugins/logs'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
-import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { useLojistaStore } from '@/stores/lojista'
 import { Utils } from '@/utils/Utils'
-import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
+import { computed, useCssModule } from 'vue'
+import { useCategoriasStore } from '../../stores/categorias'
 
 // Store do lojista
 const lojistaStore = useLojistaStore()
 const lojistaId = computed(() => lojistaStore.lojistaId)
 const styles = useCssModule()
 
-const categoriaService = new CategoriaService(lojistaId.value!)
-const categoriaList: Ref<CategoriaModel[]> = ref([])
-
-onMounted(async () => {
-  try {
-    categoriaList.value = await categoriaService.getListaBy({ campo: 'nome', ordem: 'crescente' })
-    logger.info('categorias recuperadas', {
-      label: 'CategoriasView',
-      dado: {
-        categoriaList,
-      },
-    })
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error)
-  }
-})
+const categoriaStore = useCategoriasStore()
+const categoriaList = computed(() => categoriaStore.categorias)
 
 // 4. Função de Submissão
 async function handleSubmit(e: Event) {
@@ -35,7 +20,7 @@ async function handleSubmit(e: Event) {
   if (categoriaList.value == null) return
 
   try {
-    await categoriaService.atualizarEmLote(categoriaList.value!)
+    await categoriaStore.atualizarEmLote(categoriaList.value!)
   } catch (e: any) {
     alert(e.message)
   }
@@ -47,19 +32,27 @@ function adicionarLinha() {
     return
   }
 
-  categoriaList.value.push({
+  const novaCategoria = {
     id: Utils.gerarUUID(),
     nome: '',
     lojistaId: lojistaId.value!,
-    status: 'ativo',
+    status: 'ativo' as const,
     dtCriacao: new Date(),
-  })
+  }
+
+  // Adiciona à lista temporária (será salva no handleSubmit)
+  categoriaList.value.push(novaCategoria)
 }
 
 async function excluir(categoria: CategoriaModel, index: number) {
   try {
-    await categoriaService.excluir(categoria.id)
-    categoriaList.value.splice(index, 1)
+    // Para categorias já existentes no Firebase/LocalStorage, usa o método de exclusão
+    if (categoria.id && !categoria.id.startsWith('temp_')) {
+      await categoriaStore.excluirCategoria(categoria.id, lojistaId.value!)
+    } else {
+      // Para categorias temporárias (adicionadas localmente), apenas remove da lista
+      categoriaList.value.splice(index, 1)
+    }
   } catch (error: any) {
     alert(error.message)
   }

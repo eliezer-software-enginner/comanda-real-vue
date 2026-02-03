@@ -270,6 +270,69 @@ export const useCategoriasStore = defineStore('categorias', () => {
     loading.value = loadingState
   }
 
+  async function atualizarEmLote(categoriasArray: CategoriaModel[]): Promise<void> {
+    if (categoriasArray.length === 0) {
+      logger.warn('Array de categorias vazio fornecido para atualização em lote')
+      return
+    }
+
+    try {
+      loading.value = true
+      error.value = null
+
+      const lojistaId = categoriasArray[0]?.lojistaId
+      if (!lojistaId) {
+        throw new Error('ID do lojista não encontrado nas categorias')
+      }
+
+      logger.info('Atualizando categorias em lote', {
+        lojistaId,
+        total: categoriasArray.length,
+      })
+
+      // Verifica se é o lojista de teste
+      if (lojistaId === 'TESTE_DEV_LOJA') {
+        logger.info('Salvando categorias em lote no localStorage', { lojistaId })
+
+        categorias.value = [...categoriasArray]
+
+        // Salva no localStorage
+        localStorage.setItem('categorias-teste', JSON.stringify(categorias.value))
+
+        logger.info('Categorias em lote salvas com sucesso no localStorage', {
+          lojistaId,
+          total: categorias.value.length,
+        })
+      } else {
+        const service = new CategoriaService(lojistaId)
+
+        // Atualiza cada categoria individualmente no Firebase
+        for (const categoria of categoriasArray) {
+          await service.atualizar(categoria)
+        }
+
+        categorias.value = [...categoriasArray]
+
+        logger.info('Categorias em lote atualizadas com sucesso no Firebase', {
+          lojistaId,
+          total: categorias.value.length,
+        })
+      }
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Erro ao atualizar categorias em lote'
+      error.value = errorMessage
+
+      logger.error('Erro ao atualizar categorias em lote', {
+        erro: err,
+      })
+
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Função para inicializar categorias padrão para o lojista de teste
   async function inicializarCategoriasTeste(lojistaId: string): Promise<void> {
     if (lojistaId !== 'TESTE_DEV_LOJA' || categorias.value.length > 0) {
@@ -316,6 +379,7 @@ export const useCategoriasStore = defineStore('categorias', () => {
     criarCategoria,
     atualizarCategoria,
     excluirCategoria,
+    atualizarEmLote,
     clearCategorias,
     setLoading,
     inicializarCategoriasTeste,
