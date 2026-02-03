@@ -7,8 +7,13 @@ import style from './LoginView.module.css'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const entrarComoTestador = () => {
-  router.push('/meu-painel')
+const entrarComoTestador = async () => {
+  try {
+    await authStore.loginAsTestador()
+    router.push('/meu-painel')
+  } catch (error) {
+    console.error('Erro ao entrar como testador:', error)
+  }
 }
 
 const fazerLogin = async () => {

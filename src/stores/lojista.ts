@@ -137,18 +137,34 @@ export const useLojistaStore = defineStore('lojista', () => {
       loading.value = true
       error.value = null
 
-      logger.info('Atualizando dados do lojista', { lojistaId: lojista.value.id })
-
-      const service = new LojistaService()
       const updatedData = { ...lojista.value, ...data }
 
-      await service.atualizar(updatedData)
-      lojista.value = updatedData
+      // Verifica se é o lojista de teste
+      if (lojista.value.id === 'TESTE_DEV_LOJA') {
+        logger.info('Salvando dados do lojista de teste no localStorage', {
+          lojistaId: lojista.value.id,
+        })
 
-      logger.info('Lojista atualizado com sucesso', {
-        lojistaId: lojista.value.id,
-        nomeLoja: updatedData.nomeLoja,
-      })
+        // Salva no localStorage
+        localStorage.setItem('lojista-teste', JSON.stringify(updatedData))
+        lojista.value = updatedData
+
+        logger.info('Lojista de teste salvo no localStorage com sucesso', {
+          lojistaId: lojista.value.id,
+          nomeLoja: updatedData.nomeLoja,
+        })
+      } else {
+        logger.info('Atualizando dados do lojista no Firebase', { lojistaId: lojista.value.id })
+
+        const service = new LojistaService()
+        await service.atualizar(updatedData)
+        lojista.value = updatedData
+
+        logger.info('Lojista atualizado no Firebase com sucesso', {
+          lojistaId: lojista.value.id,
+          nomeLoja: updatedData.nomeLoja,
+        })
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar lojista'
       error.value = errorMessage

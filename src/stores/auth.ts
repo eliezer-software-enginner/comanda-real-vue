@@ -34,12 +34,6 @@ export const useAuthStore = defineStore('auth', () => {
         email: 'testador@comandareal.dev',
         displayName: 'Testador Dev',
         photoURL: '',
-        emailVerified: true,
-        isAnonymous: false,
-        providerData: [],
-        refreshToken: '',
-        tenantId: null,
-        metadata: { creationTime: '', lastSignInTime: '' },
       }
 
       user.value = testUser
@@ -291,6 +285,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Ações
     loginWithGoogle,
+    loginAsTestador,
     logout,
     initializeAuth,
     setUser,
