@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
 
     // Se está indo para uma rota protegida (meu-painel)
-    if (to.path.startsWith('/meu-painel') && to.path !== '/meu-painel/TESTE_DEV_LOJA') {
+    if (to.path.startsWith('/meu-painel')) {
       if (!authStore.isAuthenticated) {
         // Se não está autenticado, redirecionar para login
         next({ name: 'login' })

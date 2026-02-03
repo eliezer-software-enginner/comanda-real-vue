@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ButtonComponent from '@/components/ui/button/ButtonComponent.vue'
+import { useAuthStore } from '@/stores/auth'
 import { useLojistaStore } from '@/stores/lojista'
 import { Utils } from '@/utils/Utils'
 import { computed, onMounted, ref } from 'vue'
@@ -9,13 +10,9 @@ import style from './DashboardLayout.module.css'
 const route = useRoute()
 const router = useRouter()
 
-const lojaId = computed(() => {
-  // Pega o ID do usuário autenticado ou do store
-  return lojista.lojista?.id || ''
-})
-
-// Store do lojista
+// Stores
 const lojistaStore = useLojistaStore()
+const authStore = useAuthStore()
 const { lojista, loading } = lojistaStore
 
 const menuItems = [
@@ -38,6 +35,15 @@ const navigate = (routeName: string) => {
     name: routeName,
     //params: { id: lojaId.value },
   })
+}
+
+const fazerLogout = async () => {
+  try {
+    await authStore.logout()
+    router.push('/login')
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error)
+  }
 }
 
 onMounted(async () => {
@@ -79,7 +85,7 @@ onMounted(async () => {
           <div :class="style.avatar">{{ Utils.getIniciaisDoNome(lojista?.nomeLoja || null) }}</div>
           <div :class="style.userInfo">
             <span :class="style.userName">{{ lojista?.nomeLoja }}</span>
-            <span :class="style.logout">Sair</span>
+            <span :class="style.logout" @click="fazerLogout">Sair</span>
           </div>
         </div>
       </div>

@@ -18,6 +18,94 @@ export const useAuthStore = defineStore('auth', () => {
   const userPhoto = computed(() => user.value?.photoURL || '')
 
   // Ações
+  async function loginAsTestador(): Promise<User> {
+    try {
+      loading.value = true
+      error.value = null
+
+      logger.info('Iniciando login como testador', {
+        label: 'AuthStore',
+        method: 'loginAsTestador',
+      })
+
+      // Criar usuário de teste mock
+      const testUser: User = {
+        uid: 'TESTE_DEV_LOJA',
+        email: 'testador@comandareal.dev',
+        displayName: 'Testador Dev',
+        photoURL: '',
+        emailVerified: true,
+        isAnonymous: false,
+        providerData: [],
+        refreshToken: '',
+        tenantId: null,
+        metadata: { creationTime: '', lastSignInTime: '' },
+      }
+
+      user.value = testUser
+
+      // Carregar dados do lojista de teste
+      const lojistaStore = useLojistaStore()
+      try {
+        await lojistaStore.fetchLojista('TESTE_DEV_LOJA')
+
+        logger.info('Lojista de teste carregado com sucesso', {
+          label: 'AuthStore',
+          method: 'loginAsTestador',
+          data: { userId: testUser.uid },
+        })
+      } catch (err) {
+        logger.warn('Lojista de teste não encontrado, criando...', {
+          label: 'AuthStore',
+          method: 'loginAsTestador',
+          data: { userId: testUser.uid },
+        })
+
+        // Se não existir, criar com dados mock
+        try {
+          await lojistaStore.criarLojistaBasico({
+            id: testUser.uid,
+            nome: testUser.displayName || 'Testador Dev',
+            email: testUser.email,
+          })
+
+          logger.info('Lojista de teste criado com sucesso', {
+            label: 'AuthStore',
+            method: 'loginAsTestador',
+            data: { userId: testUser.uid },
+          })
+        } catch (createErr) {
+          logger.error('Erro ao criar lojista de teste', {
+            label: 'AuthStore',
+            method: 'loginAsTestador',
+            data: { userId: testUser.uid, erro: createErr },
+          })
+        }
+      }
+
+      logger.info('Login como testador realizado com sucesso', {
+        label: 'AuthStore',
+        method: 'loginAsTestador',
+        data: { userId: testUser.uid },
+      })
+
+      return testUser
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login como testador'
+      error.value = errorMessage
+
+      logger.error('Erro ao fazer login como testador', {
+        label: 'AuthStore',
+        method: 'loginAsTestador',
+        data: { erro: err },
+      })
+
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function loginWithGoogle(): Promise<User> {
     try {
       loading.value = true
