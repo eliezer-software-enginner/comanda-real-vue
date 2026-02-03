@@ -18,7 +18,7 @@
   font-size: 1.1rem;
 }
 
-/* Cards de Estatísticas (KPIs) */
+/* Cards de Estatísticas */
 .statCard {
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
@@ -38,7 +38,7 @@
   margin-top: 8px;
 }
 
-/* Variantes de Cores para os Cards */
+/* Variantes */
 .kpiBlue {
   background-color: #eff6ff;
   color: #1e40af;
@@ -51,16 +51,11 @@
   background-color: #fff7ed;
   color: #9a3412;
 }
-.kpiRed {
-  background-color: #fef2f2;
-  color: #991b1b;
-}
 
-/* Seção de Conteúdo (Tabelas e Listas) */
+/* Tabelas e Conteúdo */
 .contentCard {
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
-  height: 100%;
 }
 
 .sectionTitle {
@@ -70,19 +65,8 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
-.customTable {
-  background: transparent !important;
-}
-
-.customTable thead {
-  background-color: #f8fafc;
-}
-
-.customTable th {
-  color: #64748b !important;
-  text-transform: uppercase;
-  font-size: 0.75rem !important;
-  letter-spacing: 0.05em;
+.tableWrapper {
+  overflow-x: auto; /* Garante que a tabela não quebre o layout no mobile */
 }
 
 .salesBadge {
@@ -92,4 +76,20 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* Responsividade Dashboard */
+@media (max-width: 600px) {
+  .mainContainer {
+    padding: 16px;
+  }
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+  .statValue {
+    font-size: 1.4rem;
+  }
+  .headerSection {
+    margin-bottom: 20px;
+  }
 }
