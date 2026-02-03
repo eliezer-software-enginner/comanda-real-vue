@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  padding: 1rem; /* Espaçamento externo para não colar na borda em mobile */
   padding-bottom: 4rem;
 }
 
@@ -61,14 +62,7 @@
   font-size: 0.95rem;
   transition: all 0.2s;
   background-color: #f8fafc;
-}
-
-.formGroup input:focus,
-.formSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background-color: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  width: 100%; /* Garante que ocupe o espaço total do grid */
 }
 
 /* Photo Upload */
@@ -111,12 +105,6 @@
   transition: all 0.2s;
 }
 
-.paymentCheckbox:has(input:checked) {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1e40af;
-}
-
 /* Horários */
 .diaRow {
   background: #f8fafc;
@@ -145,6 +133,7 @@
   position: sticky;
   bottom: 1.5rem;
   z-index: 10;
+  padding-top: 1rem;
 }
 
 .submitButton {
@@ -157,18 +146,10 @@
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition:
-    transform 0.2s,
-    background 0.2s;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.submitButton:hover {
-  background: #0f172a;
-  transform: translateY(-2px);
-}
-
-/* Switch Estilo Apple */
+/* Switch */
 .toggleLabel {
   width: 44px;
   height: 24px;
@@ -176,7 +157,6 @@
   border-radius: 20px;
   position: relative;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 .toggleLabel::after {
@@ -194,11 +174,51 @@
 .toggleInput:checked + .toggleLabel {
   background: #10b981;
 }
-
 .toggleInput:checked + .toggleLabel::after {
   transform: translateX(20px);
 }
-
 .toggleInput {
   display: none;
+}
+
+/* =============================================
+   RESPONSIVIDADE (MOBILE)
+   ============================================= */
+@media (max-width: 640px) {
+  .form {
+    gap: 1rem;
+    padding: 0.5rem 0.5rem 6rem 0.5rem; /* Mais espaço no fundo para o botão sticky */
+  }
+
+  .section {
+    padding: 1.25rem; /* Reduz padding interno da seção */
+  }
+
+  .title {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .photoUpload {
+    flex-direction: column; /* Foto em cima do botão de upload */
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .horarioInputs {
+    grid-template-columns: 1fr; /* Horário de abertura em cima do de fechamento */
+    gap: 0.75rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr; /* Força uma coluna única */
+  }
+
+  .formGroup style {
+    grid-column: span 1 !important; /* Reseta o span 2 da Rua */
+  }
+
+  .submitSection {
+    bottom: 1rem;
+  }
 }
