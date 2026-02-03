@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, useCssModule } from 'vue'
+import { onMounted, ref, computed, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import logger from '@/plugins/logs'
@@ -8,30 +8,30 @@ import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
-import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { WhatsAppService } from '@/services/whatsappService/WhatsAppService'
 import { useLojistaStore } from '@/stores/lojista'
+import { useProdutosStore } from '@/stores/produtos'
 import MenuDisplay from '../../components/painel/MenuDisplay.vue'
 
 const styles = useCssModule()
 
+// Stores
 const lojistaStore = useLojistaStore()
-const lojistaId = lojistaStore.lojistaId!
+const produtosStore = useProdutosStore()
 
-const cardapioService = new ProdutosService(lojistaId)
-const categoriasService = new CategoriaService(lojistaId)
+const lojistaId = computed(() => lojistaStore.lojistaId!)
+
+const categoriasService = new CategoriaService(lojistaId.value)
 const lojistaService = new LojistaService()
 const whatsAppService = new WhatsAppService()
 
 // 1. Estado Reativo (ref)
 const activeTab = ref<'produtos' | 'loja'>('produtos')
-const loading = ref(false)
 const initLoading = ref(true)
 const message = ref('')
 const slug = ref('')
 
 // Inicialização do estado base da loja
-const cardapio = ref<ProdutoModel[]>([])
 const categorias = ref<CategoriaModel[]>([])
 
 const isModoEdicao = ref(false)
@@ -45,17 +45,22 @@ const setEditingProduct = (produto: ProdutoModel) => {
 
 const isAddingProduct = ref(false)
 
-onMounted(() => {
+// Usar produtos do store
+const cardapio = computed(() => produtosStore.produtos)
+
+onMounted(async () => {
   const fetchInitialData = async () => {
     try {
-      // Use o ID de loja fixo para carregar
-      const lista = await cardapioService.getLista()
-      cardapio.value = lista
+      // Carregar produtos usando o store
+      await produtosStore.fetchProdutos(lojistaId.value)
 
-      slug.value = (await lojistaService.getData(lojistaId))?.slug || 'erro-slug'
+      slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
       categorias.value = await categoriasService.getLista()
 
-      logger.info('categorias carregadas', { label: 'ProdutoForm', total: lista.length })
+      logger.info('Dados iniciais carregados', {
+        label: 'ProdutosView',
+        produtosTotal: produtosStore.produtos.length,
+      })
     } catch (error: unknown) {
       logger.error('Erro ao carregar os dados iniciais', error)
     } finally {
@@ -67,8 +72,8 @@ onMounted(() => {
 
 async function handleSaveProduct(produto: ProdutoDto) {
   try {
-    const produtoModel = await cardapioService.criar(produto)
-    cardapio.value.push(produtoModel)
+    await produtosStore.criarProduto(produto)
+    logger.info('Produto criado com sucesso', { nome: produto.nome })
   } catch (e: any) {
     console.error(e)
     alert(e)
@@ -82,12 +87,8 @@ async function handleSaveProduct(produto: ProdutoDto) {
 
 async function handleEditProduct(produto: ProdutoModel) {
   try {
-    const existsIndex = cardapio.value.findIndex((p) => p.id === produto.id)
-    if (existsIndex !== -1) {
-      // Edição: Substitui o produto existente
-      await cardapioService.atualizar(produto)
-      cardapio.value[existsIndex] = produto
-    }
+    await produtosStore.atualizarProduto(produto)
+    logger.info('Produto atualizado com sucesso', { nome: produto.nome })
   } catch (e: any) {
     console.error(e)
     alert(e)
@@ -102,8 +103,8 @@ async function handleEditProduct(produto: ProdutoModel) {
 async function handleExcluirProduto(produtoId: string) {
   if (confirm('Tem certeza que deseja remover este produto? Id: ' + produtoId)) {
     try {
-      await cardapioService.excluir(produtoId)
-      cardapio.value = cardapio.value.filter((p) => p.id !== produtoId)
+      await produtosStore.excluirProduto(produtoId, lojistaId.value)
+      logger.info('Produto excluído com sucesso', { produtoId })
     } catch (e: any) {
       alert(e.message)
     }
