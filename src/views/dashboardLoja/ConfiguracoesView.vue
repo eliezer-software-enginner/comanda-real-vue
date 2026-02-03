@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
 import { useLojistaStore } from '@/stores/lojista'
 import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTypes'
 import { DIAS_SEMANA } from '@/types/HorarioTypes'
-import { computed, ref, useCssModule, watch, type Ref } from 'vue'
+import { computed, ref, useCssModule, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ProdutosService } from '../../services/produtosService/ProdutosService'
 
@@ -13,8 +12,6 @@ const lojistaId = computed(() => route.params.id as string)
 const styles = useCssModule()
 const lojistaStore = useLojistaStore()
 
-//TODO: possivelmente remover inputData e usar apenas lojistaStore
-const inputData: Ref<LojistaModel | undefined> = ref(undefined)
 const diasConfigurados = ref<DiaSemanaLabel[]>([])
 const service = new ProdutosService(lojistaStore.lojistaId!)
 
@@ -25,8 +22,6 @@ watch(
   () => lojistaStore.lojista,
   (novoLojista) => {
     if (novoLojista) {
-      // Clona os dados para edição local
-      inputData.value = { ...novoLojista }
       inicializarDiasConfigurados()
     }
   },
@@ -34,13 +29,13 @@ watch(
 )
 
 function inicializarDiasConfigurados() {
-  if (!inputData.value?.horarioFuncionamento) {
+  if (!lojistaStore.lojista?.horarioFuncionamento) {
     diasConfigurados.value = DIAS_SEMANA.map((dia) => ({ ...dia }))
     return
   }
 
   diasConfigurados.value = DIAS_SEMANA.map((dia) => {
-    const horario = inputData.value?.horarioFuncionamento?.[dia.key]
+    const horario = lojistaStore.lojista?.horarioFuncionamento?.[dia.key]
     return {
       ...dia,
       aberto: !!horario,
@@ -52,7 +47,7 @@ function inicializarDiasConfigurados() {
 async function handleSubmit(e: Event) {
   e.preventDefault()
 
-  if (!inputData.value) return
+  if (!lojistaStore.lojista) return
 
   try {
     // Constrói o novo objeto de horários
@@ -66,10 +61,15 @@ async function handleSubmit(e: Event) {
       }
     })
 
-    inputData.value.horarioFuncionamento = novoHorarioFuncionamento
-    delete inputData.value.horariosFuncionamento // Remove campo deprecated
+    const dadosAtualizados = {
+      ...lojistaStore.lojista,
+      horarioFuncionamento: novoHorarioFuncionamento,
+    }
 
-    await lojistaStore.updateLojista(inputData.value!)
+    // Remove campo deprecated se existir
+    delete (dadosAtualizados as any).horariosFuncionamento
+
+    await lojistaStore.updateLojista(dadosAtualizados)
     alert('Configurações salvas com sucesso!')
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido'
@@ -107,8 +107,7 @@ async function handleFileChange(event: Event) {
     try {
       subindoImagem.value = true
       const url = await service.uploadImagem(lojistaStore.lojistaId!, file)
-      inputData.value!.fotoUrl = url
-      lojistaStore.lojista!.fotoUrl = url
+      await lojistaStore.updateLojista({ fotoUrl: url })
     } catch (e) {
       alert('Erro ao subir imagem')
     } finally {
@@ -119,17 +118,17 @@ async function handleFileChange(event: Event) {
 </script>
 
 <template>
-  <form v-if="inputData" @submit.prevent="handleSubmit" :class="styles.form">
+  <form v-if="lojistaStore.lojista" @submit.prevent="handleSubmit" :class="styles.form">
     <h3 :class="styles.title">Configurações da Loja</h3>
 
     <div :class="styles.formGroup">
       <label>Nome da Loja*</label>
-      <input type="text" required v-model="inputData.nomeLoja" />
+      <input type="text" required v-model="lojistaStore.lojista.nomeLoja" />
     </div>
 
     <div :class="styles.formGroup">
       <label>Categoria*</label>
-      <select v-model="inputData.categoria" :class="styles.formSelect" required>
+      <select v-model="lojistaStore.lojista.categoria" :class="styles.formSelect" required>
         <option value="">Selecione</option>
         <option value="restaurant">Restaurante</option>
         <option value="lanchonete">Lanchonete</option>
@@ -142,7 +141,7 @@ async function handleFileChange(event: Event) {
 
     <div :class="styles.formGroup">
       <label>Status</label>
-      <select v-model="inputData.status" :class="styles.formSelect">
+      <select v-model="lojistaStore.lojista.status" :class="styles.formSelect">
         <option value="ativo">Ativo</option>
         <option value="suspenso">Suspenso</option>
       </select>
@@ -150,18 +149,26 @@ async function handleFileChange(event: Event) {
 
     <div :class="styles.formGroup">
       <label>WhatsApp para Pedidos*</label>
-      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" required />
+      <input
+        type="tel"
+        v-model="lojistaStore.lojista.whatsapp"
+        placeholder="5511999999999"
+        required
+      />
     </div>
 
     <div :class="styles.formGroup">
       <label>Sua url final (exemplo: minha-lanchonete)</label>
-      <input v-model="inputData.slug" placeholder="exemplo: minha-lanchonete" />
+      <input v-model="lojistaStore.lojista.slug" placeholder="exemplo: minha-lanchonete" />
     </div>
 
     <div :class="styles.formGroup">
       <label>Foto da Loja</label>
-      <div v-if="inputData.fotoUrl" class="mb-2">
-        <img :src="inputData.fotoUrl" style="width: 100px; height: 100px; object-fit: cover" />
+      <div v-if="lojistaStore.lojista.fotoUrl" class="mb-2">
+        <img
+          :src="lojistaStore.lojista.fotoUrl"
+          style="width: 100px; height: 100px; object-fit: cover"
+        />
       </div>
 
       <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
@@ -171,66 +178,74 @@ async function handleFileChange(event: Event) {
     <div :class="styles.formGroup">
       <label>Endereço da Loja*</label>
       <div :class="styles.enderecoGrid">
-        <input v-model="inputData.endereco.rua" placeholder="Rua*" required />
+        <input v-model="lojistaStore.lojista.endereco.rua" placeholder="Rua*" required />
         <div :class="styles.enderecoRow">
-          <input v-model="inputData.endereco.numero" placeholder="Número*" required />
-          <input v-model="inputData.endereco.cep" placeholder="CEP*" required />
+          <input v-model="lojistaStore.lojista.endereco.numero" placeholder="Número*" required />
+          <input v-model="lojistaStore.lojista.endereco.cep" placeholder="CEP*" required />
         </div>
-        <input v-model="inputData.endereco.bairro" placeholder="Bairro*" required />
+        <input v-model="lojistaStore.lojista.endereco.bairro" placeholder="Bairro*" required />
         <div :class="styles.enderecoRow">
-          <input v-model="inputData.endereco.cidade" placeholder="Cidade*" required />
-          <input v-model="inputData.endereco.estado" placeholder="UF*" required maxlength="2" />
+          <input v-model="lojistaStore.lojista.endereco.cidade" placeholder="Cidade*" required />
+          <input
+            v-model="lojistaStore.lojista.endereco.estado"
+            placeholder="UF*"
+            required
+            maxlength="2"
+          />
         </div>
-        <input v-model="inputData.endereco.complemento" placeholder="Complemento (opcional)" />
+        <input
+          v-model="lojistaStore.lojista.endereco.complemento"
+          placeholder="Complemento (opcional)"
+        />
       </div>
     </div>
 
     <div :class="styles.formGroup">
       <label>Formas de Recebimento*</label>
       <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="inputData.formasPagamento.dinheiro" />
+        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.dinheiro" />
         <span>Dinheiro</span>
       </label>
       <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="inputData.formasPagamento.pix" />
+        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.pix" />
         <span>PIX</span>
       </label>
       <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="inputData.formasPagamento.cartaoCredito" />
+        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.cartaoCredito" />
         <span>Cartão de Crédito</span>
       </label>
       <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="inputData.formasPagamento.cartaoDebito" />
+        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.cartaoDebito" />
         <span>Cartão Débito</span>
       </label>
       <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="inputData.formasPagamento.valeRefeicao" />
+        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.valeRefeicao" />
         <span>Vale Refeição</span>
       </label>
     </div>
 
     <div :class="styles.formGroup">
       <label :class="styles.deliveryCheckbox">
-        <input type="checkbox" v-model="inputData.aceitaDelivery" />
+        <input type="checkbox" v-model="lojistaStore.lojista.aceitaDelivery" />
         <span>Aceita Delivery</span>
       </label>
     </div>
 
-    <div v-if="inputData.aceitaDelivery" :class="styles.deliverySection">
+    <div v-if="lojistaStore.lojista.aceitaDelivery" :class="styles.deliverySection">
       <div :class="styles.formGroup">
         <label>Taxa de Entrega (R$)</label>
-        <input type="number" step="0.01" v-model="inputData.taxaEntrega" min="0" />
+        <input type="number" step="0.01" v-model="lojistaStore.lojista.taxaEntrega" min="0" />
       </div>
 
       <div :class="styles.formGroup">
         <label>Pedido Mínimo (R$)</label>
-        <input type="number" step="0.01" v-model="inputData.pedidoMinimo" min="0" />
+        <input type="number" step="0.01" v-model="lojistaStore.lojista.pedidoMinimo" min="0" />
       </div>
     </div>
 
     <div :class="styles.formGroup">
       <label>Instagram (opcional)</label>
-      <input v-model="inputData.instagram" placeholder="@seuinstagram" />
+      <input v-model="lojistaStore.lojista.instagram" placeholder="@seuinstagram" />
     </div>
 
     <div :class="styles.formGroup">
@@ -285,7 +300,10 @@ async function handleFileChange(event: Event) {
     </div>
   </form>
 
-  <div v-else class="p-8 text-center text-gray-500">Carregando configurações...</div>
+  <div v-else-if="lojistaStore.loading" class="p-8 text-center text-gray-500">
+    Carregando configurações...
+  </div>
+  <div v-else class="p-8 text-center text-red-500">Erro ao carregar dados do lojista</div>
 </template>
 
 <style module src="./ConfiguracoesView.module.css" />
