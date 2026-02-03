@@ -3,18 +3,17 @@ import { PedidoService } from '@/services/pedidoService/PedidoService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { Utils } from '@/utils/Utils'
-import { computed, onMounted, ref, type Ref } from 'vue'
+import { onMounted, ref, type Ref } from 'vue'
 // O useCssModule() permite acessar as classes no <script> se necessário
 import { useCssModule } from 'vue'
-import { useRoute } from 'vue-router'
+import { useLojistaStore } from '../../stores/lojista'
 
 const $style = useCssModule()
 
-const route = useRoute()
-const lojistaId = computed(() => route.params.id as string)
+const lojistaId = useLojistaStore().lojistaId
 
-const pedidoService = new PedidoService(lojistaId.value)
-const produtosService = new ProdutosService(lojistaId.value)
+const pedidoService = new PedidoService(lojistaId!)
+const produtosService = new ProdutosService(lojistaId!)
 
 const stats = ref({
   vendasTotal: '0',
