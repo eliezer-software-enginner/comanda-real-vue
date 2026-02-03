@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type Ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
-import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { useLojistaStore } from '../../stores/lojista'
 import Cardapio from '../usuario/Cardapio.vue'
@@ -11,25 +10,21 @@ import HeaderLoja from '../usuario/HeaderLoja.vue'
 // const styles = useCssModule()
 
 const lojistaStore = useLojistaStore()
-
 const lojista = lojistaStore.lojista!
-const lojistaId = lojistaStore.lojistaId!
 
-const categoriaService = new CategoriaService(lojistaId)
-const categorias: Ref<CategoriaModel[]> = ref([])
 const selectedcategoria = ref('')
 
 interface MenuDisplayProps {
   cardapio: ProdutoModel[]
   isPreview?: boolean
+  categorias: CategoriaModel[]
 }
 const props = withDefaults(defineProps<MenuDisplayProps>(), {
   isPreview: false,
 })
 
 onMounted(async () => {
-  categorias.value = await categoriaService.getLista()
-  selectedcategoria.value = categorias.value[0]?.id!
+  selectedcategoria.value = props.categorias[0]?.id!
 })
 
 const diaAtual = computed(() => {

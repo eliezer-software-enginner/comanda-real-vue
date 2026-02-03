@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, useCssModule } from 'vue'
+import { computed, onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import logger from '@/plugins/logs'
@@ -253,7 +253,7 @@ async function simularRecebimentoPedido() {
               <!-- <div :class="styles.phoneNotch"></div> -->
 
               <div :class="styles.phoneContent">
-                <MenuDisplay :cardapio="cardapio" :is-preview="true" />
+                <MenuDisplay :cardapio="cardapio" :is-preview="true" :categorias="categorias" />
               </div>
             </div>
           </div>
