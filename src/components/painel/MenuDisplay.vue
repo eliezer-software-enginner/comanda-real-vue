@@ -4,7 +4,6 @@ import { computed, onMounted, ref, type Ref } from 'vue'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
 import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
-import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { useLojistaStore } from '../../stores/lojista'
 import Cardapio from '../usuario/Cardapio.vue'
 import HeaderLoja from '../usuario/HeaderLoja.vue'
@@ -17,10 +16,7 @@ const lojista = lojistaStore.lojista!
 const lojistaId = lojistaStore.lojistaId!
 
 const categoriaService = new CategoriaService(lojistaId)
-const produtoService = new ProdutosService(lojistaId)
-
 const categorias: Ref<CategoriaModel[]> = ref([])
-const produtos: Ref<ProdutoModel[]> = ref([])
 const selectedcategoria = ref('')
 
 interface MenuDisplayProps {
@@ -34,8 +30,6 @@ const props = withDefaults(defineProps<MenuDisplayProps>(), {
 onMounted(async () => {
   categorias.value = await categoriaService.getLista()
   selectedcategoria.value = categorias.value[0]?.id!
-
-  produtos.value = await produtoService.getLista()
 })
 
 const diaAtual = computed(() => {
@@ -78,7 +72,7 @@ const onCategoryVisible = (categoriaId: string) => {
     />
 
     <Cardapio
-      :products="produtos"
+      :products="cardapio"
       :categorias="categorias"
       :onProductClick="() => {}"
       :onCategoryVisible="onCategoryVisible"
