@@ -27,19 +27,21 @@ export interface LojistaModel {
     domingo?: { abertura: string; fechamento: string } | null
   }
 
-  formasPagamento: {
-    dinheiro: boolean
-    pix: boolean
-    cartaoCredito: boolean
-    cartaoDebito: boolean
-    valeRefeicao: boolean
-  }
+  formasPagamento: FormaPagamento
 
   aceitaDelivery: boolean
   taxaEntrega: number
   pedidoMinimo: number
   instagram: string //considerar um lugar mais apropriado
   cepsAtendidos?: string[] // Lista de CEPs que o lojista atende
+}
+
+type FormaPagamento = {
+  dinheiro: boolean
+  pix: boolean
+  cartaoCredito: boolean
+  cartaoDebito: boolean
+  valeRefeicao: boolean
 }
 
 type StatusLoja = 'ativo' | 'excluido' | 'suspenso'

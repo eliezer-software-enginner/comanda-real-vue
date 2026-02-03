@@ -123,13 +123,13 @@ async function handleFileChange(event: Event) {
     <h3 :class="styles.title">Configurações da Loja</h3>
 
     <div :class="styles.formGroup">
-      <label>Nome da Loja</label>
+      <label>Nome da Loja*</label>
       <input type="text" required v-model="inputData.nomeLoja" />
     </div>
 
     <div :class="styles.formGroup">
-      <label>Categoria</label>
-      <select v-model="inputData.categoria" :class="styles.formSelect">
+      <label>Categoria*</label>
+      <select v-model="inputData.categoria" :class="styles.formSelect" required>
         <option value="">Selecione</option>
         <option value="restaurant">Restaurante</option>
         <option value="lanchonete">Lanchonete</option>
@@ -149,8 +149,8 @@ async function handleFileChange(event: Event) {
     </div>
 
     <div :class="styles.formGroup">
-      <label>WhatsApp para Pedidos</label>
-      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" />
+      <label>WhatsApp para Pedidos*</label>
+      <input type="tel" v-model="inputData.whatsapp" placeholder="5511999999999" required />
     </div>
 
     <div :class="styles.formGroup">
@@ -159,8 +159,6 @@ async function handleFileChange(event: Event) {
     </div>
 
     <div :class="styles.formGroup">
-      <!-- <label>URL da Logo / Foto da Loja</label>
-      <input type="url" v-model="inputData.fotoUrl" placeholder="https://exemplo.com/logo.jpg" /> -->
       <label>Foto da Loja</label>
       <div v-if="inputData.fotoUrl" class="mb-2">
         <img :src="inputData.fotoUrl" style="width: 100px; height: 100px; object-fit: cover" />
@@ -171,24 +169,24 @@ async function handleFileChange(event: Event) {
     </div>
 
     <div :class="styles.formGroup">
-      <label>Endereço da Loja</label>
+      <label>Endereço da Loja*</label>
       <div :class="styles.enderecoGrid">
-        <input v-model="inputData.endereco.rua" placeholder="Rua" />
+        <input v-model="inputData.endereco.rua" placeholder="Rua*" required />
         <div :class="styles.enderecoRow">
-          <input v-model="inputData.endereco.numero" placeholder="Número" />
-          <input v-model="inputData.endereco.cep" placeholder="CEP" />
+          <input v-model="inputData.endereco.numero" placeholder="Número*" required />
+          <input v-model="inputData.endereco.cep" placeholder="CEP*" required />
         </div>
-        <input v-model="inputData.endereco.bairro" placeholder="Bairro" />
+        <input v-model="inputData.endereco.bairro" placeholder="Bairro*" required />
         <div :class="styles.enderecoRow">
-          <input v-model="inputData.endereco.cidade" placeholder="Cidade" />
-          <input v-model="inputData.endereco.estado" placeholder="UF" maxlength="2" />
+          <input v-model="inputData.endereco.cidade" placeholder="Cidade*" required />
+          <input v-model="inputData.endereco.estado" placeholder="UF*" required maxlength="2" />
         </div>
         <input v-model="inputData.endereco.complemento" placeholder="Complemento (opcional)" />
       </div>
     </div>
 
     <div :class="styles.formGroup">
-      <label>Formas de Recebimento</label>
+      <label>Formas de Recebimento*</label>
       <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.dinheiro" />
         <span>Dinheiro</span>
