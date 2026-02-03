@@ -29,12 +29,17 @@ export type LojistaDto = {
   /**@deprecated @since 7 de janeiro */
   horariosFuncionamento?: HorariosFuncionamento[]
   horarioFuncionamento?: {
-    segunda?: { abertura: string; fechamento: string } | null
-    terca?: { abertura: string; fechamento: string } | null
-    quarta?: { abertura: string; fechamento: string } | null
-    quinta?: { abertura: string; fechamento: string } | null
-    sexta?: { abertura: string; fechamento: string } | null
-    sabado?: { abertura: string; fechamento: string } | null
-    domingo?: { abertura: string; fechamento: string } | null
+    segunda?: DiaHorario | null
+    terca?: DiaHorario | null
+    quarta?: DiaHorario | null
+    quinta?: DiaHorario | null
+    sexta?: DiaHorario | null
+    sabado?: DiaHorario | null
+    domingo?: DiaHorario | null
   }
+}
+
+type DiaHorario = {
+  abertura: string
+  fechamento: string
 }

@@ -238,6 +238,35 @@ export class LojistaService extends CrudService<LojistaDto, LojistaModel> {
         'Formas de pagamento não preenchidas. Verifique todos os campos obrigatórios.',
       )
     }
+
+    // Validação de horários de funcionamento
+    this.validarHorariosFuncionamento(model)
+  }
+
+  /**
+   * Valida se pelo menos um dia da semana possui horário de abertura e fechamento cadastrado
+   */
+  private validarHorariosFuncionamento(model: Partial<LojistaModel>): void {
+    // Tenta validar com o novo formato primeiro
+    if (model.horarioFuncionamento) {
+      const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'] as const
+      const temPeloMenosUmDiaComHorario = dias.some((dia) => {
+        const horarioDia = model.horarioFuncionamento![dia]
+        return (
+          horarioDia &&
+          horarioDia.abertura &&
+          horarioDia.abertura.trim() !== '' &&
+          horarioDia.fechamento &&
+          horarioDia.fechamento.trim() !== ''
+        )
+      })
+
+      if (!temPeloMenosUmDiaComHorario) {
+        throw new Error(
+          'Horários de funcionamento são obrigatórios. Cadastre pelo menos um dia da semana com horário de abertura e fechamento.',
+        )
+      }
+    }
   }
 
   /**

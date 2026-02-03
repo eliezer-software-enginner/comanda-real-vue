@@ -119,191 +119,168 @@ async function handleFileChange(event: Event) {
 
 <template>
   <form v-if="lojistaStore.lojista" @submit.prevent="handleSubmit" :class="styles.form">
-    <h3 :class="styles.title">Configurações da Loja</h3>
+    <h3 :class="styles.title">Configurações do Estabelecimento</h3>
 
-    <div :class="styles.formGroup">
-      <label>Nome da Loja*</label>
-      <input type="text" required v-model="lojistaStore.lojista.nomeLoja" />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Categoria*</label>
-      <select v-model="lojistaStore.lojista.categoria" :class="styles.formSelect" required>
-        <option value="">Selecione</option>
-        <option value="restaurant">Restaurante</option>
-        <option value="lanchonete">Lanchonete</option>
-        <option value="pizzaria">Pizzaria</option>
-        <option value="hamburgueria">Hamburgueria</option>
-        <option value="cafeteria">Cafeteria</option>
-        <option value="cafeteria">Açaiteria</option>
-      </select>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Status</label>
-      <select v-model="lojistaStore.lojista.status" :class="styles.formSelect">
-        <option value="ativo">Ativo</option>
-        <option value="suspenso">Suspenso</option>
-      </select>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>WhatsApp para Pedidos*</label>
-      <input
-        type="tel"
-        v-model="lojistaStore.lojista.whatsapp"
-        placeholder="5511999999999"
-        required
-      />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Sua url final (exemplo: minha-lanchonete)</label>
-      <input v-model="lojistaStore.lojista.slug" placeholder="exemplo: minha-lanchonete" />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Foto da Loja</label>
-      <div v-if="lojistaStore.lojista.fotoUrl" class="mb-2">
-        <img
-          :src="lojistaStore.lojista.fotoUrl"
-          style="width: 100px; height: 100px; object-fit: cover"
-        />
-      </div>
-
-      <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
-      <p v-if="subindoImagem">Subindo imagem...</p>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Endereço da Loja*</label>
-      <div :class="styles.enderecoGrid">
-        <input v-model="lojistaStore.lojista.endereco.rua" placeholder="Rua*" required />
-        <div :class="styles.enderecoRow">
-          <input v-model="lojistaStore.lojista.endereco.numero" placeholder="Número*" required />
-          <input v-model="lojistaStore.lojista.endereco.cep" placeholder="CEP*" required />
+    <section :class="styles.section">
+      <h4 :class="styles.sectionTitle">Informações Gerais</h4>
+      <div :class="styles.grid">
+        <div :class="styles.formGroup">
+          <label>Nome da Loja*</label>
+          <input type="text" v-model="lojistaStore.lojista.nomeLoja" required />
         </div>
-        <input v-model="lojistaStore.lojista.endereco.bairro" placeholder="Bairro*" required />
-        <div :class="styles.enderecoRow">
-          <input v-model="lojistaStore.lojista.endereco.cidade" placeholder="Cidade*" required />
+        <div :class="styles.formGroup">
+          <label>Categoria*</label>
+          <select v-model="lojistaStore.lojista.categoria" :class="styles.formSelect" required>
+            <option value="restaurant">Restaurante</option>
+            <option value="lanchonete">Lanchonete</option>
+            <option value="pizzaria">Pizzaria</option>
+            <option value="hamburgueria">Hamburgueria</option>
+          </select>
+        </div>
+        <div :class="styles.formGroup">
+          <label>WhatsApp para Pedidos*</label>
           <input
-            v-model="lojistaStore.lojista.endereco.estado"
-            placeholder="UF*"
+            type="tel"
+            v-model="lojistaStore.lojista.whatsapp"
+            placeholder="5511..."
             required
-            maxlength="2"
           />
         </div>
-        <input
-          v-model="lojistaStore.lojista.endereco.complemento"
-          placeholder="Complemento (opcional)"
-        />
-      </div>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Formas de Recebimento*</label>
-      <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.dinheiro" />
-        <span>Dinheiro</span>
-      </label>
-      <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.pix" />
-        <span>PIX</span>
-      </label>
-      <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.cartaoCredito" />
-        <span>Cartão de Crédito</span>
-      </label>
-      <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.cartaoDebito" />
-        <span>Cartão Débito</span>
-      </label>
-      <label :class="styles.paymentCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento.valeRefeicao" />
-        <span>Vale Refeição</span>
-      </label>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label :class="styles.deliveryCheckbox">
-        <input type="checkbox" v-model="lojistaStore.lojista.aceitaDelivery" />
-        <span>Aceita Delivery</span>
-      </label>
-    </div>
-
-    <div v-if="lojistaStore.lojista.aceitaDelivery" :class="styles.deliverySection">
-      <div :class="styles.formGroup">
-        <label>Taxa de Entrega (R$)</label>
-        <input type="number" step="0.01" v-model="lojistaStore.lojista.taxaEntrega" min="0" />
+        <div :class="styles.formGroup">
+          <label>URL personalizada (Slug)</label>
+          <input v-model="lojistaStore.lojista.slug" placeholder="ex: minha-loja" />
+        </div>
       </div>
 
-      <div :class="styles.formGroup">
-        <label>Pedido Mínimo (R$)</label>
-        <input type="number" step="0.01" v-model="lojistaStore.lojista.pedidoMinimo" min="0" />
-      </div>
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Instagram (opcional)</label>
-      <input v-model="lojistaStore.lojista.instagram" placeholder="@seuinstagram" />
-    </div>
-
-    <div :class="styles.formGroup">
-      <label>Horários de Funcionamento</label>
-      <div :class="styles.horariosSemanais">
-        <div v-for="dia in diasConfigurados" :key="dia.key" :class="styles.diaRow">
-          <div :class="styles.diaHeader">
-            <label class="dia-label">{{ dia.label }}</label>
-            <div class="toggle-container">
-              <input
-                type="checkbox"
-                :id="dia.key"
-                :checked="dia.aberto"
-                @change="toggleDia(dia.key)"
-                class="toggle-input"
-              />
-              <label :for="dia.key" class="toggle-label"></label>
-            </div>
-          </div>
-
-          <div v-if="dia.aberto" :class="styles.horarioInputs">
-            <div class="time-input-group">
-              <span>Abertura:</span>
-              <input
-                type="time"
-                :value="dia.horario?.abertura"
-                @input="
-                  atualizarHorario(dia.key, 'abertura', ($event.target as HTMLInputElement).value)
-                "
-                required
-              />
-            </div>
-
-            <div class="time-input-group">
-              <span>Fechamento:</span>
-              <input
-                type="time"
-                :value="dia.horario?.fechamento"
-                @input="
-                  atualizarHorario(dia.key, 'fechamento', ($event.target as HTMLInputElement).value)
-                "
-                required
-              />
-            </div>
+      <div :class="[styles.formGroup, 'mt-6']">
+        <label>Foto de Perfil</label>
+        <div :class="styles.photoUpload">
+          <img
+            v-if="lojistaStore.lojista.fotoUrl"
+            :src="lojistaStore.lojista.fotoUrl"
+            :class="styles.previewImg"
+          />
+          <div class="flex flex-col gap-2">
+            <input type="file" @change="handleFileChange" :disabled="subindoImagem" />
+            <p v-if="subindoImagem" class="text-sm text-blue-500">Subindo...</p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section :class="styles.section">
+      <h4 :class="styles.sectionTitle">Localização</h4>
+      <div :class="styles.grid">
+        <div :class="styles.formGroup" style="grid-column: span 2">
+          <label>Rua</label>
+          <input v-model="lojistaStore.lojista.endereco.rua" required />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Número</label>
+          <input v-model="lojistaStore.lojista.endereco.numero" required />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Cep</label>
+          <input v-model="lojistaStore.lojista.endereco.cep" required />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Bairro</label>
+          <input v-model="lojistaStore.lojista.endereco.bairro" required />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Cidade</label>
+          <input v-model="lojistaStore.lojista.endereco.cidade" required />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Estado (UF)</label>
+          <input v-model="lojistaStore.lojista.endereco.estado" maxlength="2" required />
+        </div>
+      </div>
+    </section>
+
+    <section :class="styles.section">
+      <h4 :class="styles.sectionTitle">Pagamento e Entrega</h4>
+      <div :class="styles.formGroup">
+        <label>Formas de Recebimento</label>
+        <div :class="styles.paymentGrid">
+          <label
+            v-for="(val, key) in lojistaStore.lojista.formasPagamento"
+            :key="key"
+            :class="styles.paymentCheckbox"
+          >
+            <input type="checkbox" v-model="lojistaStore.lojista.formasPagamento[key]" />
+            <span class="capitalize">{{ key.replace(/([A-Z])/g, ' $1') }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div :class="[styles.formGroup, 'mt-6']">
+        <label :class="styles.paymentCheckbox" style="width: fit-content">
+          <input type="checkbox" v-model="lojistaStore.lojista.aceitaDelivery" />
+          <span>Ativar Delivery</span>
+        </label>
+      </div>
+
+      <div
+        v-if="lojistaStore.lojista.aceitaDelivery"
+        :class="[styles.grid, 'mt-4 p-4 bg-slate-50 rounded-lg']"
+      >
+        <div :class="styles.formGroup">
+          <label>Taxa de Entrega (R$)</label>
+          <input type="number" step="0.01" v-model="lojistaStore.lojista.taxaEntrega" />
+        </div>
+        <div :class="styles.formGroup">
+          <label>Pedido Mínimo (R$)</label>
+          <input type="number" step="0.01" v-model="lojistaStore.lojista.pedidoMinimo" />
+        </div>
+      </div>
+    </section>
+
+    <section :class="styles.section">
+      <h4 :class="styles.sectionTitle">Horários de Funcionamento</h4>
+      <div v-for="dia in diasConfigurados" :key="dia.key" :class="styles.diaRow">
+        <div :class="styles.diaHeader">
+          <span :class="styles.diaLabel">{{ dia.label }}</span>
+          <div :class="styles.toggleContainer">
+            <input
+              type="checkbox"
+              :id="dia.key"
+              :checked="dia.aberto"
+              @change="toggleDia(dia.key)"
+              :class="styles.toggleInput"
+            />
+            <label :for="dia.key" :class="styles.toggleLabel"></label>
+          </div>
+        </div>
+
+        <div v-if="dia.aberto" :class="styles.horarioInputs">
+          <div :class="styles.formGroup">
+            <span class="text-xs text-slate-500 uppercase font-bold">Abertura</span>
+            <input
+              type="time"
+              :value="dia.horario?.abertura"
+              @input="
+                atualizarHorario(dia.key, 'abertura', ($event.target as HTMLInputElement).value)
+              "
+            />
+          </div>
+          <div :class="styles.formGroup">
+            <span class="text-xs text-slate-500 uppercase font-bold">Fechamento</span>
+            <input
+              type="time"
+              :value="dia.horario?.fechamento"
+              @input="
+                atualizarHorario(dia.key, 'fechamento', ($event.target as HTMLInputElement).value)
+              "
+            />
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div :class="styles.submitSection">
-      <button type="submit" :class="styles.submitButton">Salvar Configurações</button>
+      <button type="submit" :class="styles.submitButton">Salvar Alterações</button>
     </div>
   </form>
-
-  <div v-else-if="lojistaStore.loading" class="p-8 text-center text-gray-500">
-    Carregando configurações...
-  </div>
-  <div v-else class="p-8 text-center text-red-500">Erro ao carregar dados do lojista</div>
 </template>
-
 <style module src="./ConfiguracoesView.module.css" />
