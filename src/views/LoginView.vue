@@ -8,7 +8,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const entrarComoTestador = () => {
-  router.push('/meu-painel/TESTE_DEV_LOJA')
+  router.push('/meu-painel')
 }
 
 const fazerLogin = async () => {
@@ -18,7 +18,7 @@ const fazerLogin = async () => {
     // Se o login foi bem sucedido e o usuário tem um lojista associado,
     // redirecionar para o painel dele
     if (authStore.isAuthenticated && authStore.user) {
-      router.push(`/meu-painel/${authStore.user.uid}`)
+      router.push('/meu-painel')
     }
   } catch (error) {
     console.error('Erro ao fazer login:', error)

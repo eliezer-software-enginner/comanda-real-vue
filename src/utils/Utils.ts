@@ -3,7 +3,6 @@
 // No desenvolvimento local (ex: 'npm run dev'), o MODE geralmente é 'development'.
 
 import logger from '@/plugins/logs'
-import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import { v4 as uuidv4 } from 'uuid'
 
 const isDevelopment = import.meta.env.MODE === 'development'
@@ -39,8 +38,4 @@ export const Utils = {
 /**@deprecated */
 export const getMoedaFormatada = (value: number) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-}
-
-function clone(produto: ProdutoDto): ProdutoDto {
-  return JSON.parse(JSON.stringify(produto))
 }

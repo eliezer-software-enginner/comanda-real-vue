@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import DetalhesProduto from '@/components/usuario/DetalhesProduto.vue'
 import LoginView from '@/views/LoginView.vue'
 import CategoriasView from '@/views/dashboardLoja/CategoriasView.vue'
 import ConfiguracoesView from '@/views/dashboardLoja/ConfiguracoesView.vue'
@@ -7,10 +8,9 @@ import DashboardHomeView from '@/views/dashboardLoja/DashboardHomeView.vue'
 import DashboardLayout from '@/views/dashboardLoja/DashboardLayout.vue'
 import PedidosView from '@/views/dashboardLoja/PedidosView.vue'
 import ProdutosView from '@/views/dashboardLoja/ProdutosView.vue'
+import CarrinhoCompras from '@/views/usuario/CarrinhoCompras.vue'
 import HomeCardapio from '@/views/usuario/HomeCardapio.vue'
 import SobreLoja from '@/views/usuario/SobreLoja.vue'
-import DetalhesProduto from '@/components/usuario/DetalhesProduto.vue'
-import CarrinhoCompras from '@/views/usuario/CarrinhoCompras.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,8 +48,9 @@ const router = createRouter({
       name: 'carrinho',
       component: CarrinhoCompras,
     },
+
     {
-      path: '/meu-painel/:id',
+      path: '/meu-painel',
       component: DashboardLayout,
       children: [
         {
@@ -100,7 +101,7 @@ router.beforeEach((to, from, next) => {
     } else if (to.name === 'login') {
       // Se já está autenticado e tenta acessar login, redirecionar para painel
       if (authStore.isAuthenticated && authStore.user) {
-        next({ path: `/meu-painel/${authStore.user.uid}` })
+        next({ path: '/meu-painel' })
       } else {
         next()
       }

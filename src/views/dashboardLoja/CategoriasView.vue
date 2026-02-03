@@ -2,16 +2,16 @@
 import logger from '@/plugins/logs'
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
 import { CategoriaService } from '@/services/categoriasService/CategoriaService'
+import { useLojistaStore } from '@/stores/lojista'
 import { Utils } from '@/utils/Utils'
 import { computed, onMounted, ref, useCssModule, type Ref } from 'vue'
-import { useRoute } from 'vue-router'
 
-const route = useRoute()
-
-const lojistaId = computed(() => route.params.id as string)
+// Store do lojista
+const lojistaStore = useLojistaStore()
+const lojistaId = computed(() => lojistaStore.lojistaId)
 const styles = useCssModule()
 
-const categoriaService = new CategoriaService(lojistaId.value)
+const categoriaService = new CategoriaService(lojistaId.value!)
 const categoriaList: Ref<CategoriaModel[]> = ref([])
 
 onMounted(async () => {
@@ -50,22 +50,20 @@ function adicionarLinha() {
   categoriaList.value.push({
     id: Utils.gerarUUID(),
     nome: '',
-    lojistaId: lojistaId.value,
+    lojistaId: lojistaId.value!,
     status: 'ativo',
     dtCriacao: new Date(),
   })
 }
 
-async function excluir(categoria:CategoriaModel, index:number){
+async function excluir(categoria: CategoriaModel, index: number) {
   try {
-   await categoriaService.excluir(categoria.id)
-   categoriaList.value.splice(index, 1)
-  } catch (error:any) {
+    await categoriaService.excluir(categoria.id)
+    categoriaList.value.splice(index, 1)
+  } catch (error: any) {
     alert(error.message)
   }
 }
-
-
 </script>
 
 <template>
@@ -86,7 +84,7 @@ async function excluir(categoria:CategoriaModel, index:number){
 
         <button
           type="button"
-          @click="excluir(cat,index)"
+          @click="excluir(cat, index)"
           :class="styles.btnDelete"
           title="Remover horário"
         >

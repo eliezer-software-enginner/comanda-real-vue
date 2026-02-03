@@ -9,7 +9,10 @@ import style from './DashboardLayout.module.css'
 const route = useRoute()
 const router = useRouter()
 
-const lojaId = computed(() => route.params.id as string)
+const lojaId = computed(() => {
+  // Pega o ID do usuário autenticado ou do store
+  return lojista.lojista?.id || ''
+})
 
 // Store do lojista
 const lojistaStore = useLojistaStore()
@@ -33,13 +36,16 @@ const pageTitle = computed(() => {
 const navigate = (routeName: string) => {
   router.push({
     name: routeName,
-    params: { id: lojaId.value },
+    //params: { id: lojaId.value },
   })
 }
 
 onMounted(async () => {
   try {
-    await lojistaStore.fetchLojista(lojaId.value)
+    // Usa o ID do usuário autenticado para buscar dados do lojista
+    if (lojistaStore.lojista?.id) {
+      await lojistaStore.fetchLojista(lojistaStore.lojista.id)
+    }
   } catch (err) {
     console.error('Erro ao carregar lojista no DashboardLayout:', err)
     // Opcional: redirecionar para página de erro
