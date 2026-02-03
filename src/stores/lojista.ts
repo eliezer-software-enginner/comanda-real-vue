@@ -54,7 +54,35 @@ export const useLojistaStore = defineStore('lojista', () => {
       loading.value = true
       error.value = null
 
-      logger.info('Buscando dados do lojista', { lojistaId })
+      // Verifica se é o lojista de teste e tenta buscar do localStorage primeiro
+      if (lojistaId === 'TESTE_DEV_LOJA') {
+        logger.info('Buscando dados do lojista de teste no localStorage', { lojistaId })
+
+        const lojistaTeste = localStorage.getItem('lojista-teste')
+        if (lojistaTeste) {
+          try {
+            const data = JSON.parse(lojistaTeste) as LojistaModel
+            lojista.value = data
+
+            logger.info('Lojista de teste carregado do localStorage com sucesso', {
+              lojistaId,
+              nomeLoja: data.nomeLoja,
+            })
+            return
+          } catch (parseErr) {
+            logger.warn('Erro ao parsear dados do lojista de teste do localStorage', {
+              lojistaId,
+              erro: parseErr,
+            })
+          }
+        }
+
+        logger.info('Lojista de teste não encontrado no localStorage, carregando dados mock', {
+          lojistaId,
+        })
+      }
+
+      logger.info('Buscando dados do lojista no Firebase', { lojistaId })
 
       const service = new LojistaService()
       const data = await service.getById(lojistaId)

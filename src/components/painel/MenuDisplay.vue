@@ -3,24 +3,22 @@ import { computed, onMounted, ref, type Ref } from 'vue'
 
 import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
 import { CategoriaService } from '@/services/categoriasService/CategoriaService'
-import type { LojistaModel } from '@/services/lojistaService/LojistaModel'
-import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
-import { useRoute } from 'vue-router'
+import { useLojistaStore } from '../../stores/lojista'
 import Cardapio from '../usuario/Cardapio.vue'
 import HeaderLoja from '../usuario/HeaderLoja.vue'
 
 // const styles = useCssModule()
 
-const route = useRoute()
+const lojistaStore = useLojistaStore()
 
-const lojistaId = computed(() => route.params.id as string)
-const lojistaService = new LojistaService()
-const categoriaService = new CategoriaService(lojistaId.value)
-const produtoService = new ProdutosService(lojistaId.value)
+const lojista = lojistaStore.lojista!
+const lojistaId = lojistaStore.lojistaId!
 
-const lojista: Ref<LojistaModel | null> = ref(null)
+const categoriaService = new CategoriaService(lojistaId)
+const produtoService = new ProdutosService(lojistaId)
+
 const categorias: Ref<CategoriaModel[]> = ref([])
 const produtos: Ref<ProdutoModel[]> = ref([])
 const selectedcategoria = ref('')
@@ -34,7 +32,6 @@ const props = withDefaults(defineProps<MenuDisplayProps>(), {
 })
 
 onMounted(async () => {
-  lojista.value = await lojistaService.getById(lojistaId.value)
   categorias.value = await categoriaService.getLista()
   selectedcategoria.value = categorias.value[0]?.id!
 
@@ -47,12 +44,8 @@ const diaAtual = computed(() => {
 })
 
 const estaAberta = computed(() => {
-  if (!lojista.value) return false
-
   const hoje =
-    lojista.value?.horarioFuncionamento?.[
-      diaAtual.value as keyof typeof lojista.value.horarioFuncionamento
-    ]
+    lojista.horarioFuncionamento?.[diaAtual.value as keyof typeof lojista.horarioFuncionamento]
 
   if (!hoje) return false
 

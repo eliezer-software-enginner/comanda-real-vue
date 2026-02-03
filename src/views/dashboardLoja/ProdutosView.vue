@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useCssModule } from 'vue'
+import { onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import logger from '@/plugins/logs'
@@ -10,19 +10,16 @@ import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { ProdutosService } from '@/services/produtosService/ProdutosService'
 import { WhatsAppService } from '@/services/whatsappService/WhatsAppService'
-import { useRoute } from 'vue-router'
-import MenuDisplay from '../../components/painel/MenuDisplay.vue'
 import { useLojistaStore } from '@/stores/lojista'
+import MenuDisplay from '../../components/painel/MenuDisplay.vue'
 
 const styles = useCssModule()
 
-const route = useRoute()
-const lojistaId = computed(() => route.params.id as string)
-
 const lojistaStore = useLojistaStore()
+const lojistaId = lojistaStore.lojistaId!
 
-const cardapioService = new ProdutosService(lojistaId.value)
-const categoriasService = new CategoriaService(lojistaId.value)
+const cardapioService = new ProdutosService(lojistaId)
+const categoriasService = new CategoriaService(lojistaId)
 const lojistaService = new LojistaService()
 const whatsAppService = new WhatsAppService()
 
@@ -55,7 +52,7 @@ onMounted(() => {
       const lista = await cardapioService.getLista()
       cardapio.value = lista
 
-      slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
+      slug.value = (await lojistaService.getData(lojistaId))?.slug || 'erro-slug'
       categorias.value = await categoriasService.getLista()
 
       logger.info('categorias carregadas', { label: 'ProdutoForm', total: lista.length })
