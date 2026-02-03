@@ -5,6 +5,7 @@ import type { DiaSemana, DiaSemanaLabel, HorarioDiario } from '@/types/HorarioTy
 import { DIAS_SEMANA } from '@/types/HorarioTypes'
 import { computed, ref, useCssModule, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { ProdutosService } from '../../services/produtosService/ProdutosService'
 
 const route = useRoute()
 const lojistaId = computed(() => route.params.id as string)
@@ -12,8 +13,12 @@ const lojistaId = computed(() => route.params.id as string)
 const styles = useCssModule()
 const lojistaStore = useLojistaStore()
 
+//TODO: possivelmente remover inputData e usar apenas lojistaStore
 const inputData: Ref<LojistaModel | undefined> = ref(undefined)
 const diasConfigurados = ref<DiaSemanaLabel[]>([])
+const service = new ProdutosService(lojistaStore.lojistaId!)
+
+const subindoImagem = ref(false)
 
 // Watch para quando o lojista for carregado no DashboardLayout
 watch(
@@ -94,6 +99,23 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
     } as HorarioDiario
   }
 }
+
+async function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    try {
+      subindoImagem.value = true
+      const url = await service.uploadImagem(lojistaStore.lojistaId!, file)
+      inputData.value!.fotoUrl = url
+      lojistaStore.lojista!.fotoUrl = url
+    } catch (e) {
+      alert('Erro ao subir imagem')
+    } finally {
+      subindoImagem.value = false
+    }
+  }
+}
 </script>
 
 <template>
@@ -137,8 +159,15 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
     </div>
 
     <div :class="styles.formGroup">
-      <label>URL da Logo / Foto da Loja</label>
-      <input type="url" v-model="inputData.fotoUrl" placeholder="https://exemplo.com/logo.jpg" />
+      <!-- <label>URL da Logo / Foto da Loja</label>
+      <input type="url" v-model="inputData.fotoUrl" placeholder="https://exemplo.com/logo.jpg" /> -->
+      <label>Foto da Loja</label>
+      <div v-if="inputData.fotoUrl" class="mb-2">
+        <img :src="inputData.fotoUrl" style="width: 100px; height: 100px; object-fit: cover" />
+      </div>
+
+      <input type="file" accept="image/*" @change="handleFileChange" :disabled="subindoImagem" />
+      <p v-if="subindoImagem">Subindo imagem...</p>
     </div>
 
     <div :class="styles.formGroup">
@@ -159,7 +188,7 @@ function atualizarHorario(diaKey: DiaSemana, campo: 'abertura' | 'fechamento', v
     </div>
 
     <div :class="styles.formGroup">
-      <label>Formas de Pagamento</label>
+      <label>Formas de Recebimento</label>
       <label :class="styles.paymentCheckbox">
         <input type="checkbox" v-model="inputData.formasPagamento.dinheiro" />
         <span>Dinheiro</span>
