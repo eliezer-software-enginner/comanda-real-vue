@@ -3,12 +3,11 @@ import { computed, onMounted, ref, useCssModule } from 'vue'
 
 import ProductForm from '@/components/painel/ProductForm.vue'
 import logger from '@/plugins/logs'
-import type { CategoriaModel } from '@/services/categoriasService/CategoriaModel'
-import { CategoriaService } from '@/services/categoriasService/CategoriaService'
 import { LojistaService } from '@/services/lojistaService/LojistaService'
 import type { ProdutoDto } from '@/services/produtosService/ProdutoDto'
 import type { ProdutoModel } from '@/services/produtosService/ProdutosModel'
 import { WhatsAppService } from '@/services/whatsappService/WhatsAppService'
+import { useCategoriasStore } from '@/stores/categorias'
 import { useLojistaStore } from '@/stores/lojista'
 import { useProdutosStore } from '@/stores/produtos'
 import MenuDisplay from '../../components/painel/MenuDisplay.vue'
@@ -18,10 +17,10 @@ const styles = useCssModule()
 // Stores
 const lojistaStore = useLojistaStore()
 const produtosStore = useProdutosStore()
+const categoriasStore = useCategoriasStore()
 
 const lojistaId = computed(() => lojistaStore.lojistaId!)
 
-const categoriasService = new CategoriaService(lojistaId.value)
 const lojistaService = new LojistaService()
 const whatsAppService = new WhatsAppService()
 
@@ -31,8 +30,8 @@ const initLoading = ref(true)
 const message = ref('')
 const slug = ref('')
 
-// Inicialização do estado base da loja
-const categorias = ref<CategoriaModel[]>([])
+// Usar categorias do store
+const categorias = computed(() => categoriasStore.categorias)
 
 const isModoEdicao = ref(false)
 const editingProduct = ref<ProdutoModel | null>(null)
@@ -51,15 +50,21 @@ const cardapio = computed(() => produtosStore.produtos)
 onMounted(async () => {
   const fetchInitialData = async () => {
     try {
-      // Carregar produtos usando o store
+      // Carregar produtos e categorias usando os stores
       await produtosStore.fetchProdutos(lojistaId.value)
+      await categoriasStore.fetchCategorias(lojistaId.value)
+
+      // Inicializar categorias padrão para o lojista de teste se necessário
+      if (lojistaId.value === 'TESTE_DEV_LOJA' && categoriasStore.categorias.length === 0) {
+        await categoriasStore.inicializarCategoriasTeste(lojistaId.value)
+      }
 
       slug.value = (await lojistaService.getData(lojistaId.value))?.slug || 'erro-slug'
-      categorias.value = await categoriasService.getLista()
 
       logger.info('Dados iniciais carregados', {
         label: 'ProdutosView',
         produtosTotal: produtosStore.produtos.length,
+        categoriasTotal: categoriasStore.categorias.length,
       })
     } catch (error: unknown) {
       logger.error('Erro ao carregar os dados iniciais', error)
